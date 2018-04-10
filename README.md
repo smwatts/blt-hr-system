@@ -1,5 +1,5 @@
 # blt-hr-system
-Creating an HR management tool for BLT Construction
+Creating an HR management tool for BLT Construction.
 
 ### User Roles
 1. Employees
