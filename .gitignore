@@ -3,3 +3,4 @@
 *.pdf
 *.lock
 *.ini
+blt-hr-system/static/*
