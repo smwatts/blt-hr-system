@@ -18,5 +18,5 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-	url(r'submit_cert.html', views.submit_cert, name='submit_cert')
+	url(r'home.html', views.home, name='home')
 ]
