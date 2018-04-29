@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'blt_app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'blt_hr_system',
         'USER': 'swatts_blt',
-        'PASSWORD': '',
+        'PASSWORD': 'blt12345',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '5432',
     }
 }
 
