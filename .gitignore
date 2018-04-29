@@ -3,6 +3,7 @@
 *.pdf
 *.lock
 *.ini
+*.bak
 blt-hr-system/static/*
 blt-app/blt-hr-system/migrations/*
 !blt-app/blt-hr-system/migrations/.gitkeep
