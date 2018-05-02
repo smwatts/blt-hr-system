@@ -18,5 +18,11 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-	url(r'^$', views.home, name='home')
+    url(r'^$', views.home, name='home'),
+    url(r'certification_request.html', views.certification_request, 
+        name = 'certification_request'),
+    url(r'absence_request.html', views.absence_request, 
+        name = 'absence_request'),
+    url(r'training_center.html', views.training_center, 
+        name = 'training_center'),
 ]
