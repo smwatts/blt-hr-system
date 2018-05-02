@@ -9,7 +9,6 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   
-  <!-- Add additional CSS in static file -->
   {% load static %}
   <link rel="stylesheet" href="{% static 'blt_hr_system/css/styles.css' %}">
 </head>
@@ -23,9 +22,9 @@
       {% block sidebar %}
       <ul class="sidebar-nav">
           <li><a href="{% url 'home' %}">Home</a></li>
-          <li><a href="">Training Center</a></li>
-          <li><a href="">Absence Requests</a></li>
-          <li><a href="">Certification Requests</a></li>
+          <li><a href="{% url 'training_center' %}">Training Center</a></li>
+          <li><a href="{% url 'absence_request' %}">Absence Requests</a></li>
+          <li><a href="{% url 'certification_request' %}">Certification Requests</a></li>
       </ul>
      {% endblock %}
       </div>
