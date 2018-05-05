@@ -4,6 +4,6 @@
 *.lock
 *.ini
 *.bak
-blt-hr-system/static/*
-blt-app/blt-hr-system/migrations/*
-!blt-app/blt-hr-system/migrations/.gitkeep
+staticfiles/*
+blt-hr-system/migrations/*
+!blt-hr-system/migrations/.gitkeep
