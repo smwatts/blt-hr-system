@@ -76,8 +76,6 @@ class cert_group(models.Model):
 
 class employee_certification(models.Model):
     # information for certifications submitted by employees to be approved by admin
-    request_id = models.UUIDField(primary_key=True, default=uuid.uuid4, 
-        help_text="Unique ID for each certification request")
     employee_id = models.ForeignKey('employee', on_delete=models.SET_NULL, null=True)
     cert_name = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
     date_submitted = models.DateField(auto_now_add=True)
@@ -101,8 +99,11 @@ class employee_absence(models.Model):
     yr2 = models.PositiveIntegerField(blank=False, null=False, default=0)
     yr2_num_days = models.PositiveIntegerField(blank=False, null=False, default=0)
     num_days_prior_apr_31 = models.PositiveIntegerField(blank=False, null=False, default=0)
-    abs_type = models.CharField(max_length=200)
-    abs_reason = models.CharField(max_length=1000)
+    ABSCENCES = (('Sick','Sick'), ('Vacation','Vacation'), ('Bereavement','Bereavement'), 
+        ('Time off without pay','Time off without pay'), ('Maternity or Paternity','Maternity or Paternity'),
+        ('Other', 'Other'))
+    absence_type = models.CharField(max_length=200, choices=ABSCENCES)
+    absence_reason = models.CharField(max_length=1000)
     date_submitted = models.DateField(auto_now_add=True)
     is_manager_approved = models.BooleanField(default=False, blank=True)
     date_approved = models.DateField(null=False, blank=False)

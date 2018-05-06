@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blt_hr_system'
+    'blt_hr_system',
+    'bootstrap_datepicker',
+    'bootstrapform'
 ]
 
 MIDDLEWARE = [

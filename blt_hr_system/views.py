@@ -8,7 +8,9 @@ def home(request):
     return render(request, 'home.html')
 
 def certification_request(request):
-    return render(request, 'certification_request.html')
+    cert_request = forms.cert_request()
+    context = {'cert_request': cert_request}
+    return render(request, 'certification_request.html', context)
 
 def absence_request(request):
     absence_form = forms.absence_request()
