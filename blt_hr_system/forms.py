@@ -1,7 +1,6 @@
 from django import forms
 from .models import employee_absence, employee_certification
 from django.contrib.admin import widgets
-from bootstrap_datepicker.widgets import DatePicker
 
 class DateInput(forms.DateInput):
     input_type = 'date'

@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blt_hr_system',
-    'bootstrap_datepicker',
     'bootstrapform'
 ]
 
