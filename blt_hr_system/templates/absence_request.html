@@ -3,4 +3,10 @@
 {% block content %}
 <h1>Submit absence requests</h1>
 <p>All absence requests must be submitted and approved here.</p>
+
+<form method="POST" class="absence-form">{% csrf_token %}
+    {{ absence_form }}
+    <button type="submit" class="save btn btn-default">Save</button>
+</form>
+
 {% endblock %}
