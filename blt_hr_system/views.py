@@ -19,3 +19,9 @@ def absence_request(request):
 
 def training_center(request):
     return render(request, 'training_center.html')
+
+def employee_groups(request):
+    return render(request, 'employee_groups.html')
+
+def cert_groups(request):
+    return render(request, 'cert_groups.html')

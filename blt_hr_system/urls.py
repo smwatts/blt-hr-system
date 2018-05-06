@@ -19,10 +19,9 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
-    url(r'certification_request.html', views.certification_request, 
-        name = 'certification_request'),
-    url(r'absence_request.html', views.absence_request, 
-        name = 'absence_request'),
-    url(r'training_center.html', views.training_center, 
-        name = 'training_center'),
+    url(r'certification_request.html', views.certification_request, name = 'certification_request'),
+    url(r'absence_request.html', views.absence_request, name = 'absence_request'),
+    url(r'training_center.html', views.training_center, name = 'training_center'),
+    url(r'employee_groups.html', views.employee_groups, name = 'employee_groups'),
+    url(r'cert_groups.html', views.cert_groups, name = 'cert_groups'),
 ]
