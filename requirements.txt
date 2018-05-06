@@ -5,5 +5,4 @@ psycopg2==2.7.3.2
 Pillow==4.2.1
 python-decouple==3.1
 dj-database-url==0.5.0
-Bootstrap >= 3
 django-bootstrap-form==3.4
