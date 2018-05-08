@@ -5,4 +5,4 @@ Creating an HR management tool for BLT Construction.
 1. Database schema
 2. Process flow
 3. Low fidelity prototypes
-4. Project plan
+4. Weekly check-in meeting minutes
