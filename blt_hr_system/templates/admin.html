@@ -14,14 +14,13 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
   <body>
-	<h1>Submit absence requests</h1>
-	<p>All absence requests must be submitted and approved here.</p>
+    <h1>System Administrator</h1>
+    <p>Access all modules avaliable to the system administrator here.</p>
+    <div>
+      <li><a href="{% url 'add_employee_group' %}">Add a new employee group</a></li>
+      <li><a href="{% url 'employee_group' %}">Review employee groups</a></li>
+    </div>
 
-  <form method="POST" class="absence-form">
-    {{absence_form|bootstrap}}
-    {% csrf_token %}
-       <button type="submit" class="save btn btn-default">Save</button>
-  </form>
-  </body>
-</html>
+    </body>
+    </html>
 {% endblock %}

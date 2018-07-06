@@ -15,8 +15,23 @@
   </head>
   <body>
     <h1>Manage Employee Groups</h1>
-    <p>Each employee is part of a group with required training materials and certifications.</p>
-
+    <p>Each employee is part of a group with required training materials, certifications and performance review standards.</p>
+    {% if emptyCourses %}
+    <p class="failureMessage">Courses have not been uploaded for the upcoming term yet. Return home and upload courses.</p>
+    {% else %}
+    <table>
+      <tr>
+          <th>Employee Group</th>
+          <th>Description</th>
+      </tr>
+      {% for item in employee_group %}
+      <tr> 
+          <td>{{ item.group_name }}</td>
+          <td>{{ item.group_description }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
     </body>
     </html>
 {% endblock %}

@@ -14,14 +14,11 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
   <body>
-	<h1>Submit absence requests</h1>
-	<p>All absence requests must be submitted and approved here.</p>
-
-  <form method="POST" class="absence-form">
-    {{absence_form|bootstrap}}
-    {% csrf_token %}
-       <button type="submit" class="save btn btn-default">Save</button>
-  </form>
-  </body>
+	<h1>Add an Employee Group</h1>
+    <form method="POST" class="add-emp-group">
+        {{add_emp_group|bootstrap}}
+        {% csrf_token %}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>  
 </html>
 {% endblock %}
