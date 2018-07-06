@@ -1,5 +1,5 @@
 from django import forms
-from .models import employee_absence, employee_certification
+from .models import employee_absence, employee_certification, employee_group
 from django.contrib.admin import widgets
 
 class DateInput(forms.DateInput):
@@ -32,3 +32,8 @@ class cert_approval(forms.ModelForm):
     class Meta:
         model = employee_certification
         fields = ['is_approved']
+
+class add_employee_group(forms.ModelForm):
+    class Meta:
+        model = employee_group
+        fields = ['group_name', 'group_description']

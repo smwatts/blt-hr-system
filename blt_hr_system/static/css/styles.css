@@ -6,3 +6,9 @@
 .red_txt {
     color: red; 
 }
+.failureMessage {
+    color: #FF0000;
+    font-family: 'Roboto';
+    font-weight: 700;
+    font-style: normal;
+}
