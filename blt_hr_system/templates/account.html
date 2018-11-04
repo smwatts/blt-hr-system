@@ -14,13 +14,18 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-
   <body>
-	<h1>Add an Employee Group</h1>
-    <form method="POST" class="add-emp-group">
-        {{add_emp_group|bootstrap}}
-        {% csrf_token %}
-        <button type="submit" class="save btn btn-default">Save</button>
-    </form>  
+	<h1>Add Employee Information</h1>
+	<input type="file" id="file_input"/>
+		<p id="status">Please select a file</p>
+		<img id="preview" src="/static/default.png" />
+
+	<form method="POST" action="/submit_form/">
+	  <input type="hidden" id="avatar-url" name="avatar-url" value="/static/default.png">
+	  <input type="text" name="username" placeholder="Username">
+	  <input type="text" name="full-name" placeholder="Full name">
+	  <input type="submit" value="Update profile">
+	</form>
+  </body>
 </html>
 {% endblock %}

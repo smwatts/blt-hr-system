@@ -8,6 +8,9 @@ from . import forms
 def home(request):
     return render(request, 'home.html')
 
+def account(request):
+    return render(request, 'account.html')
+
 def certification_request(request):
     if request.method == 'POST':
         # cert_request = forms.cert_request(request.POST)
