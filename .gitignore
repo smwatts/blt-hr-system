@@ -8,3 +8,4 @@
 staticfiles/*
 blt-hr-system/migrations/*
 !blt-hr-system/migrations/.gitkeep
+blt_app/secret_key.py
