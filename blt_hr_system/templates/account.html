@@ -14,9 +14,14 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-  <body>
-	<h1>Add Employee Information</h1>
-	<input type="file" id="file_input"/>
+<h1>Add Employee Information</h1>
+
+  <main>
+    <img src="{% static 'img/generic_image.png' %}" width="100" height="100">
+    <p>Welcome {{ user.username }}, you can update your employee information here.</p>
+  </main>
+
+<!-- 	<input type="file" id="file_input"/>
 		<p id="status">Please select a file</p>
 		<img id="preview" src="/static/default.png" />
 
@@ -25,7 +30,9 @@
 	  <input type="text" name="username" placeholder="Username">
 	  <input type="text" name="full-name" placeholder="Full name">
 	  <input type="submit" value="Update profile">
-	</form>
+	</form> -->
+
+
   </body>
 </html>
 {% endblock %}
