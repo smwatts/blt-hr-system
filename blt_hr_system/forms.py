@@ -1,5 +1,5 @@
 from django import forms
-from .models import employee_absence, employee_certification, employee_group
+from .models import employee_absence, employee_certification, employee_group, training_docs
 from django.contrib.admin import widgets
 
 class DateInput(forms.DateInput):
@@ -37,3 +37,9 @@ class add_employee_group(forms.ModelForm):
     class Meta:
         model = employee_group
         fields = ['group_name', 'group_description']
+
+
+class training_docs_submit(forms.ModelForm):
+    class Meta:
+        model = training_docs
+        fields = '__all__'

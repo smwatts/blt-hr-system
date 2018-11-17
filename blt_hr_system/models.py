@@ -6,9 +6,9 @@ import datetime
 import uuid
 from django.conf import settings
 
-class Document(models.Model):
+class training_docs(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    upload = models.FileField()
+    upload = models.FileField(upload_to='media/', null=True, blank=True)
 
 class employee_group(models.Model):
     # the group each employee belongs to e.g. Office Staff, Site Super, Foreman

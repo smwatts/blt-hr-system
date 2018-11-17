@@ -3,7 +3,6 @@ from django.template import loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from . import models
-from .models import Document
 from . import forms
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
@@ -14,16 +13,17 @@ def home(request):
 def account(request):
     return render(request, 'account.html')
 
-class DocumentCreateView(CreateView):
-    model = Document
-    fields = ['upload', ]
-    success_url = reverse_lazy('home')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        documents = Document.objects.all()
-        context['documents'] = documents
-        return context
+def training_material(request):
+    if request.method == 'POST':
+        form = forms.training_docs_submit(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return render(request, 'training_material.html')
+    else:
+        form = forms.training_docs_submit()
+    return render(request, 'training_material.html', {
+        'form': form,
+    })
 
 def certification_request(request):
     if request.method == 'POST':
