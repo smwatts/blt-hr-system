@@ -18,12 +18,16 @@ def training_material(request):
         form = forms.training_docs_submit(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return render(request, 'training_material.html')
+            return HttpResponseRedirect(reverse('admin'))
+            # documents = models.training_docs.objects.all()
+            # context = {'documents': documents,}
+            # return render(request, 'training_material.html')
     else:
+        documents = models.training_docs.objects.all()
         form = forms.training_docs_submit()
-    return render(request, 'training_material.html', {
-        'form': form,
-    })
+        context = {'documents': documents,
+                   'form': form,}
+    return render(request, 'training_material.html', context)
 
 def certification_request(request):
     if request.method == 'POST':

@@ -15,3 +15,4 @@ urlpatterns = [
     url(r'performance_reviews.html', views.performance_reviews, name = 'performance_reviews'),
     url(r'training_material.html', views.training_material, name = 'training_material'),
 ]
+ 
