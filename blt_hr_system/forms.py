@@ -1,6 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, employee_group, training_docs
 from django.contrib.admin import widgets
+from django.forms.widgets import HiddenInput
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -42,4 +43,8 @@ class add_employee_group(forms.ModelForm):
 class training_docs_submit(forms.ModelForm):
     class Meta:
         model = training_docs
-        fields = '__all__'
+        exclude = ['uploaded_by',]
+        labels = {
+        "upload_name": "Training document name",
+        "upload" : "Select the training document"
+        }

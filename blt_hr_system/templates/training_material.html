@@ -15,11 +15,27 @@
   </head>
 
     <h1>Manage Training Material</h1>
+
+    <p>Upload training material here</p>
+
     <form method="post" enctype="multipart/form-data">
       {{form|bootstrap}}
       {% csrf_token %}
-      <button type="submit" class="btn btn-primary pull-right">Submit</button>
+      <div class="col-md-10 text-center">
+        <button type="submit" class="btn btn-primary pull-right">Submit</button>
+      </div>
+      
     </form>
+
+    <br></br>
+
+    <div class='row'>
+        <div class='col-lg-8 col-lg-offset-2'>
+        <hr>
+       </div>
+    </div>
+
+    <p>View uploaded training material</p>
 
     <table class="table">
       <thead>

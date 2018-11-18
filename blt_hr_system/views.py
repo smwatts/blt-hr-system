@@ -17,22 +17,18 @@ def training_material(request):
     if request.method == 'POST':
         form = forms.training_docs_submit(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.uploaded_by = request.user
+            obj.save()
             return HttpResponseRedirect(reverse('admin'))
-            # documents = models.training_docs.objects.all()
-            # context = {'documents': documents,}
-            # return render(request, 'training_material.html')
-    else:
-        documents = models.training_docs.objects.all()
-        form = forms.training_docs_submit()
-        context = {'documents': documents,
-                   'form': form,}
+    documents = models.training_docs.objects.all()
+    form = forms.training_docs_submit()
+    context = {'documents': documents,
+                'form': form,}
     return render(request, 'training_material.html', context)
 
 def certification_request(request):
     if request.method == 'POST':
-        # cert_request = forms.cert_request(request.POST)
-        # cert_request.save()
         return HttpResponseRedirect(reverse('home'))
     else:
         cert_request = forms.cert_request()
@@ -61,14 +57,11 @@ def training_center(request):
     return render(request, 'training_center.html')
 
 def employee_group(request):
-    # Stuck here - can't grab all from employee_group
-    # Could be a problem initializing the table
     employee_group = models.employee_group.objects.all()
     emptyCourses = False
     if not employee_group:
         emptyCourses = True
-    context = {'employee_group': employee_group,
-               'emptyCourses': emptyCourses}
+    context = {'employee_group': employee_group}
     return render(request, 'employee_groups.html', context)
 
 def cert_groups(request):
