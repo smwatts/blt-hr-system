@@ -54,7 +54,10 @@ def add_employee_group(request):
     return render(request, 'add_employee_group.html', context)
 
 def training_center(request):
-    return render(request, 'training_center.html')
+    documents = models.training_docs.objects.all()
+    documents = documents.order_by('upload_name')
+    context = {'documents': documents,}
+    return render(request, 'training_center.html', context)
 
 def employee_group(request):
     employee_group = models.employee_group.objects.all()

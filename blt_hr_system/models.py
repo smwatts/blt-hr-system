@@ -5,12 +5,21 @@ from django.urls import reverse
 import datetime
 import uuid
 from django.conf import settings
+import os
+
+class RandomFileName(object):
+    def __init__(self, path):
+        self.path = os.path.join(path, "%s%s")
+    def __call__(self, _, filename):
+        # @note It's up to the validators to check if it's the correct file type in name or if one even exist.
+        extension = os.path.splitext(filename)[1]
+        return self.path % (uuid.uuid4(), extension)
 
 class training_docs(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     upload_name = models.CharField(max_length=200, null=True, blank=True)
-    upload = models.FileField(upload_to='media/training_docs/', null=True, blank=True)
+    upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=True, blank=True)
 
 class employee_group(models.Model):
     # the group each employee belongs to e.g. Office Staff, Site Super, Foreman

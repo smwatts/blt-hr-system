@@ -16,11 +16,36 @@
   <body>
     <h1>System Administrator</h1>
     <p>Access all modules avaliable to the system administrator here.</p>
-    <div>
-      <li><a href="{% url 'add_employee_group' %}">Add a new employee group</a></li>
-      <li><a href="{% url 'employee_group' %}">Review employee groups</a></li>
-      <li><a href="{% url 'training_material' %}">Review & manage training material</a></li>
-    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td><a href="{% url 'training_center' %}">Document Centre</a></td>
+            <td>
+              <div>
+                  <li><a href="{% url 'training_material' %}">Add new documents</a></li>
+                  <li>Remove expired documents</li>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="{% url 'certification_request' %}">Certifications</a></td>
+            <td>
+              <div>
+                  <li>Add system managed certifications</li>
+                  <li>Approve certification requests</li>
+                  <li>Review expiring certifications</li>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
     </body>
     </html>

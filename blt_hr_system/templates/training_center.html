@@ -1,6 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Training Center</h1>
-<p>WORK IN PROGRESS</p>
+<h1>Document Center</h1>
+<p>Tax documents, company policies and training material can be found here.</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for document in documents %}
+          <tr>
+            <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
+            <td>{{ document.uploaded_at }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No training documents uploaded.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
 {% endblock %}
