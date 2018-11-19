@@ -6,6 +6,8 @@ import datetime
 import uuid
 from django.conf import settings
 import os
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 class RandomFileName(object):
     def __init__(self, path):
@@ -20,6 +22,10 @@ class training_docs(models.Model):
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     upload_name = models.CharField(max_length=200, null=True, blank=True)
     upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=True, blank=True)
+
+@receiver(models.signals.post_delete, sender=training_docs)
+def remove_file_from_s3(sender, instance, using, **kwargs):
+    instance.upload.delete(save=False)
 
 class employee_group(models.Model):
     # the group each employee belongs to e.g. Office Staff, Site Super, Foreman

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+  {% load bootstrap %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  </head>
+
+    <h1>Remove Documents</h1>
+
+    <p>Select the document you would like to remove and click submit.</p>
+
+    <form method="post">
+      {{form|bootstrap}}
+      {% csrf_token %}
+      <div class="col-md-10 text-center">
+        <button type="submit" class="btn btn-primary pull-right">Submit</button>
+      </div>
+      
+    </form>
+
+    <br></br>
+
+    <div class='row'>
+        <div class='col-lg-8 col-lg-offset-2'>
+        <hr>
+       </div>
+    </div>
+
+    <p>View uploaded documents</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Uploaded at</th>
+          <th>Uploaded by</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for document in documents %}
+          <tr>
+            <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
+            <td>{{ document.uploaded_at }}</td>
+            <td>{{ document.uploaded_by }}</td>
+            <td>{{ document.upload.size|filesizeformat }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No training documents uploaded.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+</html>
+{% endblock %}

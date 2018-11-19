@@ -13,6 +13,21 @@ def home(request):
 def account(request):
     return render(request, 'account.html')
 
+def delete_training_doc(request):
+    if request.method == 'POST':
+        form = forms.training_docs_submit(request.POST)
+        if form.is_valid():
+            documents = models.training_docs.objects.all()
+            document_name = request.POST.get('document_name') 
+            item = models.training_docs.objects.get(upload_name=document_name)       
+            item.delete()
+            return HttpResponseRedirect(reverse('admin'))
+    form = forms.remove_doc()
+    documents = models.training_docs.objects.all()
+    context = {'documents': documents,
+                'form': form,}
+    return render(request, 'delete_training_doc.html', context)    
+
 def training_material(request):
     if request.method == 'POST':
         form = forms.training_docs_submit(request.POST, request.FILES)

@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'cert_groups.html', views.cert_groups, name = 'cert_groups'),
     url(r'performance_reviews.html', views.performance_reviews, name = 'performance_reviews'),
     url(r'training_material.html', views.training_material, name = 'training_material'),
+    url(r'delete_training_doc.html', views.delete_training_doc, name = 'delete_training_doc'),
 ]
  

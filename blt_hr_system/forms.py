@@ -48,3 +48,7 @@ class training_docs_submit(forms.ModelForm):
         "upload_name": "Training document name",
         "upload" : "Select the training document"
         }
+
+class remove_doc(forms.Form): 
+    document_name = forms.ModelChoiceField(queryset=training_docs.objects.order_by('upload_name').values_list('upload_name', flat=True).distinct())
+
