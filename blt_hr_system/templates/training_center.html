@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if user.is_authenticated %}
 <h1>Document Center</h1>
 <p>Tax documents, company policies and training material can be found here.</p>
 
@@ -24,5 +25,8 @@
         {% endfor %}
       </tbody>
     </table>
-
+{% else %}
+  <h2>You are not logged in</h2>
+  <a href="{% url 'login' %}">Login</a>
+{% endif %}
 {% endblock %}

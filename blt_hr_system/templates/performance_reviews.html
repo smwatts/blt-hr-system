@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if user.is_authenticated %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -20,4 +21,8 @@
 
     </body>
     </html>
+{% else %}
+  <h2>You are not logged in</h2>
+  <a href="{% url 'login' %}">Login</a>
+{% endif %}
 {% endblock %}

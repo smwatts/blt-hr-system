@@ -5,13 +5,12 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-	<p><a href="{% url 'logout' %}">logout</a></p>
   <h1>Welcome to the BLT HR System!</h1>
   <p>Hi {{ user.username }},</p>
 	<p>This is your HR system, 
 	a place submit absence requests, certifications and access training material.</p>
 {% else %}
-	<h2>You are not logged in</h2>
+  <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>
 {% endif %}
 {% endblock %}
