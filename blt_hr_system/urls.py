@@ -2,11 +2,13 @@ from django.conf.urls import url
 from django.contrib import admin
 from . import views
 from django.contrib.auth import views as auth_views
+from django.conf.urls import include
+from django.urls import path
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
+    path('accounts/', include('django.contrib.auth.urls')),
     url(r'admin.html', views.admin, name = 'admin'),
-    url(r'^registration/login/$', auth_views.login, name='login'),
     url(r'certification_request.html', views.certification_request, name = 'certification_request'),
     url(r'absence_request.html', views.absence_request, name = 'absence_request'),
     url(r'training_center.html', views.training_center, name = 'training_center'),
