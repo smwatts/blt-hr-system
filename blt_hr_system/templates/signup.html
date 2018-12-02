@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -15,18 +15,17 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h1>Employee Profile</h1>
+  <h2>Create a new employee account</h2>
+  <p>Upon submission the employee with be emailed with their account information.</p>
+  <form method="post">
+    {% csrf_token %}
+    {{form|bootstrap}}
+    <button type="submit" class="btn btn-primary pull-right">Create account</button>
+  </form>
 
-  <main>
-    <img src="{% static 'static/img/generic_image.png' %}" width="100" height="100">
-    <p>Welcome {{ user.username }}, you can update your employee information here.</p>
-  </main>
-
-
-  </body>
-</html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>
 {% endif %}
+
 {% endblock %}

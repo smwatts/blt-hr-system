@@ -1,7 +1,9 @@
 from django import forms
-from .models import employee_absence, employee_certification, employee_group, training_docs
+from .models import employee_absence, employee_certification, employee_group, training_docs, Profile
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -37,7 +39,7 @@ class cert_approval(forms.ModelForm):
 class add_employee_group(forms.ModelForm):
     class Meta:
         model = employee_group
-        fields = ['group_name', 'group_description']
+        fields = ['group_name', 'group_description', 'manager']
 
 
 class training_docs_submit(forms.ModelForm):
@@ -52,3 +54,22 @@ class training_docs_submit(forms.ModelForm):
 class remove_doc(forms.Form): 
     document_name = forms.ModelChoiceField(queryset=training_docs.objects.order_by('upload_name').values_list('upload_name', flat=True).distinct())
 
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('location', 'position')
+
+class SignUpForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    email = forms.EmailField(max_length=254, help_text='Required. Enter the BLT email address for this account.')
+    start_date = forms.DateField(help_text='Required. Format: YYYY-MM-DD')
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'start_date', 'password1', 'password2', )

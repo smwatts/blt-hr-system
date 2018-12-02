@@ -8,7 +8,11 @@ from django.conf import settings
 import os
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.utils.deconstruct import deconstructible
 
+@deconstructible
 class RandomFileName(object):
     def __init__(self, path):
         self.path = os.path.join(path, "%s%s")
@@ -29,8 +33,9 @@ def remove_file_from_s3(sender, instance, using, **kwargs):
 
 class employee_group(models.Model):
     # the group each employee belongs to e.g. Office Staff, Site Super, Foreman
-    group_name = models.CharField(max_length=200)
-    group_description = models.CharField(max_length=500)
+    group_name = models.CharField(max_length=200, null=True)
+    group_description = models.CharField(max_length=500, null=True)
+    manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
 class vaction_allocation(models.Model):
     # contains information pretaining to each employee
@@ -51,17 +56,25 @@ class company_info(models.Model):
     # regions that the company has, used for holidays
     region = models.CharField(max_length=200)
 
-class employee(models.Model):
+class Profile(models.Model):
     # contains information pretaining to each employee
-    email = models.CharField(max_length=200)
-    first_name = models.CharField(max_length=200)
-    last_name = models.CharField(max_length=200)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    position = models.CharField(max_length=200, null=True)
     birth_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     employee_group = models.ForeignKey('employee_group', on_delete=models.SET_NULL, null=True)
-    manager = models.ForeignKey('employee', on_delete=models.SET_NULL, null=True)
-    region = models.ForeignKey('company_info', on_delete=models.SET_NULL, null=True)
+    manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
+    location = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=False, blank=True)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 class holiday(models.Model):
     # holidays that the company has, used for absence date calculations

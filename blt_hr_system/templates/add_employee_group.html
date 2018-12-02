@@ -18,12 +18,41 @@
 
   <body>
 	<h1>Add an Employee Group</h1>
+  <p>Employee groups are used to determine certification requirements, absence requests and performance reviews</p>
     <form method="POST" class="add-emp-group">
         {{add_emp_group|bootstrap}}
         {% csrf_token %}
-        <button type="submit" class="save btn btn-default">Save</button>
+        <button type="submit" class="btn btn-primary pull-right">Save</button>
     </form>  
 </html>
+
+  <br></br>
+
+    <p>View employee groups</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp_group in emp_group %}
+          <tr>
+            <td>{{ emp_group.group_name }}</td>
+            <td>{{ emp_group.group_description }}</td>
+            <td>{{ emp_group.manager.get_full_name }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No employee groups created.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

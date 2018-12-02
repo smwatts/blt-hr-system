@@ -6,12 +6,61 @@ from . import models
 from . import forms
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
+from django.db import transaction
+from django.contrib import messages
+from django.contrib.auth.models import User
 
 def home(request):
     return render(request, 'home.html')
 
 def account(request):
     return render(request, 'account.html')
+
+@transaction.atomic
+def update_profile(request, pk):
+    if request.method == 'POST':
+        user_account = User.objects.get(id=pk)
+        user_form = forms.UserForm(request.POST, instance=user_account)
+        profile_form = forms.ProfileForm(request.POST, instance=user_account.profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile was successfully updated!')
+            return HttpResponseRedirect(reverse('admin'))
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        user_account = User.objects.get(id=pk)
+        user_form = forms.UserForm(instance=user_account)
+        profile_form = forms.ProfileForm(instance=user_account.profile)
+    return render(request, 'edit_employee_info.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })
+
+def employee_directory(request):
+    users = User.objects.all().order_by('first_name', 'last_name')
+    # only include users where "profile.is_active=True"
+    context = {'users' : users}
+    return render(request, 'employee_directory.html', context)
+
+def employee_directory_edit(request):
+    users = User.objects.all().order_by('first_name', 'last_name')
+    context = {'users' : users}
+    return render(request, 'employee_directory_edit.html', context)
+
+def signup(request):
+    if request.method == 'POST':
+        form = forms.SignUpForm(request.POST)
+        if form.is_valid():
+            obj = form.save()
+            obj.refresh_from_db()  # load the profile instance created by the signal
+            obj.profile.start_date = request.POST['start_date']
+            obj.profile.save()
+            return HttpResponseRedirect(reverse('admin'))
+    else:
+        form = forms.SignUpForm()
+    return render(request, 'signup.html', {'form': form})
 
 def delete_training_doc(request):
     if request.method == 'POST':
@@ -65,8 +114,10 @@ def add_employee_group(request):
         return HttpResponseRedirect(reverse('admin'))
     else:
         add_emp_group = forms.add_employee_group()
-    context = {'add_emp_group': add_emp_group}
-    return render(request, 'add_employee_group.html', context)
+        emp_group = models.employee_group.objects.all()
+        context = {'add_emp_group': add_emp_group,
+                   'emp_group' : emp_group}
+        return render(request, 'add_employee_group.html', context)
 
 def training_center(request):
     documents = models.training_docs.objects.all()
