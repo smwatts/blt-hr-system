@@ -146,14 +146,13 @@ USE_TZ = True
 db_from_env = dj_database_url.config()
 DATABASES['default'].update(db_from_env)
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'testsite_app'
-EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'BLT HR Team <noreply@example.com>'
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+DEFAULT_FROM_EMAIL = os.environ['EMAIL_HOST_USER']
+EMAIL_FROM = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_PORT = 587
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -166,7 +165,6 @@ LOGOUT_REDIRECT_URL = '/'
 # AUTH_USER_MODEL = 'accounts.User'
 
 # Storage on S3
-
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'blt_hr_system/static'),
 ]
