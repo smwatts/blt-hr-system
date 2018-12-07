@@ -34,8 +34,8 @@ def remove_file_from_s3(sender, instance, using, **kwargs):
 class employee_group(models.Model):
     # the group each employee belongs to e.g. Office Staff, Site Super, Foreman
     group_name = models.CharField(max_length=200, null=True)
-    group_description = models.CharField(max_length=500, null=True)
-    manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    def __str__(self):
+        return self.group_name
 
 class vaction_allocation(models.Model):
     # contains information pretaining to each employee
@@ -48,13 +48,18 @@ class vaction_allocation(models.Model):
     increased_date = models.DateField(null=True, blank=False)
 
 class certification(models.Model):
-    # name of the certs that will be tracked
+    # name of the certs that will be tracked and their expirations
     name = models.CharField(max_length=200)
-    url = models.CharField(max_length=1000, null=True)
+    description = models.CharField(max_length=1000, null=True)
+    expiration_yrs = models.PositiveIntegerField(blank=False, null=True, default=0)
+    def __str__(self):
+        return self.name
 
 class company_info(models.Model):
-    # regions that the company has, used for holidays
-    region = models.CharField(max_length=200)
+    # locations that the company has, used for holidays
+    location = models.CharField(max_length=200)
+    def __str__(self):
+        return self.location
 
 class Profile(models.Model):
     # contains information pretaining to each employee
@@ -80,13 +85,13 @@ class holiday(models.Model):
     # holidays that the company has, used for absence date calculations
     name = models.CharField(max_length=200)
     date = models.DateField(null=False, blank=False)
-    region = models.ManyToManyField('company_info')
+    location = models.ManyToManyField('company_info')
 
-class cert_group(models.Model):
+class certs_maintained(models.Model):
     # The certs that each employee group requires
-    employee_group = models.ForeignKey('employee_group', on_delete=models.SET_NULL, null=True)
-    cert_req = models.ManyToManyField('certification', 
-        help_text='Select a required certification for this group')
+    employee_group = models.ManyToManyField('employee_group')
+    certification = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
+    location = models.ManyToManyField('company_info')
 
 class employee_certification(models.Model):
     # information for certifications submitted by employees to be approved by admin
@@ -95,7 +100,7 @@ class employee_certification(models.Model):
     date_submitted = models.DateField(auto_now_add=True)
     acq_date = models.DateField(null=False, blank=False)
     exp_date = models.DateField(null=True, blank=True)
-    cert_doc = models.CharField(max_length=500)
+    upload = models.FileField(upload_to=RandomFileName('media/certification/'), null=True, blank=True)
     is_approved = models.BooleanField(default=False, blank=True)
     approval_date = models.DateField(null=True, blank=True)
 

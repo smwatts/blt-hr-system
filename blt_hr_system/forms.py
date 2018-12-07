@@ -1,9 +1,20 @@
 from django import forms
-from .models import employee_absence, employee_certification, employee_group, training_docs, Profile
+from .models import employee_absence, employee_certification, employee_group, training_docs, Profile, company_info, certification
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+class add_certification(forms.ModelForm):
+    class Meta:
+        model = certification
+        fields = ['name', 'description', 'expiration_yrs']
+
+class submit_company_info(forms.ModelForm):
+    location = forms.CharField(max_length=150, required=True, help_text='Each employee will be assigned to a location. Based on this location, absence and certification requirements will be established.')
+    class Meta:
+        model = company_info
+        fields = ['location']
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -26,7 +37,7 @@ class cert_request(forms.ModelForm):
     class Meta:
         model = employee_certification
         # add the cert name
-        fields = ['acq_date', 'cert_doc']
+        fields = ['acq_date', 'cert_name', 'upload']
         widgets = {
             'acq_date': DateInput(),
         }
@@ -39,8 +50,7 @@ class cert_approval(forms.ModelForm):
 class add_employee_group(forms.ModelForm):
     class Meta:
         model = employee_group
-        fields = ['group_name', 'group_description', 'manager']
-
+        fields = ['group_name']
 
 class training_docs_submit(forms.ModelForm):
     class Meta:

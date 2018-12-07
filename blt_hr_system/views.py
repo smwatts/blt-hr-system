@@ -16,6 +16,18 @@ def home(request):
 def account(request):
     return render(request, 'account.html')
 
+def managed_certs(request):
+    if request.method == 'POST':
+        cert_form = forms.add_certification(request.POST)
+        cert_form.save()
+        return HttpResponseRedirect(reverse('admin'))
+    else:
+        cert_form = forms.add_certification()
+        cert_info = models.certification.objects.all()
+        context = {'cert_form': cert_form,
+                   'cert_info' : cert_info}
+    return render(request, 'managed_certs.html', context)
+
 @transaction.atomic
 def update_profile(request, pk):
     if request.method == 'POST':
@@ -25,7 +37,7 @@ def update_profile(request, pk):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, 'Your profile was successfully updated!')
+            messages.success(request, 'The employee profile was successfully updated!')
             return HttpResponseRedirect(reverse('admin'))
         else:
             messages.error(request, 'Please correct the error below.')
@@ -118,6 +130,21 @@ def add_employee_group(request):
         context = {'add_emp_group': add_emp_group,
                    'emp_group' : emp_group}
         return render(request, 'add_employee_group.html', context)
+
+def edit_employee_group(request):
+    return render(request, 'edit_employee_group.html')
+
+def add_company_info(request):
+    if request.method == 'POST':
+        company_info_form = forms.submit_company_info(request.POST)
+        company_info_form.save()
+        return HttpResponseRedirect(reverse('admin'))
+    else:
+        company_info_form = forms.submit_company_info()
+        company_info = models.company_info.objects.all()
+        context = {'company_info_form': company_info_form,
+                   'company_info' : company_info}
+        return render(request, 'add_company_info.html', context)
 
 def training_center(request):
     documents = models.training_docs.objects.all()

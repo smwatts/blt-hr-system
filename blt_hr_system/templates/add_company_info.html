@@ -15,19 +15,11 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-
   <body>
-	<h1>Add a Certification Group</h1>
-  <p>Instead of having to assign certification requirements to individual employees, you can create 
-  certification groups that will allow you to bulk assign requirements to an employee (this will be 
-  based on an employee's job function).</p>
-  <p>Create a name for each certification group e.g. Office Staff. 
-  Then go to "create system maintained certifications" in the system administrator centre to assign 
-  certifications for your new certification group!</p>
-
-  <p class="text-danger"">Please note, once you create a certification group, you can only edit it. You cannot delete it.</p>
+	<h1>Add general company information</h1>
+  <p>Add information such as location that the system will maintain.</p>
     <form method="POST" class="add-emp-group">
-        {{add_emp_group|bootstrap}}
+        {{company_info_form|bootstrap}}
         {% csrf_token %}
         <button type="submit" class="btn btn-primary pull-right">Save</button>
     </form>  
@@ -41,22 +33,22 @@
        </div>
     </div>
 
-    <p>View employee groups</p>
+    <p>View company locations for BLT.</p>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Group Name</th>
+          <th>Location</th>
         </tr>
       </thead>
       <tbody>
-        {% for emp_group in emp_group %}
+        {% for company_info in company_info %}
           <tr>
-            <td>{{ emp_group.group_name }}</td>
+            <td>{{ company_info.location }}</td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No certification groups created.</td>
+            <td colspan="3">No company information created.</td>
           </tr>
         {% endfor %}
       </tbody>

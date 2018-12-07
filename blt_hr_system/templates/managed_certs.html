@@ -17,17 +17,11 @@
 
 
   <body>
-	<h1>Add a Certification Group</h1>
-  <p>Instead of having to assign certification requirements to individual employees, you can create 
-  certification groups that will allow you to bulk assign requirements to an employee (this will be 
-  based on an employee's job function).</p>
-  <p>Create a name for each certification group e.g. Office Staff. 
-  Then go to "create system maintained certifications" in the system administrator centre to assign 
-  certifications for your new certification group!</p>
+	<h1>System Managed Certifications</h1>
 
-  <p class="text-danger"">Please note, once you create a certification group, you can only edit it. You cannot delete it.</p>
+  <p>Add system managed certifications. The certifications will include a </p>
     <form method="POST" class="add-emp-group">
-        {{add_emp_group|bootstrap}}
+        {{cert_form|bootstrap}}
         {% csrf_token %}
         <button type="submit" class="btn btn-primary pull-right">Save</button>
     </form>  
@@ -41,28 +35,32 @@
        </div>
     </div>
 
-    <p>View employee groups</p>
+    <p>View system managed certifications.</p>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Group Name</th>
+          <th>Location</th>
+          <th>Description</th>
+          <th>Expiration (yrs)</th>
         </tr>
       </thead>
       <tbody>
-        {% for emp_group in emp_group %}
+        {% for cert_info in cert_info %}
           <tr>
-            <td>{{ emp_group.group_name }}</td>
+            <td>{{ cert_info.name }}</td>
+            <td>{{ cert_info.description }}</td>
+            <td>{{ cert_info.expiration_yrs }}</td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No certification groups created.</td>
+            <td colspan="3">No certifications added.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
 
-{% else %}
+  {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>
 {% endif %}
