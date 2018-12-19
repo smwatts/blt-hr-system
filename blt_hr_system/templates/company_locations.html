@@ -14,12 +14,25 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
-  <body>
-    <h1>Manage Certification Groups</h1>
-    <p>Add certertifications for each employee group.</p>
 
-    </body>
-    </html>
+<h2>Company Locations</h2>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Location Name</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for l in locations %}
+      <tr>
+        <td>{{ l.location }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+</html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

@@ -31,12 +31,6 @@ class training_docs(models.Model):
 def remove_file_from_s3(sender, instance, using, **kwargs):
     instance.upload.delete(save=False)
 
-class employee_group(models.Model):
-    # the group each employee belongs to e.g. Office Staff, Site Super, Foreman
-    group_name = models.CharField(max_length=200, null=True)
-    def __str__(self):
-        return self.group_name
-
 class vaction_allocation(models.Model):
     # contains information pretaining to each employee
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -67,7 +61,6 @@ class Profile(models.Model):
     position = models.CharField(max_length=200, null=True)
     birth_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
-    employee_group = models.ForeignKey('employee_group', on_delete=models.SET_NULL, null=True)
     manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
     location = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=False, blank=True)
@@ -85,12 +78,6 @@ class holiday(models.Model):
     # holidays that the company has, used for absence date calculations
     name = models.CharField(max_length=200)
     date = models.DateField(null=False, blank=False)
-    location = models.ManyToManyField('company_info')
-
-class certs_maintained(models.Model):
-    # The certs that each employee group requires
-    employee_group = models.ManyToManyField('employee_group')
-    certification = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
     location = models.ManyToManyField('company_info')
 
 class employee_certification(models.Model):

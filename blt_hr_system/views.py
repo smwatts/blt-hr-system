@@ -28,6 +28,11 @@ def managed_certs(request):
                    'cert_info' : cert_info}
     return render(request, 'managed_certs.html', context)
 
+def certifications(request):
+    cert_info = models.certification.objects.all()
+    context = {'cert_info' : cert_info}
+    return render(request, 'certifications.html', context)
+
 @transaction.atomic
 def update_profile(request, pk):
     if request.method == 'POST':
@@ -55,6 +60,12 @@ def employee_directory(request):
     # only include users where "profile.is_active=True"
     context = {'users' : users}
     return render(request, 'employee_directory.html', context)
+
+def company_locations(request):
+    locations = models.company_info.objects.all().order_by('location')
+    # only include users where "profile.is_active=True"
+    context = {'locations' : locations}
+    return render(request, 'company_locations.html', context)
 
 def employee_directory_edit(request):
     users = User.objects.all().order_by('first_name', 'last_name')
@@ -119,21 +130,6 @@ def absence_request(request):
     context = {'absence_form': absence_form}
     return render(request, 'absence_request.html', context)
 
-def add_employee_group(request):
-    if request.method == 'POST':
-        employee_group = forms.add_employee_group(request.POST)
-        employee_group.save()
-        return HttpResponseRedirect(reverse('admin'))
-    else:
-        add_emp_group = forms.add_employee_group()
-        emp_group = models.employee_group.objects.all()
-        context = {'add_emp_group': add_emp_group,
-                   'emp_group' : emp_group}
-        return render(request, 'add_employee_group.html', context)
-
-def edit_employee_group(request):
-    return render(request, 'edit_employee_group.html')
-
 def add_company_info(request):
     if request.method == 'POST':
         company_info_form = forms.submit_company_info(request.POST)
@@ -146,22 +142,29 @@ def add_company_info(request):
                    'company_info' : company_info}
         return render(request, 'add_company_info.html', context)
 
+@transaction.atomic
+def edit_company_info(request, pk):
+    if request.method == 'POST':
+        company_info = models.company_info.objects.get(id=pk)
+        info_form = forms.submit_company_info(request.POST, instance=company_info)
+        if info_form.is_valid():
+            info_form.save()
+            messages.success(request, 'The location information was successfully updated!')
+            return HttpResponseRedirect(reverse('admin'))
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        company_info = models.company_info.objects.get(id=pk)
+        info_form = forms.submit_company_info(instance=company_info)
+        context = {'info_form': info_form,
+                   }
+        return render(request, 'edit_company_info.html', context)
+
 def training_center(request):
     documents = models.training_docs.objects.all()
     documents = documents.order_by('upload_name')
     context = {'documents': documents,}
     return render(request, 'training_center.html', context)
-
-def employee_group(request):
-    employee_group = models.employee_group.objects.all()
-    emptyCourses = False
-    if not employee_group:
-        emptyCourses = True
-    context = {'employee_group': employee_group}
-    return render(request, 'employee_groups.html', context)
-
-def cert_groups(request):
-    return render(request, 'cert_groups.html')
 
 def performance_reviews(request):
     return render(request, 'performance_reviews.html')

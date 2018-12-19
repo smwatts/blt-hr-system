@@ -45,11 +45,9 @@
             </td>
           </tr>
           <tr>
-            <td><a href="{% url 'certification_request' %}">Certifications</a></td>
+            <td><a href="{% url 'certifications' %}">Certifications</a></td>
             <td>
               <div>
-                  <li><a href="{% url 'add_employee_group' %}">Add certification groups</a></li>
-                  <li>Edit certification groups</li>
                   <li><a href="{% url 'managed_certs' %}">Add system managed certifications</a></li>
                   <li>Approve certification requests</li>
                   <li>Review expiring certifications</li>
@@ -57,10 +55,10 @@
             </td>
           </tr>
           <tr>
-            <td>Company specifics</td>
+            <td><a href="{% url 'company_locations' %}">Company locations</a></td>
             <td>
               <div>
-                  <li><a href="{% url 'add_company_info' %}">Locations</li>
+                  <li><a href="{% url 'add_company_info' %}">Add & edit company location</li>
               </div>
             </td>
           </tr>

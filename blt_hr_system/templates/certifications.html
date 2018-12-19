@@ -15,11 +15,33 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
+<h2>System managed certifications</h2>
 
-  <body>
-	<h1>Edit a Certification Group</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Location</th>
+          <th>Description</th>
+          <th>Expiration (yrs)</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in cert_info %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td>{{ c.description }}</td>
+        {% if c.expiration_yrs == 0 %}
+          <td>No expiration</td>
+        {% else %}
+            <td>{{ c.expiration_yrs }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
 
-  {% else %}
+</html>
+{% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>
 {% endif %}

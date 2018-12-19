@@ -16,7 +16,7 @@
   </head>
 
   <body>
-	<h1>Add general company information</h1>
+	<h1>Add location information</h1>
   <p>Add information such as location that the system will maintain.</p>
     <form method="POST" class="add-emp-group">
         {{company_info_form|bootstrap}}
@@ -33,7 +33,7 @@
        </div>
     </div>
 
-    <p>View company locations for BLT.</p>
+    <h3>View & edit company locations for BLT below.</h3>
 
     <table class="table">
       <thead>
@@ -45,6 +45,7 @@
         {% for company_info in company_info %}
           <tr>
             <td>{{ company_info.location }}</td>
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_company_info/{{company_info.id}}">Edit location name</a></td>
           </tr>
         {% empty %}
           <tr>

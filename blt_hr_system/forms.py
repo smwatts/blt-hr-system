@@ -1,5 +1,5 @@
 from django import forms
-from .models import employee_absence, employee_certification, employee_group, training_docs, Profile, company_info, certification
+from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -9,12 +9,13 @@ class add_certification(forms.ModelForm):
     class Meta:
         model = certification
         fields = ['name', 'description', 'expiration_yrs']
+        help_texts = {'expiration_yrs': "If the certification does not expire, leave the value as 0.",}
 
 class submit_company_info(forms.ModelForm):
-    location = forms.CharField(max_length=150, required=True, help_text='Each employee will be assigned to a location. Based on this location, absence and certification requirements will be established.')
     class Meta:
         model = company_info
         fields = ['location']
+        help_texts = {'location': "Each employee will be assigned to a company location entered.",}
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -46,11 +47,6 @@ class cert_approval(forms.ModelForm):
     class Meta:
         model = employee_certification
         fields = ['is_approved']
-
-class add_employee_group(forms.ModelForm):
-    class Meta:
-        model = employee_group
-        fields = ['group_name']
 
 class training_docs_submit(forms.ModelForm):
     class Meta:

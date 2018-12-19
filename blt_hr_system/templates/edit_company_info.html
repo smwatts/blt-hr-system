@@ -14,23 +14,16 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
-  <body>
-    <h1>Manage Employee Groups</h1>
-    <p>Each employee is part of a group with required training materials, certifications and performance review standards.</p>
-    <table class="boldTable">
-      <tr>
-          <th>Employee Group</th>
-          <th>Description</th>
-      </tr>
-      {% for item in employee_group %}
-      <tr> 
-          <td>{{ item.group_name }}</td>
-          <td>{{ item.group_description }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    </body>
-    </html>
+
+<h2>Edit company name:</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ info_form|bootstrap }}
+  <button type="submit">Save changes</button>
+</form>
+
+</html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

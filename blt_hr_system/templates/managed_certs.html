@@ -50,7 +50,11 @@
           <tr>
             <td>{{ cert_info.name }}</td>
             <td>{{ cert_info.description }}</td>
-            <td>{{ cert_info.expiration_yrs }}</td>
+            {% if cert_info.expiration_yrs == 0 %}
+              <td>No expiration</td>
+            {% else %}
+              <td>{{ cert_info.expiration_yrs }}</td>
+            {% endif %}
           </tr>
         {% empty %}
           <tr>
