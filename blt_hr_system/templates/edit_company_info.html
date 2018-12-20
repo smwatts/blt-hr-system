@@ -15,12 +15,12 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Edit company name:</h2>
+<h2>Edit company name</h2>
 
 <form method="post">
   {% csrf_token %}
   {{ info_form|bootstrap }}
-  <button type="submit">Save changes</button>
+  <button type="submit" class="btn btn-primary pull-right">Save changes</button>
 </form>
 
 </html>

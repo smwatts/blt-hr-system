@@ -18,6 +18,25 @@ def home(request):
 def account(request):
     return render(request, 'account.html')
 
+def edit_system_certs(request, pk):
+    if request.method == 'POST':
+        cert = models.certification.objects.get(id=pk)
+        certs_form = forms.add_certification(request.POST, instance=cert)
+        if certs_form.is_valid():
+            messages.success(request, 'The certification was successfully updated!')
+            certs_form.save()
+            return HttpResponseRedirect(reverse('certifications'))
+    else:
+        cert = models.certification.objects.get(id=pk)
+        certs_form = forms.add_certification(instance=cert)
+        context = {'certs_form': certs_form,}
+    return render(request, 'edit_system_certs.html', context)
+
+def employee_required_certs(request):
+    users = User.objects.all().order_by('first_name', 'last_name')
+    context = {'users' : users}
+    return render(request, 'employee_required_certs.html', context)
+
 def add_birth_date(request):
     if request.method == 'POST':
         birth_date = forms.add_birth_date(request.POST, instance=request.user.profile)
@@ -34,7 +53,7 @@ def managed_certs(request):
     if request.method == 'POST':
         cert_form = forms.add_certification(request.POST)
         cert_form.save()
-        return HttpResponseRedirect(reverse('admin'))
+        return HttpResponseRedirect(reverse('certifications'))
     else:
         cert_form = forms.add_certification()
         cert_info = models.certification.objects.all()
@@ -43,7 +62,7 @@ def managed_certs(request):
     return render(request, 'managed_certs.html', context)
 
 def certifications(request):
-    cert_info = models.certification.objects.all()
+    cert_info = models.certification.objects.all().order_by('name')
     context = {'cert_info' : cert_info}
     return render(request, 'certifications.html', context)
 
@@ -57,7 +76,7 @@ def update_profile(request, pk):
             user_form.save()
             profile_form.save()
             messages.success(request, 'The employee profile was successfully updated!')
-            return HttpResponseRedirect(reverse('admin'))
+            return HttpResponseRedirect(reverse('employee_directory_edit'))
         else:
             messages.error(request, 'Please correct the error below.')
     else:
@@ -68,6 +87,24 @@ def update_profile(request, pk):
         'user_form': user_form,
         'profile_form': profile_form
     })
+
+@transaction.atomic
+def edit_required_certs(request, pk):
+    if request.method == 'POST':
+        user_account = User.objects.get(id=pk)
+        certs_form = forms.edit_system_certs(request.POST, instance=user_account.profile)
+        if certs_form.is_valid():
+            obj = certs_form.save()
+            obj.certs.set(request.POST.getlist('certs'))
+            obj.save()
+            messages.success(request, 'The employee certifications were successfully updated!')
+            return HttpResponseRedirect(reverse('employee_required_certs'))
+    else:
+        user_account = User.objects.get(id=pk)
+        certs_form = forms.edit_system_certs(instance=user_account.profile)
+        context = {'user_account': user_account,
+                    'certs_form': certs_form,}
+        return render(request, 'edit_required_certs.html', context)
 
 def employee_directory(request):
     users = User.objects.all().order_by('first_name', 'last_name')
@@ -117,7 +154,7 @@ def signup(request):
                         mail_subject, message, to=[to_email]
             )
             email.send()
-            return HttpResponseRedirect(reverse('admin'))
+            return HttpResponseRedirect(reverse('employee_directory_edit'))
     else:
         form = forms.SignUpForm()
     return render(request, 'signup.html', {'form': form})
@@ -130,7 +167,7 @@ def delete_training_doc(request):
             document_name = request.POST.get('document_name') 
             item = models.training_docs.objects.get(upload_name=document_name)       
             item.delete()
-            return HttpResponseRedirect(reverse('admin'))
+            return HttpResponseRedirect(reverse('training_center'))
     form = forms.remove_doc()
     documents = models.training_docs.objects.all()
     context = {'documents': documents,
@@ -144,7 +181,7 @@ def training_material(request):
             obj = form.save(commit=False)
             obj.uploaded_by = request.user
             obj.save()
-            return HttpResponseRedirect(reverse('admin'))
+            return HttpResponseRedirect(reverse('training_center'))
     documents = models.training_docs.objects.all()
     form = forms.training_docs_submit()
     context = {'documents': documents,
@@ -171,7 +208,7 @@ def add_company_info(request):
     if request.method == 'POST':
         company_info_form = forms.submit_company_info(request.POST)
         company_info_form.save()
-        return HttpResponseRedirect(reverse('admin'))
+        return HttpResponseRedirect(reverse('company_locations'))
     else:
         company_info_form = forms.submit_company_info()
         company_info = models.company_info.objects.all()
@@ -187,7 +224,7 @@ def edit_company_info(request, pk):
         if info_form.is_valid():
             info_form.save()
             messages.success(request, 'The location information was successfully updated!')
-            return HttpResponseRedirect(reverse('admin'))
+            return HttpResponseRedirect(reverse('company_locations'))
         else:
             messages.error(request, 'Please correct the error below.')
     else:

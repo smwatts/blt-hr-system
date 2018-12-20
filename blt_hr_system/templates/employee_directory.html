@@ -25,6 +25,7 @@
           <th>Location</th>
           <th>Position</th>
           <th>Start Date</th>
+          <th>Birthday</th>
         </tr>
       </thead>
       <tbody>
@@ -34,7 +35,8 @@
         <td><a href= "mailto:{{ i.email }}">{{ i.email }}</a></td>
         <td>{{ i.profile.location }}</td>
         <td>{{ i.profile.position }}</td>
-        <td>{{ i.profile.start_date }}</td>
+        <td>{{ i.profile.start_date|date:"M d, Y" }}</td>
+        <td>{{ i.profile.birth_date|date:"M d"}}</td>
       </tr>
       {% endfor %}
       </tbody>

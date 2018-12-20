@@ -15,40 +15,30 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>View & edit employee information</h2>
+<h1>Certification requirements by employee</h1>
+
+  <main>
+    <p>Below is a list of employee certification requirements for each employee. You can edit the certification requirements from here. To view information on certifications, click <a href="{% url 'certifications' %}">here.</a></p>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Full name</th>
-          <th>Location</th>
-          <th>Position</th>
-          <th>Manager</th>
-          <th>Status</th>
-          <th>Edit</th>
+          <th>Employee</th>
+          <th>Required certifications</th>
+          <th>Edit certification requirement</th>
         </tr>
       </thead>
       <tbody>
-      {% for i in users %}
-      <tr>
-        <td>{{ i.username }}</td>
-        <td>{{ i.email }}</td>
-        <td>{{ i.get_full_name }}</td>
-        <td>{{ i.profile.location }}</td>
-        <td>{{ i.profile.position }}</td>
-        <td>{{ i.profile.manager }}</td>
-        {% if i.is_active %}
-          <td>Current employee</td>
-        {% else %}
-          <td>Former employee</td>
-        {% endif %}
-        <td class="tg-yw4l"><a href="blt_hr_system/edit_employee_info/{{i.id}}">Edit employee info</a></td>
-      </tr>
-      {% endfor %}
+        {% for i in users %}
+          <tr>
+            <td>{{ i.get_full_name }}</td>
+            <td>{% for cert in i.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_required_certs/{{i.id}}">Edit</a></td>
+          </tr> 
+        {% endfor %}
       </tbody>
-    </table>
+    </table>          
+  </main>
 
 </html>
 {% else %}

@@ -23,7 +23,7 @@
     <form method="POST" class="add-emp-group">
         {{cert_form|bootstrap}}
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary pull-right">Save</button>
+        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
     </form>  
 </html>
 
@@ -40,9 +40,10 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Location</th>
+          <th>Name</th>
           <th>Description</th>
           <th>Expiration (yrs)</th>
+          <th>Edit Certification</th>
         </tr>
       </thead>
       <tbody>
@@ -55,6 +56,7 @@
             {% else %}
               <td>{{ cert_info.expiration_yrs }}</td>
             {% endif %}
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_system_certs/{{cert_info.id}}">Edit</a></td>
           </tr>
         {% empty %}
           <tr>

@@ -31,7 +31,7 @@
             <td>
               <div>
                   <li><a href="{% url 'signup' %}">Create new employee account</a></li>
-                  <li><a href="{% url 'employee_directory_edit' %}">Edit employee information</a></li>
+                  <li><a href="{% url 'employee_directory_edit' %}">View & edit complete employee information</a></li>
               </div>
             </td>
           </tr>
@@ -48,7 +48,9 @@
             <td><a href="{% url 'certifications' %}">Certifications</a></td>
             <td>
               <div>
-                  <li><a href="{% url 'managed_certs' %}">Add system managed certifications</a></li>
+                  <li><a href="{% url 'managed_certs' %}">Add & edit system managed certifications</a></li>
+                  <li><a href="{% url 'employee_required_certs' %}">
+                         View & edit employee certification requirements</a></li>
                   <li>Approve certification requests</li>
                   <li>Review expiring certifications</li>
               </div>

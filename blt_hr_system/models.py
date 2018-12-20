@@ -63,7 +63,6 @@ class Profile(models.Model):
     start_date = models.DateField(null=True, blank=True)
     manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey('company_info', on_delete=models.SET_NULL, null=True)
-    is_active = models.BooleanField(default=False, blank=True)
     certs = models.ManyToManyField(certification)
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name

@@ -26,4 +26,7 @@ urlpatterns = [
     url(r'training_material.html', views.training_material, name = 'training_material'),
     url(r'delete_training_doc.html', views.delete_training_doc, name = 'delete_training_doc'),
     url(r'add_birth_date.html', views.add_birth_date, name = 'add_birth_date'),
+    url(r'employee_required_certs.html', views.employee_required_certs, name = 'employee_required_certs'),
+    url(r'edit_required_certs/(?P<pk>[\w-]+)$', views.edit_required_certs, name = 'edit_required_certs'),
+    url(r'edit_system_certs/(?P<pk>[\w-]+)$', views.edit_system_certs, name = 'edit_system_certs'),
 ]

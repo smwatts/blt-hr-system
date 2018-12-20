@@ -39,13 +39,14 @@
       <thead>
         <tr>
           <th>Location</th>
+          <th>Edit Location</th>
         </tr>
       </thead>
       <tbody>
         {% for company_info in company_info %}
           <tr>
             <td>{{ company_info.location }}</td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_company_info/{{company_info.id}}">Edit location name</a></td>
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_company_info/{{company_info.id}}">Edit</a></td>
           </tr>
         {% empty %}
           <tr>

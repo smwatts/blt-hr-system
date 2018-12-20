@@ -5,6 +5,14 @@ from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+class edit_system_certs(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['certs']
+        widgets = {
+            'certs': forms.CheckboxSelectMultiple,
+        }
+
 class add_birth_date(forms.ModelForm):
     class Meta:
         model = Profile
@@ -69,15 +77,18 @@ class remove_doc(forms.Form):
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name', 'email', 'is_active')
+        labels = {
+            "is_active": "Current employee"
+        }
+        help_texts = {
+            "is_active": "If the employee no longer works at BLT, they will not longer have access to the system"
+        }
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('location', 'position', 'manager', 'is_active')
-        labels = {
-        "is_active": "Current employee"
-        }
+        fields = ('location', 'position', 'manager')
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=50, required=True)
@@ -106,7 +117,6 @@ class SignUpForm(UserCreationForm):
         widget=forms.HiddenInput(),
         initial=password
     )
-
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'position', 'location', 'start_date', 
