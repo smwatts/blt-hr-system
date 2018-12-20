@@ -18,6 +18,18 @@ def home(request):
 def account(request):
     return render(request, 'account.html')
 
+def add_birth_date(request):
+    if request.method == 'POST':
+        birth_date = forms.add_birth_date(request.POST, instance=request.user.profile)
+        if birth_date.is_valid():
+            birth_date.save()
+            messages.success(request, 'Your birth dates was successfully updated!')
+            return HttpResponseRedirect(reverse('account'))
+    else:
+        birth_date = forms.add_birth_date(instance=request.user.profile)
+        context = {'birth_date':birth_date}
+    return render(request, 'add_birth_date.html', context)
+
 def managed_certs(request):
     if request.method == 'POST':
         cert_form = forms.add_certification(request.POST)

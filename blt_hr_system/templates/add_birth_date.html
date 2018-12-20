@@ -15,32 +15,17 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Employee Directory</h2>
-
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Location</th>
-          <th>Position</th>
-          <th>Start Date</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for i in users %}
-      <tr>
-        <td>{{ i.get_full_name }}</td>
-        <td><a href= "mailto:{{ i.email }}">{{ i.email }}</a></td>
-        <td>{{ i.profile.location }}</td>
-        <td>{{ i.profile.position }}</td>
-        <td>{{ i.profile.start_date }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-
+  <body>
+	<h1>Add your birth date</h1>
+  <p>Your birth year will only be viewable by yourself and the system admin.</p>
+  <em>Please make sure you enter your birthday correctly, you cannot edit it once it is set.</em>
+    <form method="POST" class="add-emp-group">
+        {{birth_date|bootstrap}}
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary pull-right">Save</button>
+    </form>  
 </html>
+
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

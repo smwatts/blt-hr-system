@@ -21,10 +21,12 @@
       <thead>
         <tr>
           <th>Username</th>
+          <th>Email</th>
           <th>Full name</th>
           <th>Location</th>
           <th>Position</th>
-          <th>Start Date</th>
+          <th>Manager</th>
+          <th>Status</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -32,10 +34,16 @@
       {% for i in users %}
       <tr>
         <td>{{ i.username }}</td>
+        <td>{{ i.email }}</td>
         <td>{{ i.get_full_name }}</td>
         <td>{{ i.profile.location }}</td>
         <td>{{ i.profile.position }}</td>
-        <td>{{ i.profile.start_date }}</td>
+        <td>{{ i.profile.manager }}</td>
+        {% if i.profile.is_active %}
+          <td>Current employee</td>
+        {% else %}
+          <td>Former employee</td>
+        {% endif %}
         <td class="tg-yw4l"><a href="blt_hr_system/edit_employee_info/{{i.id}}">Edit employee info</a></td>
       </tr>
       {% endfor %}

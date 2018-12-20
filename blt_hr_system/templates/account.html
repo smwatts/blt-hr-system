@@ -18,12 +18,61 @@
 <h1>Employee Profile</h1>
 
   <main>
-    <img src="{% static 'static/img/generic_image.png' %}" width="100" height="100">
-    <p>Welcome {{ user.username }}, you can update your employee information here.</p>
+    <p>You can view your personal information below.</p>
+    <em>If you require changes to your personal information please contact the business manager (see employee directory).</em>
+    
+    <div class='row'>
+        <div class='col-lg-8 col-lg-offset-2'>
+        <hr>
+       </div>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th></th>
+          <th>Additional Information</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Username</td><td>{{ user.username }}</td><td></td>
+        </tr>
+        <tr>
+          <td>Email</td><td><a href= "mailto:{{ user.email }}">{{ user.email }}</a></td><td></td>
+        </tr>
+        <tr>
+          <td>Full name</td><td>{{ user.first_name }} {{ user.last_name }}</td><td></td>
+        </tr>
+        <tr>
+          <td>Location</td><td>{{ user.profile.location }}</td>
+          <td><a href="{% url 'company_locations' %}">View company locations</a></td>
+        </tr>
+        <tr>
+          <td>Position</td><td>{{ user.profile.position }}</td><td></td>
+        </tr>
+        <tr>
+          <td>Manager</td><td>{{ user.profile.manager }}</td><td></td>
+        </tr>
+        <tr>
+          <td>Required Certifications</td>
+          <td>{% for cert in user.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
+          <td><a href="{% url 'certifications' %}">View all company managed certifications</a></td>
+        </tr> 
+        <tr>
+          <td>Start date</td><td>{{ user.profile.start_date }}</td><td></td>
+        </tr>
+        <tr>
+          <td>Birth date</td><td>{{ user.profile.birth_date }}</td>
+          <td>{% if user.profile.birth_date %}{% else %}
+            <a href="{% url 'add_birth_date' %}">Add birth date</a>{% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>          
   </main>
 
-
-  </body>
 </html>
 {% else %}
   <h2>You are not logged in</h2>

@@ -5,6 +5,12 @@ from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+class add_birth_date(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['birth_date']
+        help_texts = {'birth_date':"Format: YYYY-MM-DD"}
+        
 class add_certification(forms.ModelForm):
     class Meta:
         model = certification
@@ -68,7 +74,10 @@ class UserForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('location', 'position')
+        fields = ('location', 'position', 'manager', 'is_active')
+        labels = {
+        "is_active": "Current employee"
+        }
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=50, required=True)

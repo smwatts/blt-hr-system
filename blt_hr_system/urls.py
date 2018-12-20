@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'performance_reviews.html', views.performance_reviews, name = 'performance_reviews'),
     url(r'training_material.html', views.training_material, name = 'training_material'),
     url(r'delete_training_doc.html', views.delete_training_doc, name = 'delete_training_doc'),
+    url(r'add_birth_date.html', views.add_birth_date, name = 'add_birth_date'),
 ]
