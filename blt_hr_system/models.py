@@ -62,8 +62,11 @@ class Profile(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
-    location = models.CharField(max_length=30, blank=True, null=True)
+    location = models.ForeignKey('company_info', on_delete=models.SET_NULL, null=True)
     is_active = models.BooleanField(default=False, blank=True)
+    certs = models.ManyToManyField(certification)
+    def __str__(self):
+        return self.user.first_name + ' ' + self.user.last_name
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

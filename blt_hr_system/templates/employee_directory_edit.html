@@ -15,21 +15,23 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Employee Directory: Make updates</h2>
+<h2>Edit employee information</h2>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Name</th>
+          <th>Username</th>
+          <th>Full name</th>
           <th>Location</th>
           <th>Position</th>
           <th>Start Date</th>
-          <th>Make Updates</th>
+          <th>Edit</th>
         </tr>
       </thead>
       <tbody>
       {% for i in users %}
       <tr>
+        <td>{{ i.username }}</td>
         <td>{{ i.get_full_name }}</td>
         <td>{{ i.profile.location }}</td>
         <td>{{ i.profile.position }}</td>

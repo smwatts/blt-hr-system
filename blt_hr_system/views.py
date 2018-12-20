@@ -9,6 +9,8 @@ from django.views.generic.edit import CreateView
 from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
 def home(request):
     return render(request, 'home.html')
@@ -75,11 +77,34 @@ def employee_directory_edit(request):
 def signup(request):
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
+        print(form)
         if form.is_valid():
+            # submit employee informatation to create an account with profile information
             obj = form.save()
-            obj.refresh_from_db()  # load the profile instance created by the signal
+            obj.refresh_from_db() 
             obj.profile.start_date = request.POST['start_date']
+            profile_instance = models.Profile.objects.get(pk=request.POST['manager'])
+            obj.profile.manager = profile_instance
+            location_instance = models.company_info.objects.get(pk=request.POST['location'])
+            obj.profile.location = location_instance
+            obj.profile.position = request.POST['position']
+            obj.profile.certs.set(request.POST.getlist('certifications'))
             obj.profile.save()
+            # send an email to the user to let them know that their account has been setup
+            password = request.POST['password1']
+            username = request.POST['username']
+            domain = request.META['HTTP_HOST']
+            mail_subject = 'Welcome to your BLT HR System.'
+            message = render_to_string('acc_active_email.html', {
+                'username': username,
+                'password': password,
+                'domain': domain,
+            })
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(
+                        mail_subject, message, to=[to_email]
+            )
+            email.send()
             return HttpResponseRedirect(reverse('admin'))
     else:
         form = forms.SignUpForm()

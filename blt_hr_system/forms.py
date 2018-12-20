@@ -71,11 +71,34 @@ class ProfileForm(forms.ModelForm):
         fields = ('location', 'position')
 
 class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    email = forms.EmailField(max_length=254, help_text='Required. Enter the BLT email address for this account.')
-    start_date = forms.DateField(help_text='Required. Format: YYYY-MM-DD')
+    first_name = forms.CharField(max_length=50, required=True)
+    last_name = forms.CharField(max_length=50, required=True)
+    email = forms.EmailField(max_length=254, required=True,
+        help_text='Required. Enter the email address for that will be associated with this users account.')
+    position = forms.CharField(max_length=50, required=False,
+        help_text='Enter the name of the employees postiion')
+    location = forms.ModelChoiceField(queryset=company_info.objects.all().order_by('location'),
+         help_text='Select the primary location for the employee')
+    start_date = forms.DateField(help_text='Format: YYYY-MM-DD')
+    certifications = forms.ModelMultipleChoiceField(queryset=certification.objects.order_by('name'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='Select all required certifications for this employee')
+    manager = forms.ModelChoiceField(queryset=Profile.objects.all().order_by('user__first_name'),
+        help_text='The manager selected will be responsible for approving absence requests and conducting performance reviews.')
+    absence_allocation_annually = forms.IntegerField(required=True, initial=0,
+        help_text='Enter the number of days for absences allocated for the employee annually. If the employee does not have allocated absence days, enter 0.')
+    password = User.objects.make_random_password()
+    password1 = forms.CharField(
+        widget=forms.HiddenInput(),
+        initial=password
+    )
+    password2 = forms.CharField(
+        widget=forms.HiddenInput(),
+        initial=password
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'start_date', 'password1', 'password2', )
+        fields = ('username', 'first_name', 'last_name', 'email', 'position', 'location', 'start_date', 
+            'certifications', 'manager', 'absence_allocation_annually', 'password1', 'password2', )
