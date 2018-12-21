@@ -6,7 +6,7 @@
 {% block content %}
 {% if user.is_authenticated %}
   <h1>Welcome to the BLT HR System!</h1>
-  <p>Hi {{ user.username }},</p>
+  <p>Hi {{ user.get_full_name }},</p>
 	<p>This is your HR system, 
 	a place submit absence requests, certifications and access training material.</p>
 {% else %}

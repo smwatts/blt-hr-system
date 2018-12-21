@@ -13,12 +13,20 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 
 def home(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     return render(request, 'home.html')
 
 def account(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     return render(request, 'account.html')
 
 def edit_system_certs(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         cert = models.certification.objects.get(id=pk)
         certs_form = forms.add_certification(request.POST, instance=cert)
@@ -33,11 +41,17 @@ def edit_system_certs(request, pk):
     return render(request, 'edit_system_certs.html', context)
 
 def employee_required_certs(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     users = User.objects.all().order_by('first_name', 'last_name')
     context = {'users' : users}
     return render(request, 'employee_required_certs.html', context)
 
 def add_birth_date(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     if request.method == 'POST':
         birth_date = forms.add_birth_date(request.POST, instance=request.user.profile)
         if birth_date.is_valid():
@@ -50,6 +64,10 @@ def add_birth_date(request):
     return render(request, 'add_birth_date.html', context)
 
 def managed_certs(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         cert_form = forms.add_certification(request.POST)
         cert_form.save()
@@ -62,12 +80,18 @@ def managed_certs(request):
     return render(request, 'managed_certs.html', context)
 
 def certifications(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     cert_info = models.certification.objects.all().order_by('name')
     context = {'cert_info' : cert_info}
     return render(request, 'certifications.html', context)
 
 @transaction.atomic
 def update_profile(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
         user_form = forms.UserForm(request.POST, instance=user_account)
@@ -90,6 +114,10 @@ def update_profile(request, pk):
 
 @transaction.atomic
 def edit_required_certs(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
         certs_form = forms.edit_system_certs(request.POST, instance=user_account.profile)
@@ -107,23 +135,35 @@ def edit_required_certs(request, pk):
         return render(request, 'edit_required_certs.html', context)
 
 def employee_directory(request):
-    users = User.objects.all().order_by('first_name', 'last_name')
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    users = User.objects.all().exclude(username='system_admin').order_by('first_name', 'last_name')
     # only include users where "profile.is_active=True"
     context = {'users' : users}
     return render(request, 'employee_directory.html', context)
 
 def company_locations(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     locations = models.company_info.objects.all().order_by('location')
     # only include users where "profile.is_active=True"
     context = {'locations' : locations}
     return render(request, 'company_locations.html', context)
 
 def employee_directory_edit(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    if request.user.username != "system_admin":
+        return redirect('home')
     users = User.objects.all().order_by('first_name', 'last_name')
     context = {'users' : users}
     return render(request, 'employee_directory_edit.html', context)
 
 def signup(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
         print(form)
@@ -160,6 +200,10 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def delete_training_doc(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.training_docs_submit(request.POST)
         if form.is_valid():
@@ -175,6 +219,10 @@ def delete_training_doc(request):
     return render(request, 'delete_training_doc.html', context)    
 
 def training_material(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.training_docs_submit(request.POST, request.FILES)
         if form.is_valid():
@@ -189,6 +237,8 @@ def training_material(request):
     return render(request, 'training_material.html', context)
 
 def certification_request(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     if request.method == 'POST':
         return HttpResponseRedirect(reverse('home'))
     else:
@@ -197,6 +247,8 @@ def certification_request(request):
     return render(request, 'certification_request.html', context)
 
 def absence_request(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     if request.method == 'POST':
         return HttpResponseRedirect(reverse('home'))
     else:
@@ -205,6 +257,10 @@ def absence_request(request):
     return render(request, 'absence_request.html', context)
 
 def add_company_info(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         company_info_form = forms.submit_company_info(request.POST)
         company_info_form.save()
@@ -218,6 +274,10 @@ def add_company_info(request):
 
 @transaction.atomic
 def edit_company_info(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         company_info = models.company_info.objects.get(id=pk)
         info_form = forms.submit_company_info(request.POST, instance=company_info)
@@ -235,13 +295,21 @@ def edit_company_info(request, pk):
         return render(request, 'edit_company_info.html', context)
 
 def training_center(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     documents = models.training_docs.objects.all()
     documents = documents.order_by('upload_name')
     context = {'documents': documents,}
     return render(request, 'training_center.html', context)
 
 def performance_reviews(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
     return render(request, 'performance_reviews.html')
 
 def admin(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
     return render(request, 'admin.html')

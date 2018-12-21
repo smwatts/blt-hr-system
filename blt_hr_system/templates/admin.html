@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
   <body>
-    <h1>System Administrator</h1>
+    <h1>System Management</h1>
     <p>Access all modules avaliable to the system administrator here.</p>
 
     <table class="table">
@@ -27,7 +27,7 @@
       </thead>
       <tbody>
         <tr>
-            <td><a href="{% url 'employee_directory' %}">Employee Directory</a></td>
+            <td>Employee Directory</td>
             <td>
               <div>
                   <li><a href="{% url 'signup' %}">Create new employee account</a></li>
@@ -36,31 +36,30 @@
             </td>
           </tr>
           <tr>
-            <td><a href="{% url 'training_center' %}">Document Centre</a></td>
+            <td>Document Centre</td>
             <td>
               <div>
                   <li><a href="{% url 'training_material' %}">Add new documents</a></li>
-                  <li><a href="{% url 'delete_training_doc' %}">Remove expired documents</a></li>
+                  <li><a href="{% url 'delete_training_doc' %}">View & remove expired documents</a></li>
               </div>
             </td>
           </tr>
           <tr>
-            <td><a href="{% url 'certifications' %}">Certifications</a></td>
+            <td>Certifications</td>
             <td>
               <div>
                   <li><a href="{% url 'managed_certs' %}">Add & edit system managed certifications</a></li>
-                  <li><a href="{% url 'employee_required_certs' %}">
-                         View & edit employee certification requirements</a></li>
+                  <li><a href="{% url 'employee_required_certs' %}">View & edit employee certification requirements</a></li>
                   <li>Approve certification requests</li>
                   <li>Review expiring certifications</li>
               </div>
             </td>
           </tr>
           <tr>
-            <td><a href="{% url 'company_locations' %}">Company locations</a></td>
+            <td>Company locations</td>
             <td>
               <div>
-                  <li><a href="{% url 'add_company_info' %}">Add & edit company location</li>
+                  <li><a href="{% url 'add_company_info' %}">Add, view & edit company location</li>
               </div>
             </td>
           </tr>

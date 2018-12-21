@@ -23,7 +23,9 @@
           <li><a href="{% url 'home' %}">Home</a></li>
           <li><a href="{% url 'account' %}">Employee Profile</a></li>
           <li><a href="{% url 'employee_directory'%}">Employee Directory</a></li>
+          {% if user.username == "system_admin" %}
           <li><a href="{% url 'admin' %}">System Administrator</a></li>
+          {% endif %}
           <li><a href="{% url 'training_center' %}">Document Center</a></li>
           <li><a href="{% url 'absence_request' %}">Absence Requests</a></li>
           <li><a href="{% url 'certification_request' %}">Certifications</a></li>
