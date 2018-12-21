@@ -137,8 +137,7 @@ def edit_required_certs(request, pk):
 def employee_directory(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    users = User.objects.all().exclude(username='system_admin').order_by('first_name', 'last_name')
-    # only include users where "profile.is_active=True"
+    users = User.objects.all().filter(is_active=True).exclude(username='system_admin').order_by('first_name', 'last_name')
     context = {'users' : users}
     return render(request, 'employee_directory.html', context)
 
@@ -146,7 +145,6 @@ def company_locations(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     locations = models.company_info.objects.all().order_by('location')
-    # only include users where "profile.is_active=True"
     context = {'locations' : locations}
     return render(request, 'company_locations.html', context)
 
