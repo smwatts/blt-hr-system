@@ -28,6 +28,10 @@
       <tr>
         <td>{{ l.location }}</td>
       </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No company locations added.</td>
+          </tr>
       {% endfor %}
       </tbody>
     </table>

@@ -36,6 +36,10 @@
             <td>{{ c.expiration_yrs }}</td>
         {% endif %}
       </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3">No certifications added.</td>
+        </tr>
       {% endfor %}
       </tbody>
     </table>
