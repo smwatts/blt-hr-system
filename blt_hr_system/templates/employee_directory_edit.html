@@ -26,6 +26,7 @@
           <th>Location</th>
           <th>Position</th>
           <th>Manager</th>
+          <th>Start Date</th>
           <th>Status</th>
           <th>Edit</th>
         </tr>
@@ -34,17 +35,15 @@
       {% for i in users %}
       <tr>
         <td>{{ i.username }}</td>
-        <td>{{ i.email }}</td>
+        <td><a href= "mailto:{{ i.email }}">{{ i.email }}</a></td>
         <td>{{ i.get_full_name }}</td>
         <td>{{ i.profile.location }}</td>
         <td>{{ i.profile.position }}</td>
         <td>{{ i.profile.manager }}</td>
-        {% if i.is_active %}
-          <td>Current employee</td>
-        {% else %}
-          <td>Former employee</td>
-        {% endif %}
-        <td class="tg-yw4l"><a href="blt_hr_system/edit_employee_info/{{i.id}}">Edit employee info</a></td>
+        <td>{{ i.profile.start_date }}</td>
+        {% if i.is_active %}<td>Active</td>
+        {% else %}<td>Inactive</td>{% endif %}
+        <td class="tg-yw4l"><a href="blt_hr_system/edit_employee_info/{{i.id}}">Edit</a></td>
       </tr>
         {% empty %}
           <tr>
