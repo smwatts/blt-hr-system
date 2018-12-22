@@ -16,15 +16,15 @@
   </head>
   <body>
     <h1>Submit certification requests</h1>
-
-    <h3>Upload new training material</h3>
-    <p>All certifications must be submitted and approved here.</p>
+    <p>All certifications must be submitted and approved here. 
+      The list of all possible certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
 
     <form method="POST" class="cert-request">
-        {{cert_request|bootstrap}}
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+      {{cert_request|bootstrap}}
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary pull-right">Save changes</button>
     </form>
+
   </body>
 </html>
 {% else %}

@@ -25,6 +25,8 @@ class training_docs(models.Model):
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     upload_name = models.CharField(max_length=200, null=True, blank=True)
     upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=True, blank=True)
+    def __str__(self):
+        return self.upload_name
 
 @receiver(models.signals.post_delete, sender=training_docs)
 def remove_file_from_s3(sender, instance, using, **kwargs):
@@ -85,12 +87,10 @@ class employee_certification(models.Model):
     # information for certifications submitted by employees to be approved by admin
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     cert_name = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
-    date_submitted = models.DateField(auto_now_add=True)
     acq_date = models.DateField(null=False, blank=False)
     exp_date = models.DateField(null=True, blank=True)
     upload = models.FileField(upload_to=RandomFileName('media/certification/'), null=True, blank=True)
     is_approved = models.BooleanField(default=False, blank=True)
-    approval_date = models.DateField(null=True, blank=True)
 
 class employee_absence(models.Model):
     # information for absences submitted by employees to be approved by management

@@ -29,4 +29,6 @@ urlpatterns = [
     url(r'employee_required_certs.html', views.employee_required_certs, name = 'employee_required_certs'),
     url(r'edit_required_certs/(?P<pk>[\w-]+)$', views.edit_required_certs, name = 'edit_required_certs'),
     url(r'edit_system_certs/(?P<pk>[\w-]+)$', views.edit_system_certs, name = 'edit_system_certs'),
+    url(r'certifications_maintained.html', views.certifications_maintained, name = 'certifications_maintained'),
 ]
+

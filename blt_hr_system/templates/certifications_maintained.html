@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<!DOCTYPE html>
+<html>
+  <head>
+  {% load bootstrap %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  </head>
+  <body>
+    <h1>Review your certifications</h1>
+    <p>All certifications must be submitted and approved here. 
+      The list of all possible certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
+
+    <div class="row">
+      <div class="col-sm-2">
+          <table class="table">
+            <thead>
+              <tr><th>Required</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{% for cert in user.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
+              </tr>
+            </tbody>
+          </table>
+          <a href="{% url 'certification_request' %}"><button class="btn btn-primary pull-left">Submit certification</button></a>
+          <br></br>
+        <div class='row'>
+            <div class='col-lg-8 col-lg-offset-2'><hr></div>
+        </div>
+      </div>
+
+      <div class="col-sm-1">
+      </div>
+      <div class="col-sm-9">
+        <h4>Missing & expiring certifications</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Certification</th>
+                <th>Date Aquired</th>
+                <th>Date Expired</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for certs in missing_certs %}{% for cert in certs.certs.all %}
+              <tr>
+                <td>{{ cert }}</td>
+                <td>Missing</td>
+                <td>n/a</td>
+              </tr>
+                {% empty %}
+                {% if exp_certs.count == 0 %}
+                  <tr><td colspan="3">No certifications missing or expiring.</td></tr>
+                {% endif %}
+              {% endfor %}
+              {% endfor %}
+              {% for exp in exp_certs %}
+              <tr>
+                <td><a href="{{ exp.upload.url }}" target="_blank">{{ exp.cert_name.name }}</a></td>
+                <td>{{ exp.acq_date }}</td>
+                <td>{{ exp.exp_date }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        <div class='row'>
+          <div class='col-lg-8 col-lg-offset-2'><hr></div>
+        </div>
+        <h4>Certifications pending approval</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Certification</th>
+                <th>Date Aquired</th>
+                <th>Date Expired</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pending in pending_certs %}
+              <tr>
+                <td><a href="{{ pending.upload.url }}" target="_blank">{{ pending.cert_name.name }}</a></td>
+                <td>{{ pending.acq_date }}</td>
+                <td>{{ pending.exp_date }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3">No certifications pending approval.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        <div class='row'>
+          <div class='col-lg-8 col-lg-offset-2'><hr></div>
+        </div>
+        <h4>Currently maintained certifications</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Certification</th>
+                <th>Date Aquired</th>
+                <th>Date Expired</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for curr in curr_certs %}
+              <tr>
+                <td><a href="{{ pending.upload.url }}" target="_blank">{{ curr.cert_name.name }}</a></td>
+                <td>{{ curr.acq_date }}</td>
+                <td>{{ curr.exp_date }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3">No certifications maintained.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+
+  </body>
+</html>
+{% else %}
+  <h2>You are not logged in</h2>
+  <a href="{% url 'login' %}">Login</a>
+{% endif %}
+{% endblock %}

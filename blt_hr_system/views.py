@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+import datetime
 
 def home(request):
     if not request.user.is_authenticated:
@@ -21,6 +22,26 @@ def account(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     return render(request, 'account.html')
+
+def certifications_maintained(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    now = datetime.datetime.now()
+    day_30 = datetime.datetime.now() + datetime.timedelta(days=30)
+    pending_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, is_approved=False)
+    curr_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, 
+        is_approved=True, exp_date__gte=now)
+    exp_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, 
+        is_approved=True, exp_date__lte=day_30)
+    curr_certs_flat = curr_certs.values_list('cert_name', flat=True)
+    exp_certs_flat = pending_certs.values_list('cert_name', flat=True)
+    missing_certs = models.Profile.objects.all().filter(user=request.user.id).exclude(certs__in=curr_certs_flat).exclude(certs__in=exp_certs_flat)
+    context = {'pending_certs':pending_certs,
+               'curr_certs':curr_certs,
+               'exp_certs':exp_certs,
+               'missing_certs':missing_certs,
+    }
+    return render(request, 'certifications_maintained.html',context)
 
 def edit_system_certs(request, pk):
     if not request.user.is_authenticated:
@@ -121,12 +142,9 @@ def edit_required_certs(request, pk):
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
         certs_form = forms.edit_system_certs(request.POST, instance=user_account.profile)
-        if certs_form.is_valid():
-            obj = certs_form.save()
-            obj.certs.set(request.POST.getlist('certs'))
-            obj.save()
-            messages.success(request, 'The employee certifications were successfully updated!')
-            return HttpResponseRedirect(reverse('employee_required_certs'))
+        user_account.profile.certs.set(request.POST.getlist('certs'))
+        messages.success(request, 'The employee certifications were successfully updated!')
+        return HttpResponseRedirect(reverse('employee_required_certs'))
     else:
         user_account = User.objects.get(id=pk)
         certs_form = forms.edit_system_certs(instance=user_account.profile)
