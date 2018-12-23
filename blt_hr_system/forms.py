@@ -5,6 +5,18 @@ from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+class review_cert(forms.ModelForm):
+    message = forms.CharField(max_length=500, required=False)
+    class Meta:
+        model = employee_certification
+        fields = ['is_approved']
+        help_texts = {'message':"If required, enter a message that will be sent to the certification submitter.",
+                      'is_approved': "Check this box if you approve the certification, otherwise the certification will be rejected.",
+        }
+        labels = {'message':"Add a message",
+                  'is_approved':"Approved?",
+        }
+
 class edit_system_certs(forms.ModelForm):
     class Meta:
         model = Profile
@@ -52,9 +64,17 @@ class cert_request(forms.ModelForm):
     class Meta:
         model = employee_certification
         # add the cert name
-        fields = ['acq_date', 'cert_name', 'upload']
+        exclude = ['employee_id', 'exp_date', 'is_approved',]
         widgets = {
             'acq_date': DateInput(),
+        }
+        labels = {
+            "upload": "Select a copy of your certification",
+            "acq_date": "Date acquired",
+            "cert_name": "Certification",
+        }
+        help_texts = {
+            "acq_date": "Format: YYYY-MM-DD"
         }
 
 class cert_approval(forms.ModelForm):

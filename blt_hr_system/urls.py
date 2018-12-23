@@ -30,5 +30,7 @@ urlpatterns = [
     url(r'edit_required_certs/(?P<pk>[\w-]+)$', views.edit_required_certs, name = 'edit_required_certs'),
     url(r'edit_system_certs/(?P<pk>[\w-]+)$', views.edit_system_certs, name = 'edit_system_certs'),
     url(r'certifications_maintained.html', views.certifications_maintained, name = 'certifications_maintained'),
+    url(r'review_cert_requests.html', views.review_cert_requests, name = 'review_cert_requests'),
+    url(r'review_cert/(?P<pk>[\w-]+)$', views.review_cert, name = 'review_cert'),
 ]
 

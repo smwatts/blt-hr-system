@@ -20,10 +20,10 @@
       The list of all possible certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
 
     <div class="row">
-      <div class="col-sm-2">
+      <div class="col-sm-3">
           <table class="table">
             <thead>
-              <tr><th>Required</th></tr>
+              <tr><th>Certification Requirement</th></tr>
             </thead>
             <tbody>
               <tr>
@@ -38,9 +38,9 @@
         </div>
       </div>
 
-      <div class="col-sm-1">
-      </div>
-      <div class="col-sm-9">
+      <div class="col-sm-1"></div>
+
+      <div class="col-sm-8">
         <h4>Missing & expiring certifications</h4>
           <table class="table">
             <thead>
@@ -54,7 +54,7 @@
               {% for certs in missing_certs %}{% for cert in certs.certs.all %}
               <tr>
                 <td>{{ cert }}</td>
-                <td>Missing</td>
+                <td>Missing or pending approval</td>
                 <td>n/a</td>
               </tr>
                 {% empty %}
@@ -89,7 +89,11 @@
               <tr>
                 <td><a href="{{ pending.upload.url }}" target="_blank">{{ pending.cert_name.name }}</a></td>
                 <td>{{ pending.acq_date }}</td>
+                {% if pending.exp_date|date:"Y-m-d" == no_expire|date:"Y-m-d" %}
+                <td>No expiration date</td>
+                {% else %}
                 <td>{{ pending.exp_date }}</td>
+                {% endif %}
               </tr>
               {% empty %}
               <tr>
@@ -113,9 +117,13 @@
             <tbody>
               {% for curr in curr_certs %}
               <tr>
-                <td><a href="{{ pending.upload.url }}" target="_blank">{{ curr.cert_name.name }}</a></td>
+                <td><a href="{{ curr.upload.url }}" target="_blank">{{ curr.cert_name.name }}</a></td>
                 <td>{{ curr.acq_date }}</td>
+                {% if curr.exp_date|date:"Y-m-d" == no_expire|date:"Y-m-d" %}
+                <td>No expiration date</td>
+                {% else %}
                 <td>{{ curr.exp_date }}</td>
+                {% endif %}
               </tr>
               {% empty %}
               <tr>

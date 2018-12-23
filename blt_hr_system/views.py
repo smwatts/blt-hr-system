@@ -12,6 +12,8 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 import datetime
+import datedelta
+from django.db.models import Q
 
 def home(request):
     if not request.user.is_authenticated:
@@ -23,6 +25,37 @@ def account(request):
         return HttpResponseRedirect(reverse('login'))
     return render(request, 'account.html')
 
+def review_cert_requests(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    pending_approval = models.employee_certification.objects.all().filter(is_approved=False)
+    context = {'pending_approval':pending_approval,
+    }
+    return render(request, 'review_cert_requests.html', context)
+
+def review_cert(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        cert = models.employee_certification.objects.get(id=pk)
+        review_cert = forms.review_cert(request.POST, instance=cert)
+        if review_cert.is_valid():
+            messages.success(request, 'The certification was successfully reviewed!')
+            review_cert.save()
+            return HttpResponseRedirect(reverse('review_cert_requests'))
+    cert = models.employee_certification.objects.get(id=pk)
+    review_cert = forms.review_cert(instance=cert)
+    no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
+    context = {'cert':cert,
+               'review_cert':review_cert,
+               'no_expire':no_expire,
+    }
+    return render(request, 'review_cert.html',context)
+
 def certifications_maintained(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
@@ -31,15 +64,20 @@ def certifications_maintained(request):
     pending_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, is_approved=False)
     curr_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, 
         is_approved=True, exp_date__gte=now)
+    curr_certs_flat = curr_certs.values_list('cert_name', flat=True)
     exp_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, 
         is_approved=True, exp_date__lte=day_30)
-    curr_certs_flat = curr_certs.values_list('cert_name', flat=True)
-    exp_certs_flat = pending_certs.values_list('cert_name', flat=True)
-    missing_certs = models.Profile.objects.all().filter(user=request.user.id).exclude(certs__in=curr_certs_flat).exclude(certs__in=exp_certs_flat)
+    exp_certs_flat = list(exp_certs.values_list('cert_name', flat=True))
+    all_certs = models.Profile.objects.all().filter(user_id=request.user.id)
+    all_certs_flat = list(all_certs.values_list('certs', flat=True))
+    missing_certs = all_certs.filter(certs__in=[x for x in all_certs_flat if x not in exp_certs_flat
+        ]).filter(certs__in=[x for x in all_certs_flat if x not in curr_certs_flat]).distinct()
+    no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
     context = {'pending_certs':pending_certs,
                'curr_certs':curr_certs,
                'exp_certs':exp_certs,
                'missing_certs':missing_certs,
+               'no_expire':no_expire,
     }
     return render(request, 'certifications_maintained.html',context)
 
@@ -256,9 +294,22 @@ def certification_request(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     if request.method == 'POST':
-        return HttpResponseRedirect(reverse('home'))
-    else:
-        cert_request = forms.cert_request()
+        form = forms.cert_request(request.POST, request.FILES)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.employee_id = request.user
+            obj.is_approved = False
+            cert = models.certification.objects.filter(pk=request.POST['cert_name'])
+            for c in cert:
+                exp_yrs = c.expiration_yrs
+            if exp_yrs == 0:
+                obj.exp_date = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
+            else:
+                print(request.POST['acq_date'])
+                obj.exp_date = datetime.datetime.strptime(request.POST['acq_date'], '%Y-%m-%d') + datedelta.datedelta(years=exp_yrs)
+            obj.save()
+        return HttpResponseRedirect(reverse('certifications_maintained'))
+    cert_request = forms.cert_request()
     context = {'cert_request': cert_request}
     return render(request, 'certification_request.html', context)
 

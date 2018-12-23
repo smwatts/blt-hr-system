@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<!DOCTYPE html>
+<html>
+  <head>
+  {% load bootstrap %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  </head>
+  <body>
+    <h1>Review certification</h1>
+    <p>Review the certification request. If the request meets the requirements, click "approve".</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Certification for review</th>
+          <th>Submitted by</th>
+          <th>Date Acquired</th>
+          <th>Date Expired</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="{{ cert.upload.url }}" target="_blank">{{ cert.cert_name.name }}</a></td>
+          <td>{{ cert.employee_id.get_full_name }}: 
+            <a href= "mailto:{{ cert.employee_id.email }}">{{ cert.employee_id.email }}</a></td>
+          <td>{{ cert.acq_date }}</td>
+          {% if cert.exp_date|date:"Y-m-d" == no_expire|date:"Y-m-d" %}
+          <td>No expiration date</td>
+          {% else %}
+          <td>{{ cert.exp_date }}</td>
+          {% endif %}
+        </tr>
+      </tbody>
+    </table>
+
+    <form method="POST">
+        {{review_cert|bootstrap}}
+        {% csrf_token %}
+        <p>The employee will be sent an email with the approval decision and if required, a message.</p>
+        <button type="submit" class="btn btn-primary pull-right">Send review</button>
+    </form>  
+
+  </body>
+</html>
+{% else %}
+  <h2>You are not logged in</h2>
+  <a href="{% url 'login' %}">Login</a>
+{% endif %}
+{% endblock %}

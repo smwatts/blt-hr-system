@@ -19,10 +19,12 @@
     <p>All certifications must be submitted and approved here. 
       The list of all possible certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
 
-    <form method="POST" class="cert-request">
+    <form method="post" enctype="multipart/form-data">
       {{cert_request|bootstrap}}
       {% csrf_token %}
-      <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+      <div class="col-md-10 text-center">
+        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+      </div>
     </form>
 
   </body>

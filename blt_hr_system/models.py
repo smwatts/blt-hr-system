@@ -17,6 +17,18 @@ class RandomFileName(object):
     def __init__(self, path):
         self.path = os.path.join(path, "%s%s")
     def __call__(self, _, filename):
+        print(self.path)
+        print(uuid.uuid4())
+        extension = os.path.splitext(filename)[1]
+        return self.path % (uuid.uuid4(), extension)
+
+@deconstructible
+class cert_doc_path(object):
+    def __init__(self, path):
+        self.path = os.path.join(path, "%s%s")
+    def __call__(self, _, filename):
+        print(self.path)
+        print(uuid.uuid4())
         extension = os.path.splitext(filename)[1]
         return self.path % (uuid.uuid4(), extension)
 
@@ -89,7 +101,7 @@ class employee_certification(models.Model):
     cert_name = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
     acq_date = models.DateField(null=False, blank=False)
     exp_date = models.DateField(null=True, blank=True)
-    upload = models.FileField(upload_to=RandomFileName('media/certification/'), null=True, blank=True)
+    upload = models.FileField(upload_to=cert_doc_path('media/training_docs/'), null=True, blank=True)
     is_approved = models.BooleanField(default=False, blank=True)
 
 class employee_absence(models.Model):
