@@ -44,9 +44,14 @@ def review_cert(request, pk):
         cert = models.employee_certification.objects.get(id=pk)
         review_cert = forms.review_cert(request.POST, instance=cert)
         if review_cert.is_valid():
-            messages.success(request, 'The certification was successfully reviewed!')
-            review_cert.save()
-            return HttpResponseRedirect(reverse('review_cert_requests'))
+            if request.POST.get('is_approved'):
+                review_cert.save()
+                messages.success(request, 'The certification was successfully approved!')
+                return HttpResponseRedirect(reverse('review_cert_requests'))
+            else:   
+                cert.delete()
+                messages.success(request, 'The certification was successfully rejected.')
+                return HttpResponseRedirect(reverse('review_cert_requests'))
     cert = models.employee_certification.objects.get(id=pk)
     review_cert = forms.review_cert(instance=cert)
     no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')

@@ -101,8 +101,12 @@ class employee_certification(models.Model):
     cert_name = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
     acq_date = models.DateField(null=False, blank=False)
     exp_date = models.DateField(null=True, blank=True)
-    upload = models.FileField(upload_to=cert_doc_path('media/training_docs/'), null=True, blank=True)
+    upload = models.FileField(upload_to=cert_doc_path('media/certification/'), null=True, blank=True)
     is_approved = models.BooleanField(default=False, blank=True)
+
+@receiver(models.signals.post_delete, sender=employee_certification)
+def remove_cert_from_s3(sender, instance, using, **kwargs):
+    instance.upload.delete(save=False)
 
 class employee_absence(models.Model):
     # information for absences submitted by employees to be approved by management
