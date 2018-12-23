@@ -64,14 +64,15 @@ def certifications_maintained(request):
     pending_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, is_approved=False)
     curr_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, 
         is_approved=True, exp_date__gte=now)
-    curr_certs_flat = curr_certs.values_list('cert_name', flat=True)
+    curr_certs_flat = list(curr_certs.values_list('cert_name', flat=True))
     exp_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, 
         is_approved=True, exp_date__lte=day_30)
     exp_certs_flat = list(exp_certs.values_list('cert_name', flat=True))
     all_certs = models.Profile.objects.all().filter(user_id=request.user.id)
     all_certs_flat = list(all_certs.values_list('certs', flat=True))
-    missing_certs = all_certs.filter(certs__in=[x for x in all_certs_flat if x not in exp_certs_flat
-        ]).filter(certs__in=[x for x in all_certs_flat if x not in curr_certs_flat]).distinct()
+    remain_certs = list(all_certs.filter(certs__in=[x for x in all_certs_flat if x not in curr_certs_flat 
+        and x not in exp_certs_flat]).distinct().values_list('certs', flat=True))
+    missing_certs = models.certification.objects.filter(id__in=remain_certs)
     no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
     context = {'pending_certs':pending_certs,
                'curr_certs':curr_certs,
