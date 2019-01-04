@@ -31,7 +31,9 @@ def review_cert_requests(request):
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     pending_approval = models.employee_certification.objects.all().filter(is_approved=False)
+    no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
     context = {'pending_approval':pending_approval,
+               'no_expire':no_expire,
     }
     return render(request, 'review_cert_requests.html', context)
 
@@ -43,15 +45,50 @@ def review_cert(request, pk):
     if request.method == 'POST':
         cert = models.employee_certification.objects.get(id=pk)
         review_cert = forms.review_cert(request.POST, instance=cert)
+        user_info = User.objects.get(id=request.POST.get('employee_id'))
+        user_email = user_info.email
+        cert_info = models.certification.objects.get(id=request.POST.get('cert_name'))
+        cert_name = cert_info.name
         if review_cert.is_valid():
             if request.POST.get('is_approved'):
                 review_cert.save()
+                replace_certs = models.employee_certification.objects.filter(cert_name=
+                    request.POST.get('cert_name'), employee_id=
+                    request.POST.get('employee_id')).exclude(id=pk)
+                for replace in replace_certs:
+                    replace.delete()
                 messages.success(request, 'The certification was successfully approved!')
+                # send a message to the recipient telling them their certification was approved!
+                domain = request.META['HTTP_HOST']
+                mail_subject = 'Certification review results: ' + cert_name
+                message = render_to_string('cert_approved.html', {
+                    'cert_name': cert_name,
+                    'message': request.POST.get('message'),
+                    'domain': domain,
+                })
+                to_email = user_email
+                email = EmailMessage(
+                            mail_subject, message, to=[to_email]
+                )
+                email.send()
                 return HttpResponseRedirect(reverse('review_cert_requests'))
             else:   
                 cert.delete()
                 messages.success(request, 'The certification was successfully rejected.')
-                return HttpResponseRedirect(reverse('review_cert_requests'))
+                # send a message to the recipient telling them their certification was approved!
+                domain = request.META['HTTP_HOST']
+                mail_subject = 'Certification review results: ' + cert_name
+                message = render_to_string('cert_rejected.html', {
+                    'cert_name': cert_name,
+                    'message': request.POST.get('message'),
+                    'domain': domain,
+                })
+                to_email = user_email
+                email = EmailMessage(
+                            mail_subject, message, to=[to_email]
+                )
+                email.send()
+        return HttpResponseRedirect(reverse('review_cert_requests'))
     cert = models.employee_certification.objects.get(id=pk)
     review_cert = forms.review_cert(instance=cert)
     no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
@@ -96,8 +133,16 @@ def edit_system_certs(request, pk):
         cert = models.certification.objects.get(id=pk)
         certs_form = forms.add_certification(request.POST, instance=cert)
         if certs_form.is_valid():
-            messages.success(request, 'The certification was successfully updated!')
+            update_certs = models.employee_certification.objects.filter(cert_name=pk)
+            for update in update_certs:
+                if int(request.POST['expiration_yrs']) == 0:
+                    update.exp_date = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
+                    update.save()
+                else:
+                    update.exp_date = update.acq_date + datedelta.datedelta(years=int(request.POST['expiration_yrs']))
+                    update.save()
             certs_form.save()
+            messages.success(request, 'The certification was successfully updated!')
             return HttpResponseRedirect(reverse('certifications'))
     else:
         cert = models.certification.objects.get(id=pk)

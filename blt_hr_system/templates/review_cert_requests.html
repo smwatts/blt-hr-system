@@ -26,6 +26,7 @@
           <th>Certification for review</th>
           <th>Submitted by</th>
           <th>Date Acquired</th>
+          <th>Expiration Date</th>
           <th>Submit review</th>
         </tr>
       </thead>
@@ -36,6 +37,11 @@
           <td>{{ r.employee_id.get_full_name }}: 
             <a href= "mailto:{{ r.employee_id.email }}">{{ r.employee_id.email }}</a></td>
           <td>{{ r.acq_date }}</td>
+          {% if r.exp_date|date:"Y-m-d" == no_expire|date:"Y-m-d" %}
+          <td>No expiration date</td>
+          {% else %}
+          <td>{{ r.exp_date }}</td>
+          {% endif %}
           <td class="tg-yw4l"><a href="blt_hr_system/review_cert/{{r.id}}">Review</a></td>
         </tr>
         {% endfor %}
