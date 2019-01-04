@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='employee_certification',
             name='upload',
-            field=models.FileField(blank=True, null=True, upload_to=blt_hr_system.models.cert_doc_path('media/training_docs/')),
+            field=models.FileField(blank=True, null=True, upload_to=blt_hr_system.models.cert_doc_path),
         ),
     ]

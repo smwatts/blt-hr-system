@@ -17,20 +17,13 @@ class RandomFileName(object):
     def __init__(self, path):
         self.path = os.path.join(path, "%s%s")
     def __call__(self, _, filename):
-        print(self.path)
-        print(uuid.uuid4())
         extension = os.path.splitext(filename)[1]
         return self.path % (uuid.uuid4(), extension)
 
-@deconstructible
-class cert_doc_path(object):
-    def __init__(self, path):
-        self.path = os.path.join(path, "%s%s")
-    def __call__(self, _, filename):
-        print(self.path)
-        print(uuid.uuid4())
-        extension = os.path.splitext(filename)[1]
-        return self.path % (uuid.uuid4(), extension)
+def cert_doc_path(instance, filename):
+    extension = os.path.splitext(filename)[1]
+    return 'media/certification/{username}/{filename}{extension}'.format(
+        username=instance.employee_id, filename=uuid.uuid4(), extension=extension)
 
 class training_docs(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -101,7 +94,7 @@ class employee_certification(models.Model):
     cert_name = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
     acq_date = models.DateField(null=False, blank=False)
     exp_date = models.DateField(null=True, blank=True)
-    upload = models.FileField(upload_to=cert_doc_path('media/certification/'), null=True, blank=True)
+    upload = models.FileField(upload_to=cert_doc_path, null=True, blank=True)
     is_approved = models.BooleanField(default=False, blank=True)
 
 @receiver(models.signals.post_delete, sender=employee_certification)

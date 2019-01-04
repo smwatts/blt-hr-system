@@ -271,7 +271,6 @@ def signup(request):
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
-        print(form)
         if form.is_valid():
             # submit employee informatation to create an account with profile information
             obj = form.save()
@@ -356,7 +355,6 @@ def certification_request(request):
             if exp_yrs == 0:
                 obj.exp_date = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
             else:
-                print(request.POST['acq_date'])
                 obj.exp_date = datetime.datetime.strptime(request.POST['acq_date'], '%Y-%m-%d') + datedelta.datedelta(years=exp_yrs)
             obj.save()
         return HttpResponseRedirect(reverse('certifications_maintained'))
