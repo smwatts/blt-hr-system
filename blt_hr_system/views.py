@@ -189,6 +189,40 @@ def managed_certs(request):
                    'cert_info' : cert_info}
     return render(request, 'managed_certs.html', context)
 
+def manage_onboarding_docs(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        doc_form = forms.add_onboarding_doc(request.POST)
+        doc_form.save()
+        return HttpResponseRedirect(reverse('admin'))
+    else:
+        doc_form = forms.add_onboarding_doc()
+        doc_info = models.onboarding_docs.objects.all()
+        context = {'doc_form': doc_form,
+                   'doc_info' : doc_info}
+    return render(request, 'manage_onboarding_docs.html', context)
+
+def edit_onboarding_docs(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        doc = models.onboarding_docs.objects.get(id=pk)
+        doc_form = forms.add_onboarding_doc(request.POST, instance=doc)
+        if doc_form.is_valid():
+            doc_form.save()
+            messages.success(request, 'The certification was successfully updated!')
+            return HttpResponseRedirect(reverse('manage_onboarding_docs'))
+    else:
+        doc = models.onboarding_docs.objects.get(id=pk)
+        doc_form = forms.add_onboarding_doc(instance=doc)
+        context = {'doc_form': doc_form,}
+    return render(request, 'edit_onboarding_docs.html', context)
+
 def certifications(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))

@@ -32,5 +32,6 @@ urlpatterns = [
     url(r'certifications_maintained.html', views.certifications_maintained, name = 'certifications_maintained'),
     url(r'review_cert_requests.html', views.review_cert_requests, name = 'review_cert_requests'),
     url(r'review_cert/(?P<pk>[\w-]+)$', views.review_cert, name = 'review_cert'),
+    url(r'manage_onboarding_docs.html', views.manage_onboarding_docs, name = 'manage_onboarding_docs'),
+    url(r'edit_onboarding_docs/(?P<pk>[\w-]+)$', views.edit_onboarding_docs, name = 'edit_onboarding_docs'),
 ]
-

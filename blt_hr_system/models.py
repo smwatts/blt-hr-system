@@ -120,3 +120,17 @@ class employee_absence(models.Model):
     is_manager_approved = models.BooleanField(default=False, blank=True)
     date_approved = models.DateField(null=False, blank=False)
     manager_comment = models.CharField(max_length=1000)
+
+class onboarding_docs(models.Model):
+    name = models.CharField(max_length=200)
+    doc = models.OneToOneField(training_docs, on_delete=models.SET_NULL, null=True)
+
+class doc_read_req(models.Model):
+    read = models.BooleanField(default=False, blank=True)
+    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    doc = models.ForeignKey(training_docs, on_delete=models.CASCADE, null=True)
+
+class doc_submit_req(models.Model):
+    submitted = models.BooleanField(default=False, blank=True)
+    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    doc = models.ForeignKey(training_docs, on_delete=models.CASCADE, null=True)

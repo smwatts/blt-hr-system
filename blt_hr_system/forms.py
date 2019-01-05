@@ -1,5 +1,5 @@
 from django import forms
-from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification
+from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification, onboarding_docs
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -39,6 +39,15 @@ class add_certification(forms.ModelForm):
         model = certification
         fields = ['name', 'description', 'expiration_yrs']
         help_texts = {'expiration_yrs': "If the certification does not expire, leave the value as 0.",}
+
+class add_onboarding_doc(forms.ModelForm):
+    class Meta:
+        model = onboarding_docs
+        fields = ['name', 'doc']
+        help_texts = {'name': "This is a generic name that will be used for the onboarding / training document and will prevail through document changes / updates.",
+                      'doc': "Select the corresponding document."}
+        labels = {'name':"Onboarding / training document name",
+                  'doc':"Uploaded document",}
 
 class submit_company_info(forms.ModelForm):
     class Meta:

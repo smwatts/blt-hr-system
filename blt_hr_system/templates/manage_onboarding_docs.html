@@ -17,12 +17,12 @@
 
 
   <body>
-	<h1>System Managed Certifications</h1>
+	<h1>Managed Onboarding / Training Documents</h1>
 
-  <p>Add system managed certifications. The certifications will include a description 
-  and an expiration date (if required).</p>
+  <p>Please provide a list of onboarding / training documents that are required for either submission or acknowledgement by employees.</p>
+  <p>Documents can be uploaded <a href="blt_hr_system/training_material.html">here</a>.</p>
     <form method="POST" class="add-emp-group">
-        {{cert_form|bootstrap}}
+        {{doc_form|bootstrap}}
         {% csrf_token %}
         <button type="submit" class="btn btn-primary pull-right">Save changes</button>
     </form>  
@@ -36,32 +36,27 @@
        </div>
     </div>
 
-    <p>View system managed certifications.</p>
+    <p>View onboarding / training documents.</p>
 
     <table class="table">
       <thead>
         <tr>
           <th>Name</th>
-          <th>Description</th>
-          <th>Expiration (yrs)</th>
-          <th>Edit Certification</th>
+          <th>Training / Onboarding Document</th>
+          <th>Edit</th>
         </tr>
       </thead>
       <tbody>
-        {% for cert_info in cert_info %}
+        {% for doc in doc_info %}
           <tr>
-            <td>{{ cert_info.name }}</td>
-            <td>{{ cert_info.description }}</td>
-            {% if cert_info.expiration_yrs == 0 %}
-              <td>No expiration</td>
-            {% else %}
-              <td>{{ cert_info.expiration_yrs }}</td>
-            {% endif %}
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_system_certs/{{cert_info.id}}">Edit</a></td>
+            <td>{{ doc.name }}</td>
+            <td><a href="{{ doc.doc.upload.url }}" target="_blank">{{ doc.doc }}</a></td>
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_onboarding_docs/{{doc.id}}">
+                Edit document information</a></td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No certifications added.</td>
+            <td colspan="3">No onboarding / training documents added.</td>
           </tr>
         {% endfor %}
       </tbody>
