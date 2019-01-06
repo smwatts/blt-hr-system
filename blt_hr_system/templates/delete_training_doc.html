@@ -28,7 +28,16 @@
       
     </form>
 
+    {% if message %}
     <br></br>
+    <div class='row'>
+      <div class='col-lg-10 col-lg-offset-0'>
+        <p class="text-danger">The {{document_name}} document cannot be deleted because it is being used as an onboarding / training document.</p>
+        <p class="text-danger">First you must upload a new document <a href="{% url 'training_material' %}">here</a> to replace the 
+        onboarding / training document for: {% for doc in invalid_doc %}{{doc.name}}{% endfor %}.</p>
+      </div>
+    </div>
+    {% endif %}
 
     <div class='row'>
         <div class='col-lg-8 col-lg-offset-2'>
@@ -42,6 +51,7 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>Onboarding / Training doc?</th>
           <th>Uploaded at (EST)</th>
           <th>Uploaded by</th>
           <th>Size</th>
@@ -51,6 +61,11 @@
         {% for document in documents %}
           <tr>
             <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
+            {% if not document.onboarding_docs.id %}
+              <td>No</td>
+            {% else %}
+              <td>{{ document.onboarding_docs.name }}</td>
+            {% endif %}
             <td>{{ document.uploaded_at }}</td>
             <td>{{ document.uploaded_by }}</td>
             <td>{{ document.upload.size|filesizeformat }}</td>

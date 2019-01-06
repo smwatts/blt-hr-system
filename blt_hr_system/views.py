@@ -346,14 +346,35 @@ def delete_training_doc(request):
         form = forms.training_docs_submit(request.POST)
         if form.is_valid():
             documents = models.training_docs.objects.all()
-            document_name = request.POST.get('document_name') 
-            item = models.training_docs.objects.get(upload_name=document_name)       
-            item.delete()
-            return HttpResponseRedirect(reverse('training_center'))
+            document_name = request.POST.get('document_name')
+            item = models.training_docs.objects.get(upload_name=document_name)
+            id_val = item.id
+            print("item id is:")
+            print(item.id)
+            onboard_doc = list(models.onboarding_docs.objects.filter(doc=id_val).all().values_list('name'))
+            print("onbaording doc is:")
+            print(onboard_doc)
+            if len(onboard_doc) == 0:
+                item.delete()
+                return HttpResponseRedirect(reverse('training_center'))
+            else:
+                form = forms.remove_doc()
+                documents = models.training_docs.objects.all()
+                message = True
+                invalid_doc = models.onboarding_docs.objects.filter(doc=id_val).all()
+                document_name = request.POST.get('document_name')
+                context = {'document_name': document_name, 
+                            'documents': documents,
+                            'form': form,
+                            'message': message,
+                            'invalid_doc': invalid_doc,}
+                return render(request, 'delete_training_doc.html', context) 
     form = forms.remove_doc()
     documents = models.training_docs.objects.all()
+    message = False
     context = {'documents': documents,
-                'form': form,}
+                'form': form,
+                'message': message,}
     return render(request, 'delete_training_doc.html', context)    
 
 def training_material(request):

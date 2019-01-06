@@ -96,12 +96,19 @@ class cert_approval(forms.ModelForm):
         fields = ['is_approved']
 
 class training_docs_submit(forms.ModelForm):
+    training_doc = forms.ModelChoiceField(queryset=onboarding_docs.objects.order_by('name').values_list('name', flat=True).distinct(),
+        required=False, label="Onboarding / training document?", 
+        help_text="If this is a document that will be tracked for employee onbaording / training, please select the tracking name.")
+    update_read = forms.BooleanField(required=False, label="Re-acknowledgement required",
+        help_text="For employees who are required to acknowledgement they have read this onbaording / training document, they will have to re-acknowledgement this new document.")
+    update_submit = forms.BooleanField(required=False, label="Re-submit required",
+        help_text="For employees who are required to submit this onbaording / training document, they will have to re-submit this new document.")
     class Meta:
         model = training_docs
         exclude = ['uploaded_by',]
         labels = {
-        "upload_name": "Training document name",
-        "upload" : "Select the training document"
+            'upload_name': "Training document name",
+            'upload' : "Select the training document",
         }
 
 class remove_doc(forms.Form): 

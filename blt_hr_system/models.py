@@ -124,6 +124,8 @@ class employee_absence(models.Model):
 class onboarding_docs(models.Model):
     name = models.CharField(max_length=200)
     doc = models.OneToOneField(training_docs, on_delete=models.SET_NULL, null=True)
+    def __str__(self):
+        return self.name    
 
 class doc_read_req(models.Model):
     read = models.BooleanField(default=False, blank=True)
