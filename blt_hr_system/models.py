@@ -28,8 +28,8 @@ def cert_doc_path(instance, filename):
 class training_docs(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    upload_name = models.CharField(max_length=200, null=True, blank=True)
-    upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=True, blank=True)
+    upload_name = models.CharField(max_length=200, null=False, blank=False)
+    upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=False, blank=False)
     def __str__(self):
         return self.upload_name
 
@@ -130,9 +130,9 @@ class onboarding_docs(models.Model):
 class doc_read_req(models.Model):
     read = models.BooleanField(default=False, blank=True)
     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    doc = models.ForeignKey(training_docs, on_delete=models.CASCADE, null=True)
+    doc = models.ForeignKey(onboarding_docs, on_delete=models.CASCADE, null=True)
 
 class doc_submit_req(models.Model):
     submitted = models.BooleanField(default=False, blank=True)
     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    doc = models.ForeignKey(training_docs, on_delete=models.CASCADE, null=True)
+    doc = models.ForeignKey(onboarding_docs, on_delete=models.CASCADE, null=True)

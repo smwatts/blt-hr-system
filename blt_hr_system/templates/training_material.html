@@ -17,13 +17,43 @@
 
     <h1>Add New Documents</h1>
 
-    <p>Upload new tax, training or company policy materials here</p>
+    <p>Upload company documents here. These can include new tax, training or company policy materials.</p>
 
     <form method="post" enctype="multipart/form-data">
-      {{form|bootstrap}}
       {% csrf_token %}
-      <div class="col-md-10 text-center">
-        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+      <div class="row">
+        <div class="col-lg-6">
+          {{ form.upload_name|bootstrap }}
+        </div>
+        <div class="col-lg-6">
+          {{ form.upload|bootstrap }}
+        </div>
+      </div>
+      <div class='row'>
+          <div class='col-lg-8 col-lg-offset-2'>
+          <hr>
+         </div>
+      </div>
+      <p class="text-info">If the document is going to be used as an onboarding / training document please complete the following.</p>
+      <p>Don't see the right name for this onboarding / training document? 
+        Add a new name <a href="{% url 'manage_onboarding_docs' %}">here</a>.</p>
+      <div class='row'>
+        <div class="col-lg-8">
+          {{ form.onbard_doc|bootstrap }}
+        </div>
+      </div>
+      <div class='row'>
+        <div class="col-lg-6">
+          {{ form.update_read|bootstrap }}
+        </div>
+        <div class="col-lg-6">
+          {{ form.update_submit|bootstrap }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-10 text-center">
+          <button type="submit" class="btn btn-primary pull-left">Save Document</button>
+        </div>
       </div>
     </form>
 
@@ -35,7 +65,7 @@
        </div>
     </div>
 
-    <p>View previously uploaded documents</p>
+    <p class="text-info">View uploaded documents</p>
 
     <table class="table">
       <thead>

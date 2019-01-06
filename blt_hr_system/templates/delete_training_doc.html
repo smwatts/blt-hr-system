@@ -20,18 +20,24 @@
     <p>Select the document you would like to remove and click submit.</p>
 
     <form method="post">
-      {{form|bootstrap}}
       {% csrf_token %}
-      <div class="col-md-10 text-center">
-        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+      <div class='row'>
+        <div class="col-lg-8">
+          {{form.document_name|bootstrap}}
+        </div>
+      </div>
+      <div class='row'>
+        <div class="col-lg-8">
+          <button type="submit" class="btn btn-primary pull-left">Submit</button>
+        </div>
       </div>
       
     </form>
 
     {% if message %}
-    <br></br>
+    <br>
     <div class='row'>
-      <div class='col-lg-10 col-lg-offset-0'>
+      <div class='col-lg-12'>
         <p class="text-danger">The {{document_name}} document cannot be deleted because it is being used as an onboarding / training document.</p>
         <p class="text-danger">First you must upload a new document <a href="{% url 'training_material' %}">here</a> to replace the 
         onboarding / training document for: {% for doc in invalid_doc %}{{doc.name}}{% endfor %}.</p>
@@ -45,7 +51,7 @@
        </div>
     </div>
 
-    <p>View uploaded documents</p>
+    <p class="text-info">View uploaded documents</p>
 
     <table class="table">
       <thead>
