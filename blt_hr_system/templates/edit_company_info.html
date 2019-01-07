@@ -19,8 +19,16 @@
 
 <form method="post">
   {% csrf_token %}
-  {{ info_form|bootstrap }}
-  <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+  <div class='row'>
+    <div class="col-lg-7">
+      {{ info_form.location|bootstrap }}
+    </div>
+  </div>
+  <div class='row'>
+    <div class="col-lg-7">
+      <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+    </div>
+  </div>
 </form>
 
 </html>

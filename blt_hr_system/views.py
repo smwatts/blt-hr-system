@@ -196,13 +196,29 @@ def manage_onboarding_docs(request):
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         doc_form = forms.add_onboarding_doc(request.POST)
-        doc_form.save()
-        return HttpResponseRedirect(reverse('admin'))
+        if doc_form.is_valid():
+            doc_form.save()
+            return HttpResponseRedirect(reverse('manage_onboarding_docs'))
+        else:
+            error_msg = True
+            print(request.POST.get('doc'))
+            document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
+            document_name = document_inst.upload_name
+            doc_form = forms.add_onboarding_doc()
+            doc_info = models.onboarding_docs.objects.all()
+            context = {'doc_form': doc_form,
+                       'doc_info' : doc_info,
+                       'error_msg':error_msg,
+                       'document_name':document_name,
+            }
+            return render(request, 'manage_onboarding_docs.html', context)
     else:
         doc_form = forms.add_onboarding_doc()
         doc_info = models.onboarding_docs.objects.all()
+        error_msg = False
         context = {'doc_form': doc_form,
-                   'doc_info' : doc_info}
+                   'doc_info' : doc_info,
+                   'error_msg':error_msg,}
     return render(request, 'manage_onboarding_docs.html', context)
 
 def edit_onboarding_docs(request, pk):
@@ -217,11 +233,24 @@ def edit_onboarding_docs(request, pk):
             doc_form.save()
             messages.success(request, 'The certification was successfully updated!')
             return HttpResponseRedirect(reverse('manage_onboarding_docs'))
+        else:
+            error_msg = True
+            print(request.POST.get('doc'))
+            document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
+            document_name = document_inst.upload_name
+            doc_form = forms.add_onboarding_doc()
+            doc_info = models.onboarding_docs.objects.all()
+            context = {'doc_form': doc_form,
+                       'doc_info' : doc_info,
+                       'error_msg':error_msg,
+                       'document_name':document_name,
+            }
+            return render(request, 'edit_onboarding_docs.html', context)
     else:
         doc = models.onboarding_docs.objects.get(id=pk)
         doc_form = forms.add_onboarding_doc(instance=doc)
         context = {'doc_form': doc_form,}
-    return render(request, 'edit_onboarding_docs.html', context)
+        return render(request, 'edit_onboarding_docs.html', context)
 
 def certifications(request):
     if not request.user.is_authenticated:

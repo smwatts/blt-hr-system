@@ -17,10 +17,28 @@
 
 <h2>Edit system managed certifications</h2>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ certs_form|bootstrap }}
-      <button type="submit">Save changes</button>
+    <form method="POST">
+        {% csrf_token %}
+        <div class='row'>
+          <div class="col-lg-4">
+            {{certs_form.name|bootstrap}}
+          </div>
+          <div class="col-lg-8">
+            {{certs_form.description|bootstrap}}
+          </div>
+        </div>
+        <div class='row'>
+          <div class="col-lg-4">
+            {{certs_form.expiration_yrs|bootstrap}}
+          </div>
+        </div>
+        <div class='row'>
+          <div class="col-lg-12">        
+            <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+          </div>
+        </div>
+    </form>
+
   </form>
 
 </html>

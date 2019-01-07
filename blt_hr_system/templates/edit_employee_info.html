@@ -19,9 +19,42 @@
 
 <form method="post">
   {% csrf_token %}
-  {{ user_form|bootstrap }}
-  {{ profile_form|bootstrap }}
-  <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+    <div class='row'>
+      <div class="col-lg-6">
+        {{ user_form.first_name|bootstrap }}
+      </div>
+      <div class="col-lg-6">
+        {{ user_form.last_name|bootstrap }}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-6">
+        {{ user_form.email|bootstrap }}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-6">
+        {{ profile_form.position|bootstrap }}
+      </div>
+      <div class="col-lg-6">
+        {{ profile_form.manager|bootstrap }}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-6">
+        {{ profile_form.location|bootstrap }}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-12">
+        {{ user_form.is_active|bootstrap }}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-6">
+        <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+      </div>
+    </div>
 </form>
 
 </html>

@@ -16,15 +16,30 @@
   </head>
   <body>
     <h1>Submit certification requests</h1>
-    <p>All certifications must be submitted and approved here. 
-      The list of all possible certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
+    <p>All certifications will be submitted for approval here. 
+      A list of all system managed certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
 
     <form method="post" enctype="multipart/form-data">
-      {{cert_request|bootstrap}}
       {% csrf_token %}
-      <div class="col-md-10 text-center">
-        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+
+    <div class='row'>
+      <div class="col-lg-8">
+        {{cert_request.cert_name|bootstrap}} 
       </div>
+      <div class="col-lg-4">
+        {{cert_request.acq_date|bootstrap}}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-6">
+        {{cert_request.upload|bootstrap}}
+      </div>
+    </div>
+    <div class='row'>
+      <div class="col-lg-6">
+        <button type="submit" class="btn btn-primary pull-left">Submit for review</button>
+      </div>
+    </div>
     </form>
 
   </body>

@@ -22,13 +22,30 @@
   <p>Please provide a list of onboarding / training documents that are required for either submission or acknowledgement by employees.</p>
   <p>Documents can be uploaded <a href="blt_hr_system/training_material.html">here</a>.</p>
     <form method="POST" class="add-emp-group">
-        {{doc_form|bootstrap}}
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+        <div class='row'>
+          <div class="col-lg-6">
+            {{doc_form.name|bootstrap}}
+          </div>
+          <div class="col-lg-6">
+            {{doc_form.doc|bootstrap}}
+          </div>
+        </div>
+        <div class='row'>
+          <div class="col-lg-6">
+            <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+          </div>
+        </div>
     </form>  
-</html>
 
-  <br></br>
+    {% if error_msg %}
+    <br>
+    <div class='row'>
+      <div class='col-lg-12'>
+        <p class="text-danger">The document: {{document_name}}, cannot be assigned to a new onboarding / training document because it is currently being used by other document. You can edit the documents assigned below.</p>
+      </div>
+    </div>
+    {% endif %}
 
     <div class='row'>
         <div class='col-lg-8 col-lg-offset-2'>
@@ -61,7 +78,7 @@
         {% endfor %}
       </tbody>
     </table>
-
+</html>
   {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

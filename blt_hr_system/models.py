@@ -57,7 +57,7 @@ class certification(models.Model):
 
 class company_info(models.Model):
     # locations that the company has, used for holidays
-    location = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, blank=False, null=False)
     def __str__(self):
         return self.location
 
@@ -91,10 +91,10 @@ class holiday(models.Model):
 class employee_certification(models.Model):
     # information for certifications submitted by employees to be approved by admin
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    cert_name = models.ForeignKey('certification', on_delete=models.SET_NULL, null=True)
+    cert_name = models.ForeignKey('certification', on_delete=models.CASCADE, null=False, blank=False)
     acq_date = models.DateField(null=False, blank=False)
     exp_date = models.DateField(null=True, blank=True)
-    upload = models.FileField(upload_to=cert_doc_path, null=True, blank=True)
+    upload = models.FileField(upload_to=cert_doc_path, null=False, blank=False)
     is_approved = models.BooleanField(default=False, blank=True)
 
 @receiver(models.signals.post_delete, sender=employee_certification)

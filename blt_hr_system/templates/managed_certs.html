@@ -21,10 +21,26 @@
 
   <p>Add system managed certifications. The certifications will include a description 
   and an expiration date (if required).</p>
-    <form method="POST" class="add-emp-group">
-        {{cert_form|bootstrap}}
+    <form method="POST">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+        <div class='row'>
+          <div class="col-lg-4">
+            {{cert_form.name|bootstrap}}
+          </div>
+          <div class="col-lg-8">
+            {{cert_form.description|bootstrap}}
+          </div>
+        </div>
+        <div class='row'>
+          <div class="col-lg-4">
+            {{cert_form.expiration_yrs|bootstrap}}
+          </div>
+        </div>
+        <div class='row'>
+          <div class="col-lg-12">        
+            <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+          </div>
+        </div>
     </form>  
 </html>
 

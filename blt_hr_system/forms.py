@@ -38,16 +38,18 @@ class add_certification(forms.ModelForm):
     class Meta:
         model = certification
         fields = ['name', 'description', 'expiration_yrs']
-        help_texts = {'expiration_yrs': "If the certification does not expire, leave the value as 0.",}
+        help_texts = {'expiration_yrs': "If the certification does not expire, enter 0.",}
 
 class add_onboarding_doc(forms.ModelForm):
     class Meta:
         model = onboarding_docs
         fields = ['name', 'doc']
         help_texts = {'name': "This is a generic name that will be used for the onboarding / training document and will prevail through document changes / updates.",
-                      'doc': "Select the corresponding document."}
+                      'doc':"Don't see the right document listed? It may already be assigned to an onboarding / training document.",
+        }
         labels = {'name':"Onboarding / training document name",
-                  'doc':"Uploaded document",}
+                  'doc':"Uploaded document"
+        }
 
 class submit_company_info(forms.ModelForm):
     class Meta:
@@ -81,13 +83,13 @@ class cert_request(forms.ModelForm):
             'acq_date': DateInput(),
         }
         labels = {
-            "upload": "Select a copy of your certification",
-            "acq_date": "Date acquired",
-            "cert_name": "Certification",
+            'upload': "Select a copy of your certification",
+            'acq_date': "Date acquired",
+            'cert_name': "Certification",
         }
         help_texts = {
-            "acq_date": "Format: YYYY-MM-DD",
-            "cert_name": "Please note, if this certification is approved it will replace the previous certifications of this type.",
+            'acq_date': "Format: YYYY-MM-DD.",
+            'cert_name': "Please note, if this certification is approved it will replace the previous certifications of this type.",
         }
 
 class cert_approval(forms.ModelForm):
@@ -146,18 +148,30 @@ class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True,
         help_text='Required. Enter the email address for that will be associated with this users account.')
     position = forms.CharField(max_length=50, required=False,
-        help_text='Enter the name of the employees postiion')
+        help_text='Enter the name of the employees postiion.')
     location = forms.ModelChoiceField(queryset=company_info.objects.all().order_by('location'),
-         help_text='Select the primary location for the employee')
-    start_date = forms.DateField(help_text='Format: YYYY-MM-DD')
+         help_text='Select the primary location for the employee.')
+    start_date = forms.DateField(help_text='Format: YYYY-MM-DD.')
     certifications = forms.ModelMultipleChoiceField(queryset=certification.objects.order_by('name'),
         required=False,
         widget=forms.CheckboxSelectMultiple(),
-        help_text='Select all required certifications for this employee')
+        help_text='Select all required certifications for this employee.')
+    onbaording_read = forms.ModelMultipleChoiceField(queryset=onboarding_docs.objects.order_by('name'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='Select all documents this employee must acknowledge as read.',
+        label='Documents requiring acknowledge')
+    onbaording_submit = forms.ModelMultipleChoiceField(queryset=onboarding_docs.objects.order_by('name'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='Select all documents this employee must submit to HR.',
+        label='Documents requiring submission')
     manager = forms.ModelChoiceField(queryset=Profile.objects.all().filter(user__is_active=True).exclude(user__username='system_admin').order_by('user__first_name'),
         help_text='The manager selected will be responsible for approving absence requests and conducting performance reviews.')
     absence_allocation_annually = forms.IntegerField(required=True, initial=0,
         help_text='Enter the number of days for absences allocated for the employee annually. If the employee does not have allocated absence days, enter 0.')
+    sick_day_allocation_annually = forms.IntegerField(required=True, initial=0,
+        help_text='Enter the number of sick days allocated for the employee annually. If the employee does not have allocated sick days, enter 0.')
     password = User.objects.make_random_password()
     password1 = forms.CharField(
         widget=forms.HiddenInput(),
@@ -170,4 +184,4 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'position', 'location', 'start_date', 
-            'certifications', 'manager', 'absence_allocation_annually', 'password1', 'password2', )
+            'certifications', 'manager', 'absence_allocation_annually', 'password1', 'password2',)

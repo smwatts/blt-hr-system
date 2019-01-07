@@ -19,9 +19,17 @@
 	<h1>Add location information</h1>
   <p>Add information such as location that the system will maintain.</p>
     <form method="POST" class="add-emp-group">
-        {{company_info_form|bootstrap}}
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary pull-right">Save</button>
+         {% csrf_token %}
+         <div class='row'>
+          <div class="col-lg-7">
+            {{company_info_form.location|bootstrap}}
+          </div>
+        </div>
+         <div class='row'>
+          <div class="col-lg-7">
+            <button type="submit" class="btn btn-primary pull-left">Save Location</button>
+          </div>
+        </div>
     </form>  
 </html>
 
