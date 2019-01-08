@@ -1,9 +1,18 @@
 from django import forms
-from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification, onboarding_docs, doc_read_req
+from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification, onboarding_docs, doc_read_req, doc_submit_req
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+class ack_doc(forms.ModelForm):
+    class Meta:
+        model = doc_read_req
+        fields = ['read']
+        labels = {'read': "Read acknowledgement",
+        }
+        help_texts = {'read': "Check this box if you have read the onboarding / training document.",
+        }
 
 class review_cert(forms.ModelForm):
     message = forms.CharField(max_length=500, required=False)
@@ -60,6 +69,19 @@ class edit_ack_require(forms.Form):
             queryset=onboarding_docs.objects.all().order_by('name'),
             label="Required Onboarding / training documents", 
             help_text="Please select all onboarding / training documents that require acknowledgement",
+            required=False,
+            widget=forms.CheckboxSelectMultiple(),
+            initial=doc_list)
+
+class edit_sub_require(forms.Form):
+    def __init__(self, *args, **kwargs):
+        pk = kwargs.pop('pk')
+        super(edit_sub_require,self).__init__(*args,**kwargs)
+        doc_list = list(doc_submit_req.objects.all().filter(employee=pk).values_list('doc', flat = True))
+        self.fields['docs'] = forms.ModelMultipleChoiceField(
+            queryset=onboarding_docs.objects.all().order_by('name'),
+            label="Required Onboarding / training documents", 
+            help_text="Please select all onboarding / training documents that require submission",
             required=False,
             widget=forms.CheckboxSelectMultiple(),
             initial=doc_list)

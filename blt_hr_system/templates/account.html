@@ -33,7 +33,7 @@
         <tr>
           <th></th>
           <th></th>
-          <th>Additional Information</th>
+          <th>Relevant Links</th>
         </tr>
       </thead>
       <tbody>
@@ -48,7 +48,7 @@
         </tr>
         <tr>
           <td>Location</td><td>{{ user.profile.location }}</td>
-          <td><a href="{% url 'company_locations' %}">View company locations</a></td>
+          <td></td>
         </tr>
         <tr>
           <td>Position</td><td>{{ user.profile.position }}</td><td></td>
@@ -57,17 +57,45 @@
           <td>Manager</td><td>{{ user.profile.manager }}</td><td></td>
         </tr>
         <tr>
-          <td>Required Certifications</td>
-          <td>{% for cert in user.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
-          <td><a href="{% url 'certifications' %}">View all company managed certifications</a></td>
-        </tr> 
-        <tr>
           <td>Start date</td><td>{{ user.profile.start_date }}</td><td></td>
         </tr>
         <tr>
           <td>Birth date</td><td>{{ user.profile.birth_date }}</td>
           <td>{% if user.profile.birth_date %}{% else %}
             <a href="{% url 'add_birth_date' %}">Add birth date</a>{% endif %}
+          </td>
+        </tr>
+        
+        <tr>
+          <td>Required Certifications</td>
+          <td>{% for cert in user.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
+          <td><a href="{% url 'certifications' %}">Manage certifications</a></td>
+        </tr> 
+
+        <tr>
+          <td>Document acknowledgement required</td>
+          <td>
+            {% for req in ack_docs %}
+              <li>{{ req.doc__name }}</li>
+            {% empty %}
+              No acknowledgements required
+            {% endfor %}
+          </td>
+          <td>
+            Manage acknowledgement requirements
+          </td>
+        </tr>
+        <tr>
+          <td>Document submission required</td>
+          <td>
+            {% for req in sub_docs %}
+              <li>{{ req.doc__name }}</li>
+            {% empty %}
+              No submissions required
+            {% endfor %}
+          </td>
+          <td>
+            Manage submission requirements
           </td>
         </tr>
       </tbody>

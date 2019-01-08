@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<!DOCTYPE html>
+<html>
+  <head>
+  {% load bootstrap %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  </head>
+
+    <h1>Onboarding / Training Requirements</h1>
+    <p>This is your customized onboarding / training center. Please review the requirements below.</p>
+
+    <div class="col-lg-6">
+      <div class="row">
+        <h4>Acknowledgement Required</h4>
+      </div>
+      <div class="row"><hr></div>
+      <div class="row">
+        <p class="text-info">View & acknowledge outstanding documents.</p>
+        <p>Please read and then acknowledge all documents below.</p>
+      </div>
+      <div class="row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>Link</th>
+              <th>Acknowledge</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for document in ack_missing %}
+              <tr>
+                <td>{{ document.doc__name }}</td>
+                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
+                <td class="tg-yw4l"><a href="blt_hr_system/ack_doc_read/{{document.id}}">Mark as read</a></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3">No outstanding acknowledgement requirements.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="row"><hr></div>
+      <div class="row">
+        <p class="text-info">View acknowledged documents.</p>
+      </div>
+      <div class="row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for document in ack_complete %}
+              <tr>
+                <td>{{ document.doc__name }}</td>
+                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3">No documents acknowledged.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-1">
+    </div>
+
+    <div class="col-lg-5">
+        <div class="row">
+        <h4>Submission Required</h4>
+      </div>
+      <div class="row"><hr></div>
+      <div class="row">
+        <p class="text-info">View outstanding documents for submission.</p>
+        <p>Please print and submit the documents below to HR.</p>
+      </div>
+      <div class="row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for document in sub_missing %}
+              <tr>
+                <td>{{ document.doc__name }}</td>
+                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3">No outstanding submissions required.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="row"><hr></div>
+      <div class="row">
+        <p class="text-info">View submitted documents.</p>
+      </div>
+      <div class="row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for document in sub_complete %}
+              <tr>
+                <td>{{ document.doc__name }}</td>
+                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3">No documents submitted.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+</html>
+{% else %}
+  <h2>You are not logged in</h2>
+  <a href="{% url 'login' %}">Login</a>
+{% endif %}
+{% endblock %}

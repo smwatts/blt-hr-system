@@ -15,14 +15,13 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Edit acknowledgement requirements</h2>
-<h4>{{name_print}}</h4>
+  <h1>Acknowledge Document</h1>
 
-<form method="post">
-  {% csrf_token %}
-  {{edit_ack_require|bootstrap}}
-  <button type="submit" class="btn btn-primary pull-left">Save changes</button>
-</form>
+  <form method="post">
+    {% csrf_token %}
+    {{ack_form|bootstrap}}
+    <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+  </form>
 
 </html>
 {% else %}

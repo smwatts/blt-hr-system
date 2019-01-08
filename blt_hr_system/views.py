@@ -25,7 +25,12 @@ def home(request):
 def account(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    return render(request, 'account.html')
+    ack_docs = list(models.doc_read_req.objects.all().filter(employee=request.user).values('doc__name'))
+    sub_docs = list(models.doc_submit_req.objects.all().filter(employee=request.user).values('doc__name'))
+    context = {'ack_docs':ack_docs,
+                'sub_docs':sub_docs,
+    }
+    return render(request, 'account.html', context)
 
 def review_cert_requests(request):
     if not request.user.is_authenticated:
@@ -526,34 +531,58 @@ def admin(request):
         return HttpResponseRedirect(reverse('home'))
     return render(request, 'admin.html')
 
-def acknowledge_requirement(request):
+def onboarding_requirement(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     sql = """
-        SELECT "auth_user"."id", 
-               "auth_user"."first_name", 
-                "auth_user"."last_name", 
-                array_agg("blt_hr_system_onboarding_docs"."name") AS doc
-        FROM "auth_user" 
-        LEFT JOIN "blt_hr_system_doc_read_req" 
-            on "auth_user"."id" = "blt_hr_system_doc_read_req"."employee_id"
-        LEFT JOIN "blt_hr_system_onboarding_docs"
-            on "blt_hr_system_doc_read_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
-        GROUP BY "auth_user"."id", 
-                 "auth_user"."first_name", 
-                 "auth_user"."last_name"
-        ORDER BY "auth_user"."first_name", 
-                 "auth_user"."last_name"
-         """
+        WITH req_doc as (
+            SELECT "blt_hr_system_doc_read_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_docs"."name"
+                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+                    ASC) AS req_doc
+            FROM "blt_hr_system_doc_read_req"
+            LEFT JOIN "blt_hr_system_onboarding_docs"
+                on "blt_hr_system_doc_read_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            GROUP BY 1
+        ),
+            sub_doc as (
+            SELECT "blt_hr_system_doc_submit_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_docs"."name"
+                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+                    ASC) AS sub_doc
+            FROM "blt_hr_system_doc_submit_req"
+            LEFT JOIN "blt_hr_system_onboarding_docs"
+                on "blt_hr_system_doc_submit_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            GROUP BY 1
+        ),
+            users as (
+            SELECT "auth_user"."id" as id, 
+                   "auth_user"."first_name" as first_name, 
+                   "auth_user"."last_name" as last_name
+            FROM "auth_user"
+            GROUP BY 1,2,3
+        )
+        SELECT users.id, 
+               users.first_name, 
+               users.last_name, 
+               req_doc.req_doc,
+               sub_doc.sub_doc  
+        FROM users
+        LEFT JOIN req_doc
+            on users.id = req_doc.employee_id
+        LEFT JOIN sub_doc 
+            on users.id = sub_doc.employee_id
+        ORDER BY 2,3
+        """
     cursor = connection.cursor()
     cursor.execute(sql)
     data = cursor.fetchall()
     print(data)
     context = {'data':data
     }
-    return render(request, 'acknowledge_requirement.html', context)
+    return render(request, 'onboarding_requirement.html', context)
 
 @transaction.atomic
 def edit_ack_requirement(request, pk):
@@ -569,8 +598,7 @@ def edit_ack_requirement(request, pk):
         for i in request.POST.getlist('docs'):
             onboard_doc = models.onboarding_docs.objects.get(id=i)
             models.doc_read_req.objects.create(employee=user_mod, doc=onboard_doc, read=False)
-        return HttpResponseRedirect(reverse('acknowledge_requirement'))
-    doc_req = models.doc_read_req.objects.all().filter(employee=pk)
+        return HttpResponseRedirect(reverse('onboarding_requirement'))
     name = User.objects.get(id=pk)
     name_print = name.first_name + ' ' + name.last_name
     edit_ack_require = forms.edit_ack_require(pk=pk)
@@ -578,12 +606,64 @@ def edit_ack_requirement(request, pk):
                 'edit_ack_require': edit_ack_require}
     return render(request, 'edit_ack_requirement.html', context)
 
-def submission_required(request):
+@transaction.atomic
+def edit_submission_req(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
-    context = {
+    if request.method == 'POST':
+        doc_req = models.doc_submit_req.objects.all().filter(employee=pk)
+        user_mod = User.objects.get(id=pk)
+        for u in doc_req:
+            u.delete()
+        for i in request.POST.getlist('docs'):
+            onboard_doc = models.onboarding_docs.objects.get(id=i)
+            models.doc_submit_req.objects.create(employee=user_mod, doc=onboard_doc, submitted=False)
+        return HttpResponseRedirect(reverse('onboarding_requirement'))
+    name = User.objects.get(id=pk)
+    name_print = name.first_name + ' ' + name.last_name
+    edit_sub_require = forms.edit_sub_require(pk=pk)
+    context = {'name_print': name_print,
+                'edit_sub_require': edit_sub_require}
+    return render(request, 'edit_submission_req.html', context)
 
-    }
-    return render(request, 'submission_required.html', context)
+def onboarding_training_docs(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    sub_missing = models.doc_submit_req.objects.all().filter(employee=request.user, 
+        submitted=False).values('doc__name', 'doc__doc__upload', 'doc__doc__upload_name', 'id')
+    sub_complete = models.doc_submit_req.objects.all().filter(employee=request.user, 
+        submitted=True).values('doc__name', 'doc__doc__upload', 'doc__doc__upload_name', 'id')
+    ack_missing = models.doc_read_req.objects.all().filter(employee=request.user, 
+        read=False).values('doc__name', 'doc__doc__upload', 'doc__doc__upload_name', 'id')
+    ack_complete = models.doc_read_req.objects.all().filter(employee=request.user, 
+        read=True).values('doc__name', 'doc__doc__upload', 'doc__doc__upload_name', 'id')
+    context = {'sub_missing': sub_missing,
+               'sub_complete': sub_complete,
+               'ack_missing': ack_missing,
+               'ack_complete': ack_complete,}
+    return render(request, 'onboarding_training_docs.html', context)    
+
+def ack_doc_read(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    doc_read = models.doc_read_req.objects.get(id=pk)
+    if request.user.id != doc_read.employee_id:
+        return HttpResponseRedirect(reverse('home'))
+    else:
+        if request.method == 'POST':
+            ack_form = forms.ack_doc(request.POST, instance=doc_read)
+            if ack_form.is_valid():
+                ack_form.save()
+                messages.success(request, 'The document was successfully acknowledged!')
+                return HttpResponseRedirect(reverse('onboarding_training_docs'))
+        else:
+            ack_form = forms.ack_doc(instance=doc_read)
+            doc_vals = models.doc_read_req.objects.all().filter(id=pk).values('doc__name', 
+                'doc__doc__upload', 'doc__doc__upload_name')
+            context = {'ack_form': ack_form,
+                       'doc_vals': doc_vals,
+            }
+            return render(request, 'ack_doc_read.html', context)  
+            

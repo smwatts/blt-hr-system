@@ -15,15 +15,17 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-    <h1>Acknowledge Requirements</h1>
+    <h1>Onboarding / Training Requirements</h1>
 
-    <p>View the documents that each employee is required to acknowledge. Edit the requirements if you need!</p>
+    <p>View the onboarding / training documents that each employee is required to acknowledge and submit. Edit the requirements if you need!</p>
 
     <table class="table">
       <thead>
         <tr>
           <th>Employee</th>
-          <th>Acknowledgement Required Documents</th>
+          <th>Acknowledgement Required</th>
+          <th>Edit Requirement</th>
+          <th>Submission Required</th>
           <th>Edit Requirement</th>
         </tr>
       </thead>
@@ -37,10 +39,20 @@
                   <li>{{ doc }}</li>
                 {% endfor %}
               {% else %}
-                No required documents 
+                No acknowledgements required 
               {% endif %}
             </td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_ack_requirement/{{inst.0}}">Edit</a></td>
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_ack_requirement/{{inst.0}}">Edit Acknowledgements</a></td>
+            <td>
+              {% if inst.4 %}
+                {% for doc in inst.4 %}
+                  <li>{{ doc }}</li>
+                {% endfor %}
+              {% else %}
+                No submissions required 
+              {% endif %}
+            </td>
+            <td class="tg-yw4l"><a href="blt_hr_system/edit_submission_req/{{inst.0}}">Edit Submissions</a></td>
           </tr>
         {% empty %}
           <tr>
