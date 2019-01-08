@@ -208,7 +208,6 @@ def manage_onboarding_docs(request):
             return HttpResponseRedirect(reverse('manage_onboarding_docs'))
         else:
             error_msg = True
-            print(request.POST.get('doc'))
             document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
             document_name = document_inst.upload_name
             doc_form = forms.add_onboarding_doc()
@@ -242,7 +241,6 @@ def edit_onboarding_docs(request, pk):
             return HttpResponseRedirect(reverse('manage_onboarding_docs'))
         else:
             error_msg = True
-            print(request.POST.get('doc'))
             document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
             document_name = document_inst.upload_name
             doc = models.onboarding_docs.objects.get(id=pk)
@@ -579,7 +577,6 @@ def onboarding_requirement(request):
     cursor = connection.cursor()
     cursor.execute(sql)
     data = cursor.fetchall()
-    print(data)
     context = {'data':data
     }
     return render(request, 'onboarding_requirement.html', context)
@@ -667,3 +664,131 @@ def ack_doc_read(request, pk):
             }
             return render(request, 'ack_doc_read.html', context)  
             
+def review_sub_docs(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    sql = """
+        WITH sub_doc_outstand as (
+            SELECT "blt_hr_system_doc_submit_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_docs"."name"
+                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+                    ASC) AS outstanding
+            FROM "blt_hr_system_doc_submit_req"
+            LEFT JOIN "blt_hr_system_onboarding_docs"
+                on "blt_hr_system_doc_submit_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            WHERE "blt_hr_system_doc_submit_req"."submitted" IS FALSE
+            GROUP BY 1
+        ),
+            sub_doc_complete as (
+            SELECT "blt_hr_system_doc_submit_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_docs"."name"
+                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+                    ASC) AS complete
+            FROM "blt_hr_system_doc_submit_req"
+            LEFT JOIN "blt_hr_system_onboarding_docs"
+                on "blt_hr_system_doc_submit_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            WHERE "blt_hr_system_doc_submit_req"."submitted" IS TRUE
+            GROUP BY 1
+        ),
+            users as (
+            SELECT "auth_user"."id" as id, 
+                   "auth_user"."first_name" as first_name, 
+                   "auth_user"."last_name" as last_name
+            FROM "auth_user"
+            GROUP BY 1,2,3
+        )
+        SELECT users.id, 
+               users.first_name, 
+               users.last_name, 
+               sub_doc_complete.complete,
+               sub_doc_outstand.outstanding  
+        FROM users
+        LEFT JOIN sub_doc_outstand
+            on users.id = sub_doc_outstand.employee_id
+        LEFT JOIN sub_doc_complete 
+            on users.id = sub_doc_complete.employee_id
+        ORDER BY 5,2,3
+        """
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    context = {'data':data
+    }
+    return render(request, 'review_sub_docs.html', context)
+
+def review_ack_docs(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    sql = """
+        WITH ack_doc_outstand as (
+            SELECT "blt_hr_system_doc_read_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_docs"."name"
+                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+                    ASC) AS outstanding
+            FROM "blt_hr_system_doc_read_req"
+            LEFT JOIN "blt_hr_system_onboarding_docs"
+                on "blt_hr_system_doc_read_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            WHERE "blt_hr_system_doc_read_req"."read" IS FALSE
+            GROUP BY 1
+        ),
+            ack_doc_complete as (
+            SELECT "blt_hr_system_doc_read_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_docs"."name"
+                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+                    ASC) AS complete
+            FROM "blt_hr_system_doc_read_req"
+            LEFT JOIN "blt_hr_system_onboarding_docs"
+                on "blt_hr_system_doc_read_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            WHERE "blt_hr_system_doc_read_req"."read" IS TRUE
+            GROUP BY 1
+        ),
+            users as (
+            SELECT "auth_user"."id" as id, 
+                   "auth_user"."first_name" as first_name, 
+                   "auth_user"."last_name" as last_name
+            FROM "auth_user"
+            GROUP BY 1,2,3
+        )
+        SELECT users.id, 
+               users.first_name, 
+               users.last_name, 
+               ack_doc_complete.complete,
+               ack_doc_outstand.outstanding  
+        FROM users
+        LEFT JOIN ack_doc_outstand
+            on users.id = ack_doc_outstand.employee_id
+        LEFT JOIN ack_doc_complete 
+            on users.id = ack_doc_complete.employee_id
+        ORDER BY 5,2,3
+        """
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    context = {'data':data
+    }
+    return render(request, 'review_ack_docs.html', context)
+
+def edit_doc_submission(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        user_mod = User.objects.get(id=pk)
+        for i in request.POST.getlist('docs'):
+            doc_mod = models.onboarding_docs.objects.get(id=i)
+            onboard_doc = models.doc_submit_req.objects.filter(doc=doc_mod, employee=user_mod).update(submitted=True)
+        return HttpResponseRedirect(reverse('review_sub_docs'))
+    else:    
+        name = User.objects.get(id=pk)
+        name_print = name.first_name + ' ' + name.last_name
+        edit_sub_require = forms.edit_sub_docs(pk=pk)
+        context = {'name_print': name_print,
+                   'edit_sub_require': edit_sub_require,
+        }
+        return render(request, 'edit_doc_submission.html', context)
+

@@ -86,6 +86,19 @@ class edit_sub_require(forms.Form):
             widget=forms.CheckboxSelectMultiple(),
             initial=doc_list)
 
+class edit_sub_docs(forms.Form):
+    def __init__(self, *args, **kwargs):
+        pk = kwargs.pop('pk')
+        super(edit_sub_docs,self).__init__(*args,**kwargs)
+        req_doc = list(doc_submit_req.objects.all().filter(employee=pk, submitted=False).values_list('doc', flat = True))
+        self.fields['docs'] = forms.ModelMultipleChoiceField(
+            queryset=onboarding_docs.objects.all().filter(id__in=req_doc).order_by('name'),
+            label="Update documents", 
+            help_text="Please select all documents that have been submitted",
+            required=False,
+            widget=forms.CheckboxSelectMultiple()
+            )
+
 class submit_company_info(forms.ModelForm):
     class Meta:
         model = company_info

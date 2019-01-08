@@ -130,7 +130,7 @@ class onboarding_docs(models.Model):
 class doc_read_req(models.Model):
     read = models.BooleanField(default=False, blank=True)
     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    doc = models.ForeignKey(onboarding_docs, on_delete=models.CASCADE, null=True)
+    doc = models.ForeignKey(onboarding_docs, on_delete=models.CASCADE, null=True) 
 
 class doc_submit_req(models.Model):
     submitted = models.BooleanField(default=False, blank=True)

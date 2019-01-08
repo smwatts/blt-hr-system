@@ -38,6 +38,9 @@ urlpatterns = [
     url(r'edit_ack_requirement/(?P<pk>[\w-]+)$', views.edit_ack_requirement, name = 'edit_ack_requirement'),
     url(r'edit_submission_req/(?P<pk>[\w-]+)$', views.edit_submission_req, name = 'edit_submission_req'),
     url(r'onboarding_training_docs.html', views.onboarding_training_docs, name = 'onboarding_training_docs'),
+    url(r'review_ack_docs.html', views.review_ack_docs, name = 'review_ack_docs'),
+    url(r'review_sub_docs.html', views.review_sub_docs, name = 'review_sub_docs'),
     url(r'ack_doc_read/(?P<pk>[\w-]+)$', views.ack_doc_read, name = 'ack_doc_read'),
+    url(r'edit_doc_submission/(?P<pk>[\w-]+)$', views.edit_doc_submission, name = 'edit_doc_submission'),
 ]
 
