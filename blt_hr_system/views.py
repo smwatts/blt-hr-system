@@ -14,6 +14,8 @@ from django.core.mail import EmailMessage
 import datetime
 import datedelta
 from django.db.models import Q
+from collections import defaultdict
+from django.db import connection
 
 def home(request):
     if not request.user.is_authenticated:
@@ -238,7 +240,8 @@ def edit_onboarding_docs(request, pk):
             print(request.POST.get('doc'))
             document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
             document_name = document_inst.upload_name
-            doc_form = forms.add_onboarding_doc()
+            doc = models.onboarding_docs.objects.get(id=pk)
+            doc_form = forms.add_onboarding_doc(instance=doc)
             doc_info = models.onboarding_docs.objects.all()
             context = {'doc_form': doc_form,
                        'doc_info' : doc_info,
@@ -522,3 +525,65 @@ def admin(request):
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     return render(request, 'admin.html')
+
+def acknowledge_requirement(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    sql = """
+        SELECT "auth_user"."id", 
+               "auth_user"."first_name", 
+                "auth_user"."last_name", 
+                array_agg("blt_hr_system_onboarding_docs"."name") AS doc
+        FROM "auth_user" 
+        LEFT JOIN "blt_hr_system_doc_read_req" 
+            on "auth_user"."id" = "blt_hr_system_doc_read_req"."employee_id"
+        LEFT JOIN "blt_hr_system_onboarding_docs"
+            on "blt_hr_system_doc_read_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+        GROUP BY "auth_user"."id", 
+                 "auth_user"."first_name", 
+                 "auth_user"."last_name"
+        ORDER BY "auth_user"."first_name", 
+                 "auth_user"."last_name"
+         """
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    print(data)
+    context = {'data':data
+    }
+    return render(request, 'acknowledge_requirement.html', context)
+
+@transaction.atomic
+def edit_ack_requirement(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        doc_req = models.doc_read_req.objects.all().filter(employee=pk)
+        user_mod = User.objects.get(id=pk)
+        for u in doc_req:
+            u.delete()
+        for i in request.POST.getlist('docs'):
+            onboard_doc = models.onboarding_docs.objects.get(id=i)
+            models.doc_read_req.objects.create(employee=user_mod, doc=onboard_doc, read=False)
+        return HttpResponseRedirect(reverse('acknowledge_requirement'))
+    doc_req = models.doc_read_req.objects.all().filter(employee=pk)
+    name = User.objects.get(id=pk)
+    name_print = name.first_name + ' ' + name.last_name
+    edit_ack_require = forms.edit_ack_require(pk=pk)
+    context = {'name_print': name_print,
+                'edit_ack_require': edit_ack_require}
+    return render(request, 'edit_ack_requirement.html', context)
+
+def submission_required(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    context = {
+
+    }
+    return render(request, 'submission_required.html', context)

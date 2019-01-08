@@ -14,12 +14,19 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
-  <body>
-    <h1>Performance Reviews</h1>
-    <p>Work in progress.</p>
 
-    </body>
-    </html>
+<h2>Edit acknowledgement requirements: {{name_print}} </h2>
+<ul>
+
+</ul>
+
+<form method="post">
+  {% csrf_token %}
+  {{edit_ack_require|bootstrap}}
+  <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+</form>
+
+</html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>
