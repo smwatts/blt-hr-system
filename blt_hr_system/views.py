@@ -340,7 +340,9 @@ def signup(request):
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
+        print(form)
         if form.is_valid():
+            print('valid')
             # submit employee informatation to create an account with profile information
             obj = form.save()
             obj.refresh_from_db() 
@@ -367,7 +369,16 @@ def signup(request):
                         mail_subject, message, to=[to_email]
             )
             email.send()
-            return HttpResponseRedirect(reverse('employee_directory_edit'))
+            # TO TEST
+            # print(request.POST.getlist('onbaording_read'))
+            # print(request.POST.getlist('onbaording_submit'))
+            # for i in request.POST.getlist('onbaording_read'):
+            #     onboard_doc = models.onboarding_docs.objects.get(id=i)
+            #     models.doc_read_req.objects.create(employee=obj, doc=onboard_doc, read=False)
+            # for i in request.POST.getlist('onbaording_submit'):
+            #     onboard_doc = models.onboarding_docs.objects.get(id=i)
+            #     models.doc_submit_req.objects.create(employee=obj, doc=onboard_doc, read=False)
+            # return HttpResponseRedirect(reverse('employee_directory_edit'))
     else:
         form = forms.SignUpForm()
     return render(request, 'signup.html', {'form': form})
@@ -590,11 +601,15 @@ def edit_ack_requirement(request, pk):
     if request.method == 'POST':
         doc_req = models.doc_read_req.objects.all().filter(employee=pk)
         user_mod = User.objects.get(id=pk)
+        leave_alone = list(set(list(map(int,request.POST.getlist('docs')))) & 
+            set(list(models.doc_read_req.objects.all().filter(employee=pk).values_list('doc__id', flat=True))))
         for u in doc_req:
-            u.delete()
+            if int(u.doc_id) not in leave_alone:
+                u.delete()
         for i in request.POST.getlist('docs'):
-            onboard_doc = models.onboarding_docs.objects.get(id=i)
-            models.doc_read_req.objects.create(employee=user_mod, doc=onboard_doc, read=False)
+            if int(i) not in leave_alone:
+                onboard_doc = models.onboarding_docs.objects.get(id=i)
+                models.doc_read_req.objects.create(employee=user_mod, doc=onboard_doc, read=False)
         return HttpResponseRedirect(reverse('onboarding_requirement'))
     name = User.objects.get(id=pk)
     name_print = name.first_name + ' ' + name.last_name
@@ -612,11 +627,15 @@ def edit_submission_req(request, pk):
     if request.method == 'POST':
         doc_req = models.doc_submit_req.objects.all().filter(employee=pk)
         user_mod = User.objects.get(id=pk)
+        leave_alone = list(set(list(map(int,request.POST.getlist('docs')))) & 
+            set(list(models.doc_submit_req.objects.all().filter(employee=pk).values_list('doc__id', flat=True))))
         for u in doc_req:
-            u.delete()
+            if int(u.doc_id) not in leave_alone:
+                u.delete()
         for i in request.POST.getlist('docs'):
-            onboard_doc = models.onboarding_docs.objects.get(id=i)
-            models.doc_submit_req.objects.create(employee=user_mod, doc=onboard_doc, submitted=False)
+            if int(i) not in leave_alone:
+                onboard_doc = models.onboarding_docs.objects.get(id=i)
+                models.doc_submit_req.objects.create(employee=user_mod, doc=onboard_doc, submitted=False)
         return HttpResponseRedirect(reverse('onboarding_requirement'))
     name = User.objects.get(id=pk)
     name_print = name.first_name + ' ' + name.last_name

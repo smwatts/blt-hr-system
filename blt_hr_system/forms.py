@@ -216,9 +216,9 @@ class SignUpForm(UserCreationForm):
         label='Documents requiring submission')
     manager = forms.ModelChoiceField(queryset=Profile.objects.all().filter(user__is_active=True).exclude(user__username='system_admin').order_by('user__first_name'),
         help_text='The manager selected will be responsible for approving absence requests and conducting performance reviews.')
-    absence_allocation_annually = forms.IntegerField(required=True, initial=0,
+    absence_allocation_annually = forms.IntegerField(required=False, initial=0,
         help_text='Enter the number of days for absences allocated for the employee annually. If the employee does not have allocated absence days, enter 0.')
-    sick_day_allocation_annually = forms.IntegerField(required=True, initial=0,
+    sick_day_allocation_annually = forms.IntegerField(required=False, initial=0,
         help_text='Enter the number of sick days allocated for the employee annually. If the employee does not have allocated sick days, enter 0.')
     password = User.objects.make_random_password()
     password1 = forms.CharField(
