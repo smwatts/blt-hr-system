@@ -69,7 +69,7 @@
         <tr>
           <td>Required Certifications</td>
           <td>{% for cert in user.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
-          <td><a href="{% url 'certifications' %}">Manage certifications</a></td>
+          <td><a href="{% url 'certs' %}">Manage certifications</a></td>
         </tr> 
 
         <tr>

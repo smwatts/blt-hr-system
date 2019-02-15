@@ -17,7 +17,7 @@
   <body>
     <h1>Submit certification requests</h1>
     <p>All certifications will be submitted for approval here. 
-      A list of all system managed certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
+      A list of all system managed certifications can be found <a href="{% url 'certs' %}">here</a>.</p>
 
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}

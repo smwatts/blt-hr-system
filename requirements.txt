@@ -14,3 +14,4 @@ boto3==1.9.37
 boto==2.49.0
 botocore==1.12.37
 datedelta==1.2
+django-crispy-forms==1.7.2

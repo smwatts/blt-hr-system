@@ -18,7 +18,7 @@
     <h1>Review certification requests</h1>
     <p>Certifications submitted for approval are found here. Click into each certification to 
       determine if it should be approved or rejected. 
-      The list of all possible certifications can be found <a href="{% url 'certifications' %}">here</a>.</p>
+      The list of all possible certifications can be found <a href="{% url 'certs' %}">here</a>.</p>
 
     <table class="table">
       <thead>
@@ -42,7 +42,7 @@
           {% else %}
           <td>{{ r.exp_date }}</td>
           {% endif %}
-          <td class="tg-yw4l"><a href="blt_hr_system/review_cert/{{r.id}}">Review</a></td>
+          <td class="tg-yw4l"><a href="certifications/review_cert/{{r.id}}">Review</a></td>
         </tr>
         {% endfor %}
       </tbody>

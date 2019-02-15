@@ -41,7 +41,7 @@
        </div>
     </div>
 
-    <h3>View & edit company locations for BLT below.</h3>
+    <p class="text-info">View & edit company locations for BLT below.</p>
 
     <table class="table">
       <thead>
@@ -54,7 +54,7 @@
         {% for company_info in company_info %}
           <tr>
             <td>{{ company_info.location }}</td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_company_info/{{company_info.id}}">Edit</a></td>
+            <td class="tg-yw4l"><a href="admin/edit_company_info/{{company_info.id}}">Edit</a></td>
           </tr>
         {% empty %}
           <tr>

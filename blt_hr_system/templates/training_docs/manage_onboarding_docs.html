@@ -20,7 +20,7 @@
 	<h1>Managed Onboarding / Training Documents</h1>
 
   <p>Please provide a list of onboarding / training documents that are required for either submission or acknowledgement by employees.</p>
-  <p>Documents can be uploaded <a href="blt_hr_system/training_material.html">here</a>.</p>
+  <p>Documents can be uploaded <a href="training_docs/training_material.html">here</a>.</p>
     <form method="POST" class="add-emp-group">
         {% csrf_token %}
         <div class='row'>
@@ -68,7 +68,7 @@
           <tr>
             <td>{{ doc.name }}</td>
             <td><a href="{{ doc.doc.upload.url }}" target="_blank">{{ doc.doc }}</a></td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_onboarding_docs/{{doc.id}}">
+            <td class="tg-yw4l"><a href="training_docs/edit_onboarding_docs/{{doc.id}}">
                 Edit document information</a></td>
           </tr>
         {% empty %}

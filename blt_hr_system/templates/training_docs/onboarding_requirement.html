@@ -15,40 +15,44 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-    <h1>Review acknowledged onboarding / training documents</h1>
-    <p>You can view the onboarding / training documents that have been acknowledged and that are outstanding here.</p>
-    <p>To make changes to the required onboarding / training documents for each employee click 
-      <a href="{% url 'manage_onboarding_docs' %}">here</a></p>
+    <h1>Onboarding / Training Requirements</h1>
+
+    <p>View the onboarding / training documents that each employee is required to acknowledge and submit. Edit the requirements if you need!</p>
 
     <table class="table">
       <thead>
         <tr>
           <th>Employee</th>
-          <th>Submitted documents</th>
-          <th>Outstanding documents</th>
+          <th>Acknowledgement Required</th>
+          <th>Edit Requirement</th>
+          <th>Submission Required</th>
+          <th>Edit Requirement</th>
         </tr>
       </thead>
       <tbody>
         {% for inst in data %}
           <tr>
             <td>{{ inst.1 }} {{ inst.2 }}</td>
-            <td>{% if inst.3 %}
-                  {% for doc in inst.3 %}
-                    <li>{{ doc }}</li>
-                  {% endfor %}
-                {% else %}
-                  No documents submitted 
-                {% endif %}
+            <td>
+              {% if inst.3 %}
+                {% for doc in inst.3 %}
+                  <li>{{ doc }}</li>
+                {% endfor %}
+              {% else %}
+                No acknowledgements required 
+              {% endif %}
             </td>
-            <td>{% if inst.4 %}
-                  {% for doc in inst.4 %}
-                      <li>{{ doc }}</li>
-                  {% endfor %}
-                {% else %}
-                  No outstanding documents 
-                {% endif %}
+            <td class="tg-yw4l"><a href="training_docs/edit_ack_requirement/{{inst.0}}">Edit Acknowledgements</a></td>
+            <td>
+              {% if inst.4 %}
+                {% for doc in inst.4 %}
+                  <li>{{ doc }}</li>
+                {% endfor %}
+              {% else %}
+                No submissions required 
+              {% endif %}
             </td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_doc_submission/{{inst.0}}">Edit submissions</a></td>
+            <td class="tg-yw4l"><a href="training_docs/edit_submission_req/{{inst.0}}">Edit Submissions</a></td>
           </tr>
         {% empty %}
           <tr>

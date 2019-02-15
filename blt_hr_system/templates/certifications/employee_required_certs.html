@@ -18,7 +18,7 @@
 <h1>Certification requirements by employee</h1>
 
   <main>
-    <p>Below is a list of employee certification requirements for each employee. You can edit the certification requirements from here. To view information on certifications, click <a href="{% url 'certifications' %}">here.</a></p>
+    <p>Below is a list of employee certification requirements for each employee. You can edit the certification requirements from here. To view information on certifications, click <a href="{% url 'certs' %}">here.</a></p>
 
     <table class="table">
       <thead>
@@ -33,7 +33,7 @@
           <tr>
             <td>{{ i.get_full_name }}</td>
             <td>{% for cert in i.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_required_certs/{{i.id}}">Edit</a></td>
+            <td class="tg-yw4l"><a href="certifications/edit_required_certs/{{i.id}}">Edit</a></td>
           </tr> 
         {% empty %}
           <tr>

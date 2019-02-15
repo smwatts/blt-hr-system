@@ -15,10 +15,10 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-    <h1>Review submitted onboarding / training documents</h1>
-    <p>You can view the onboarding / training documents that have been submitted and that are outstanding here.</p>
-    <p>To make changes to the required onboarding / training documents for each employee 
-      click <a href="{% url 'manage_onboarding_docs' %}">here</a></p>
+    <h1>Review acknowledged onboarding / training documents</h1>
+    <p>You can view the onboarding / training documents that have been acknowledged and that are outstanding here.</p>
+    <p>To make changes to the required onboarding / training documents for each employee click 
+      <a href="{% url 'manage_onboarding_docs' %}">here</a></p>
 
     <table class="table">
       <thead>
@@ -26,7 +26,6 @@
           <th>Employee</th>
           <th>Submitted documents</th>
           <th>Outstanding documents</th>
-          <th>Update</th>
         </tr>
       </thead>
       <tbody>
@@ -49,7 +48,7 @@
                   No outstanding documents 
                 {% endif %}
             </td>
-            <td class="tg-yw4l"><a href="blt_hr_system/edit_doc_submission/{{inst.0}}">Edit submissions</a></td>
+            <td class="tg-yw4l"><a href="training_docs/edit_doc_submission/{{inst.0}}">Edit submissions</a></td>
           </tr>
         {% empty %}
           <tr>
