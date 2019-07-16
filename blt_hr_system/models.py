@@ -160,8 +160,8 @@ class employee_absence(models.Model):
     is_admin_approved = models.BooleanField(default=False, blank=True)
     date_approved_manager = models.DateField(null=False, blank=False)
     date_approved_admin = models.DateField(null=False, blank=False)
-    manager_comment = models.CharField(max_length=1000)
-    admin_comment = models.CharField(max_length=1000)
+    manager_comment = models.CharField(max_length=1000, blank=True)
+    admin_comment = models.CharField(max_length=1000, blank=True)
 
 # ---------------------------------------------------------------------
 # TIMESHEETS
