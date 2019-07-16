@@ -9,7 +9,7 @@
       <thead>
         <tr>
           <th>Document</th>
-          <th>Onboarding / Training Document Name</th>
+          <th>Onboarding Category</th>
           <th>Last Updated (EST)</th>
         </tr>
       </thead>
@@ -17,11 +17,7 @@
         {% for document in documents %}
           <tr>
             <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
-            {% if not document.onboarding_docs.id %}
-              <td>n/a</td>
-            {% else %}
-              <td>{{ document.onboarding_docs.name }}</td>
-            {% endif %}
+            <td>{{ document.onboarding_cat.name }}</td>
             <td>{{ document.uploaded_at }}</td>
           </tr>
         {% empty %}

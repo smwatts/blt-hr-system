@@ -17,18 +17,15 @@
 
 
   <body>
-	<h1>Managed Onboarding / Training Documents</h1>
+	<h1>Managed Onboarding Document Categories</h1>
 
-  <p>Please provide a list of onboarding / training documents that are required for either submission or acknowledgement by employees.</p>
+  <p>Please provide a list of onboarding document categories that are required for either submission or acknowledgement by employees.</p>
   <p>Documents can be uploaded <a href="training_docs/training_material.html">here</a>.</p>
     <form method="POST" class="add-emp-group">
         {% csrf_token %}
         <div class='row'>
           <div class="col-lg-6">
             {{doc_form.name|bootstrap}}
-          </div>
-          <div class="col-lg-6">
-            {{doc_form.doc|bootstrap}}
           </div>
         </div>
         <div class='row'>
@@ -37,15 +34,6 @@
           </div>
         </div>
     </form>  
-
-    {% if error_msg %}
-    <br>
-    <div class='row'>
-      <div class='col-lg-12'>
-        <p class="text-danger">The document: {{document_name}}, cannot be assigned to a new onboarding / training document because it is currently being used by other document. You can edit the documents assigned below.</p>
-      </div>
-    </div>
-    {% endif %}
 
     <div class='row'>
         <div class='col-lg-8 col-lg-offset-2'>
@@ -59,7 +47,6 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Training / Onboarding Document</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -67,9 +54,8 @@
         {% for doc in doc_info %}
           <tr>
             <td>{{ doc.name }}</td>
-            <td><a href="{{ doc.doc.upload.url }}" target="_blank">{{ doc.doc }}</a></td>
-            <td class="tg-yw4l"><a href="training_docs/edit_onboarding_docs/{{doc.id}}">
-                Edit document information</a></td>
+            <td class="tg-yw4l"><a href="training_docs/edit_onboarding_cat/{{doc.id}}">
+                Edit category name</a></td>
           </tr>
         {% empty %}
           <tr>

@@ -5,6 +5,7 @@ from .employees import *
 from .performance import *
 from .registration import *
 from .training_docs import *
+from .timesheet import *
 
 from django.urls import reverse
 from django.template import loader, RequestContext

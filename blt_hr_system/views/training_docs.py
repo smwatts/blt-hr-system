@@ -26,7 +26,7 @@ from django.db import connection
 def training_center(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    documents = models.training_docs.objects.all()
+    documents = models.training_docs.objects.all().filter(active_doc=True)
     documents = documents.order_by('upload_name')
     context = {'documents': documents,}
     return render(request, 'training_docs/training_center.html', context)
@@ -80,45 +80,8 @@ def ack_doc_read(request, pk):
 # ADMIN FUNCTIONS
 # ------------------------------------------------------------------
 
-# Admin function to remove documents from the system
-# TO DO: change the functionality to "active/inactie" instead of removing docs
-def delete_training_doc(request):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
-        return HttpResponseRedirect(reverse('home'))
-    if request.method == 'POST':
-        form = forms.training_docs_submit(request.POST)
-        documents = models.training_docs.objects.all()
-        id_val = request.POST.get('document_name')
-        onboard_doc = list(models.onboarding_docs.objects.filter(doc=id_val).all().values_list('name'))
-        if len(onboard_doc) == 0:
-            item = models.training_docs.objects.get(id=id_val)
-            item.delete()
-            return HttpResponseRedirect(reverse('training_center'))
-        else:
-            form = forms.remove_doc()
-            message = True
-            invalid_doc = models.onboarding_docs.objects.filter(doc=id_val).all()
-            document_inst = models.training_docs.objects.get(id=id_val)
-            document_name = document_inst.upload_name
-            context = {'document_name': document_name, 
-                        'documents': documents,
-                        'form': form,
-                        'message': message,
-                        'invalid_doc': invalid_doc,}
-            return render(request, 'training_docs/delete_training_doc.html', context) 
-    form = forms.remove_doc()
-    documents = models.training_docs.objects.all()
-    message = False
-    context = {'documents': documents,
-                'form': form,
-                'message': message,}
-    return render(request, 'training_docs/delete_training_doc.html', context)  
-
 # Admin function to add a new training documents
-# TO DO: Change the functionality to remove the "re-ack"/"re-submit"
-#        If the doc is an "onboarding" doc then it must be "re-ack"/"re-submit"
+# If the doc is an "onboarding" doc then it must be "re-ack"/"re-submit"
 def training_material(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
@@ -130,95 +93,85 @@ def training_material(request):
             obj = form.save(commit=False)
             obj.uploaded_by = request.user
             obj.save()
-            if request.POST.get('onbard_doc'):
-                # update the onboarding / training doc to point to this new document
-                onbaord_inst = models.onboarding_docs.objects.get(id=request.POST.get('onbard_doc'))
-                onbaord_inst.doc = obj
-                onbaord_inst.save()
-                if request.POST.get('update_read'):
-                    # assign all values of 'update_read' to False where doc_read_req.doc == onbaord_inst.id
-                    update_read_mod = models.doc_read_req.objects.all().filter(doc=onbaord_inst.id)
-                    for inst in update_read_mod:
-                        inst.read = False
-                if request.POST.get('update_submit'):
-                    # assign all values of 'update_submit' to False where doc_submit_req.doc == onbaord_inst.id
-                    update_submit_mod = models.doc_submit_req.objects.all().filter(doc=onbaord_inst.id)
-                    for inst in update_submit_mod:
-                        inst.submitted = False
-            return HttpResponseRedirect(reverse('training_center'))
+            onboarding_cat = obj.onboarding_cat
+            pk = obj.id
+            print(pk, onboarding_cat)
+            onboard_doc = models.training_docs.objects.filter(~Q(id=pk), onboarding_cat=onboarding_cat).update(active_doc=False)
+            return HttpResponseRedirect(reverse('training_material'))
     documents = models.training_docs.objects.all()
     form = forms.training_docs_submit()
     context = {'documents': documents,
                 'form': form,}
     return render(request, 'training_docs/training_material.html', context)
 
+# Admin function to remove documents from the system
+# TO DO: change the functionality to "active/inactive" instead of removing docs
+def delete_training_doc(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    documents = models.training_docs.objects.all()
+    context = {'documents': documents,}
+    return render(request, 'training_docs/delete_training_doc.html', context)  
+
+# Admin function to delete documents from the system
+def change_doc_status(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        doc = models.training_docs.objects.get(id=pk)
+        doc_form = forms.remove_doc(request.POST, instance=doc)
+        if doc_form.is_valid():
+            if 'delete_document' in request.POST:
+                doc.delete()
+            messages.success(request, 'The training document was successfully deleted!')
+            return HttpResponseRedirect(reverse('delete_training_doc'))
+    doc = models.training_docs.objects.get(id=pk)
+    form = forms.remove_doc(instance=doc)
+    context = {'form': form, 'doc':doc}
+    return render(request, 'training_docs/change_doc_status.html', context)
+
 # Admin function to create onboarding form categories
-# TO DO: Remove the 1:1 relationship between a training document and
-#        an onboarding form
 def manage_onboarding_docs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
-        doc_form = forms.add_onboarding_doc(request.POST)
+        doc_form = forms.add_onboarding_cat(request.POST)
         if doc_form.is_valid():
             doc_form.save()
             return HttpResponseRedirect(reverse('manage_onboarding_docs'))
-        else:
-            error_msg = True
-            document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
-            document_name = document_inst.upload_name
-            doc_form = forms.add_onboarding_doc()
-            doc_info = models.onboarding_docs.objects.all()
-            context = {'doc_form': doc_form,
-                       'doc_info' : doc_info,
-                       'error_msg':error_msg,
-                       'document_name':document_name,
-            }
-            return render(request, 'training_docs/manage_onboarding_docs.html', context)
     else:
-        doc_form = forms.add_onboarding_doc()
-        doc_info = models.onboarding_docs.objects.all()
-        error_msg = False
+        doc_form = forms.add_onboarding_cat()
+        doc_info = models.onboarding_cat.objects.all()
         context = {'doc_form': doc_form,
-                   'doc_info' : doc_info,
-                   'error_msg':error_msg,}
+                   'doc_info' : doc_info,}
     return render(request, 'training_docs/manage_onboarding_docs.html', context)
 
 # Admin function to edit an onboarding category
 # TO DO: Figure out what "editting an onboarding category" means
 #        Can we remove docs from that category? What happens when we do?
-def edit_onboarding_docs(request, pk):
+def edit_onboarding_cat(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
-        doc = models.onboarding_docs.objects.get(id=pk)
-        doc_form = forms.add_onboarding_doc(request.POST, instance=doc)
+        doc = models.onboarding_cat.objects.get(id=pk)
+        doc_form = forms.add_onboarding_cat(request.POST, instance=doc)
         if doc_form.is_valid():
             doc_form.save()
-            messages.success(request, 'The onboarding document was successfully updated!')
+            messages.success(request, 'The onboarding category was successfully updated!')
             return HttpResponseRedirect(reverse('manage_onboarding_docs'))
-        else:
-            error_msg = True
-            document_inst = models.training_docs.objects.get(id=request.POST.get('doc'))
-            document_name = document_inst.upload_name
-            doc = models.onboarding_docs.objects.get(id=pk)
-            doc_form = forms.add_onboarding_doc(instance=doc)
-            doc_info = models.onboarding_docs.objects.all()
-            context = {'doc_form': doc_form,
-                       'doc_info' : doc_info,
-                       'error_msg':error_msg,
-                       'document_name':document_name,
-            }
-            return render(request, 'training_docs/edit_onboarding_docs.html', context)
     else:
-        doc = models.onboarding_docs.objects.get(id=pk)
-        doc_form = forms.add_onboarding_doc(instance=doc)
+        doc = models.onboarding_cat.objects.get(id=pk)
+        doc_form = forms.add_onboarding_cat(instance=doc)
         context = {'doc_form': doc_form,}
-        return render(request, 'training_docs/edit_onboarding_docs.html', context)
+        return render(request, 'training_docs/edit_onboarding_cat.html', context)
 
 # Admin function to display the onboarding "ack" & "submit" requirements for all employees
 def onboarding_requirement(request):
@@ -228,23 +181,23 @@ def onboarding_requirement(request):
         return HttpResponseRedirect(reverse('home'))
     sql = """
         WITH req_doc as (
-            SELECT "blt_hr_system_doc_read_req"."employee_id" as employee_id,  
-                array_agg("blt_hr_system_onboarding_docs"."name"
-                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+            SELECT DISTINCT "blt_hr_system_doc_read_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_cat"."name"
+                    ORDER BY "blt_hr_system_onboarding_cat"."name" 
                     ASC) AS req_doc
             FROM "blt_hr_system_doc_read_req"
-            LEFT JOIN "blt_hr_system_onboarding_docs"
-                on "blt_hr_system_doc_read_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            LEFT JOIN "blt_hr_system_onboarding_cat"
+                on "blt_hr_system_doc_read_req"."onboarding_cat_id" = "blt_hr_system_onboarding_cat"."id"
             GROUP BY 1
         ),
             sub_doc as (
-            SELECT "blt_hr_system_doc_submit_req"."employee_id" as employee_id,  
-                array_agg("blt_hr_system_onboarding_docs"."name"
-                    ORDER BY "blt_hr_system_onboarding_docs"."name" 
+            SELECT DISTINCT "blt_hr_system_doc_submit_req"."employee_id" as employee_id,  
+                array_agg("blt_hr_system_onboarding_cat"."name"
+                    ORDER BY "blt_hr_system_onboarding_cat"."name" 
                     ASC) AS sub_doc
             FROM "blt_hr_system_doc_submit_req"
-            LEFT JOIN "blt_hr_system_onboarding_docs"
-                on "blt_hr_system_doc_submit_req"."doc_id" = "blt_hr_system_onboarding_docs"."id"
+            LEFT JOIN "blt_hr_system_onboarding_cat"
+                on "blt_hr_system_doc_submit_req"."onboarding_cat_id" = "blt_hr_system_onboarding_cat"."id"
             GROUP BY 1
         ),
             users as (
@@ -282,17 +235,10 @@ def edit_ack_requirement(request, pk):
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
-        doc_req = models.doc_read_req.objects.all().filter(employee=pk)
         user_mod = User.objects.get(id=pk)
-        leave_alone = list(set(list(map(int,request.POST.getlist('docs')))) & 
-            set(list(models.doc_read_req.objects.all().filter(employee=pk).values_list('doc__id', flat=True))))
-        for u in doc_req:
-            if int(u.doc_id) not in leave_alone:
-                u.delete()
-        for i in request.POST.getlist('docs'):
-            if int(i) not in leave_alone:
-                onboard_doc = models.onboarding_docs.objects.get(id=i)
-                models.doc_read_req.objects.create(employee=user_mod, doc=onboard_doc, read=False)
+        for i in request.POST.getlist('onboarding_cat'):
+            onboarding_cat = models.onboarding_cat.objects.get(id=i)
+            models.doc_read_req.objects.create(employee=user_mod, onboarding_cat=onboarding_cat)
         return HttpResponseRedirect(reverse('onboarding_requirement'))
     name = User.objects.get(id=pk)
     name_print = name.first_name + ' ' + name.last_name
@@ -310,17 +256,10 @@ def edit_submission_req(request, pk):
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
-        doc_req = models.doc_submit_req.objects.all().filter(employee=pk)
         user_mod = User.objects.get(id=pk)
-        leave_alone = list(set(list(map(int,request.POST.getlist('docs')))) & 
-            set(list(models.doc_submit_req.objects.all().filter(employee=pk).values_list('doc__id', flat=True))))
-        for u in doc_req:
-            if int(u.doc_id) not in leave_alone:
-                u.delete()
-        for i in request.POST.getlist('docs'):
-            if int(i) not in leave_alone:
-                onboard_doc = models.onboarding_docs.objects.get(id=i)
-                models.doc_submit_req.objects.create(employee=user_mod, doc=onboard_doc, submitted=False)
+        for i in request.POST.getlist('onboarding_cat'):
+            onboarding_cat = models.onboarding_docs.objects.get(id=i)
+            models.doc_submit_req.objects.create(employee=user_mod, onboarding_cat=onboarding_cat, submitted=False)
         return HttpResponseRedirect(reverse('onboarding_requirement'))
     name = User.objects.get(id=pk)
     name_print = name.first_name + ' ' + name.last_name

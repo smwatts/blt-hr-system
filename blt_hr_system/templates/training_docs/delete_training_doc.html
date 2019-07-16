@@ -15,66 +15,34 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-    <h1>Remove Documents</h1>
+    <h1>Delete Training Document</h1>
 
-    <p>Select the document you would like to remove and click submit.</p>
-
-    <form method="post">
-      {% csrf_token %}
-      <div class='row'>
-        <div class="col-lg-8">
-          {{form.document_name|bootstrap}}
-        </div>
-      </div>
-      <div class='row'>
-        <div class="col-lg-8">
-          <button type="submit" class="btn btn-primary pull-left">Submit</button>
-        </div>
-      </div>
-      
-    </form>
-
-    {% if message %}
-    <br>
-    <div class='row'>
-      <div class='col-lg-12'>
-        <p class="text-danger">The {{document_name}} document cannot be deleted because it is being used as an onboarding / training document.</p>
-        <p class="text-danger">First you must upload a new document <a href="{% url 'training_material' %}">here</a> to replace the 
-        onboarding / training document for: {% for doc in invalid_doc %}{{doc.name}}{% endfor %}.</p>
-      </div>
-    </div>
-    {% endif %}
-
-    <div class='row'>
-        <div class='col-lg-8 col-lg-offset-2'>
-        <hr>
-       </div>
-    </div>
-
-    <p class="text-info">View uploaded documents</p>
+    <p>For a document to be displayed in the <a href="{% url 'training_center' %}">training centre</a>, 
+        it has to be active.</p>
 
     <table class="table">
       <thead>
         <tr>
           <th>Name</th>
-          <th>Onboarding / Training doc?</th>
+          <th>Onboarding doc?</th>
           <th>Uploaded at (EST)</th>
-          <th>Uploaded by</th>
           <th>Size</th>
+          <th>Delete Doc</th>
+          <th>Active Doc</th>
+          
         </tr>
       </thead>
       <tbody>
         {% for document in documents %}
           <tr>
             <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
-            {% if not document.onboarding_docs.id %}
-              <td>n/a</td>
-            {% else %}
-              <td>{{ document.onboarding_docs.name }}</td>
-            {% endif %}
+            <td>{{ document.onboarding_cat.name }}</td>
             <td>{{ document.uploaded_at }}</td>
-            <td>{{ document.uploaded_by }}</td>
             <td>{{ document.upload.size|filesizeformat }}</td>
+
+            <td class="tg-yw4l"><a href="training_docs/change_doc_status/{{document.id}}">
+                Delete</a></td>
+            <td>{% if document.active_doc %} Yes {% else %} No {% endif %}<td>
           </tr>
         {% empty %}
           <tr>

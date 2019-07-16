@@ -15,18 +15,12 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Edit employee certification requirement</h2>
-
-  <p>Employee: {{user_account.get_full_name}}</p>
-
-  <p>Certifications can be added <a href="{% url 'managed_certs' %}">here</a><p>
-  <form method="post">
-    {% csrf_token %}
-    {{ certs_form|bootstrap }}
-      <button type="submit" class="btn btn-primary pull-left">Save changes</button>
-  </form>
+  <body>
+    
+  </body>
 
 </html>
+
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

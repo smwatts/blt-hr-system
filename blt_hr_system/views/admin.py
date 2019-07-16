@@ -54,7 +54,7 @@ def add_company_info(request):
     if request.method == 'POST':
         company_info_form = forms.submit_company_info(request.POST)
         company_info_form.save()
-        return HttpResponseRedirect(reverse('company_locations'))
+        return HttpResponseRedirect(reverse('add_company_info'))
     else:
         company_info_form = forms.submit_company_info()
         company_info = models.company_info.objects.all()

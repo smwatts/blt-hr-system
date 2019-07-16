@@ -25,18 +25,6 @@ def cert_doc_path(instance, filename):
     return 'media/certification/{username}/{filename}{extension}'.format(
         username=instance.employee_id, filename=uuid.uuid4(), extension=extension)
 
-class training_docs(models.Model):
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    upload_name = models.CharField(max_length=200, null=False, blank=False)
-    upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=False, blank=False)
-    def __str__(self):
-        return self.upload_name
-
-@receiver(models.signals.post_delete, sender=training_docs)
-def remove_file_from_s3(sender, instance, using, **kwargs):
-    instance.upload.delete(save=False)
-
 class vaction_allocation(models.Model):
     # contains information pretaining to each employee
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -70,8 +58,55 @@ class Profile(models.Model):
     manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey('company_info', on_delete=models.SET_NULL, null=True)
     certs = models.ManyToManyField(certification)
+    office_staff = models.BooleanField(default=False, blank=True)
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
+
+# ---------------------------------------------------------------------
+# TRAINING DOCS
+# ---------------------------------------------------------------------
+
+# List of all onboarding categories
+class onboarding_cat(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+        
+# List of all training docs stored in the system
+# Includes if the training doc is active & the onboarding category for the doc
+class training_docs(models.Model):
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    upload_name = models.CharField(max_length=200, null=False, blank=False)
+    upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=False, blank=False)
+    active_doc = models.BooleanField(default=False, blank=True)
+    onboarding_cat = models.ForeignKey(onboarding_cat, on_delete=models.SET_NULL, null=True, blank=True) 
+    def __str__(self):
+        return self.upload_name
+
+# To delete documents
+# This will not be used - docs will instead be turned "inactive"
+@receiver(models.signals.post_delete, sender=training_docs)
+def remove_file_from_s3(sender, instance, using, **kwargs):
+    instance.upload.delete(save=False)
+
+# For each user, their required onboarding category is specified here
+# Each doc in the onboarding category that's read will be listed here
+class doc_read_req(models.Model):
+    read = models.ManyToManyField(training_docs)
+    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    onboarding_cat = models.ForeignKey(onboarding_cat, on_delete=models.CASCADE, null=True) 
+
+# For each user, their required onboarding category is specified here
+# Each doc in the onboarding category that's submitted will be listed here
+class doc_submit_req(models.Model):
+    submitted = models.ManyToManyField(training_docs)
+    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    onboarding_cat = models.ForeignKey(onboarding_cat, on_delete=models.CASCADE, null=True) 
+
+# ---------------------------------------------------------------------
+# EMPLOYEE PROFILE
+# ---------------------------------------------------------------------
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -101,6 +136,10 @@ class employee_certification(models.Model):
 def remove_cert_from_s3(sender, instance, using, **kwargs):
     instance.upload.delete(save=False)
 
+# ---------------------------------------------------------------------
+# ABSENCES
+# ---------------------------------------------------------------------
+
 class employee_absence(models.Model):
     # information for absences submitted by employees to be approved by management
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -118,21 +157,26 @@ class employee_absence(models.Model):
     absence_reason = models.CharField(max_length=1000)
     date_submitted = models.DateField(auto_now_add=True)
     is_manager_approved = models.BooleanField(default=False, blank=True)
-    date_approved = models.DateField(null=False, blank=False)
+    is_admin_approved = models.BooleanField(default=False, blank=True)
+    date_approved_manager = models.DateField(null=False, blank=False)
+    date_approved_admin = models.DateField(null=False, blank=False)
     manager_comment = models.CharField(max_length=1000)
+    admin_comment = models.CharField(max_length=1000)
 
-class onboarding_docs(models.Model):
-    name = models.CharField(max_length=200)
-    doc = models.OneToOneField(training_docs, on_delete=models.SET_NULL, null=True)
-    def __str__(self):
-        return self.name    
+# ---------------------------------------------------------------------
+# TIMESHEETS
+# ---------------------------------------------------------------------
 
-class doc_read_req(models.Model):
-    read = models.BooleanField(default=False, blank=True)
-    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    doc = models.ForeignKey(onboarding_docs, on_delete=models.CASCADE, null=True) 
+class timesheets(models.Model):
+    start_date = models.DateField(null=False, blank=False)
+    end_date = models.DateField(null=False, blank=False)
 
-class doc_submit_req(models.Model):
-    submitted = models.BooleanField(default=False, blank=True)
-    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    doc = models.ForeignKey(onboarding_docs, on_delete=models.CASCADE, null=True)
+class sage_jobs(models.Model):
+    job_id = models.CharField(max_length=200)
+    job_desc = models.CharField(max_length=1000)
+
+class hourly_timesheet(models.Model):
+    employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sage_job = models.ForeignKey('sage_jobs', on_delete=models.CASCADE, null=False, blank=False)
+    hours = models.PositiveIntegerField(blank=False, null=False, default=0)
+    description = models.CharField(max_length=1000, blank=True)

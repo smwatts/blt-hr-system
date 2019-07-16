@@ -36,7 +36,15 @@ urlpatterns = [
 
     # Pages relevant to absences (setting absence days, requests, approvals)
     url(r'absences/absence_request.html', views.absence_request, name = 'absence_request'),
-    
+    url(r'absences/review_absence_request.html', views.review_absence_request, name = 'review_absence_request'),
+    url(r'absences/company_holidays.html', views.company_holidays, name = 'company_holidays'), 
+    url(r'absences/add_company_holidays.html', views.add_company_holidays, name = 'add_company_holidays'), 
+    url(r'absences/last_absence_date.html', views.last_absence_date, name = 'last_absence_date'), 
+    url(r'absences/edit_company_holiday/(?P<pk>[\w-]+)$', views.edit_company_holiday, name = 'edit_company_holiday'), 
+    url(r'absences/employee_absences.html', views.employee_absences, name = 'employee_absences'),   
+    url(r'absences/view_absence_requests.html', views.view_absence_requests, name = 'view_absence_requests'),    
+    url(r'absences/approve_absence_request/(?P<pk>[\w-]+)$', views.approve_absence_request, name = 'approve_absence_request'),    
+
     # Pages relevant to performance reviews
     url(r'performance/performance_reviews.html', views.performance_reviews, name = 'performance_reviews'),
 
@@ -44,7 +52,7 @@ urlpatterns = [
     url(r'training_docs/training_center.html', views.training_center, name = 'training_center'),
     url(r'training_docs/training_material.html', views.training_material, name = 'training_material'),
     url(r'training_docs/delete_training_doc.html', views.delete_training_doc, name = 'delete_training_doc'),
-    url(r'training_docs/edit_onboarding_docs/(?P<pk>[\w-]+)$', views.edit_onboarding_docs, name = 'edit_onboarding_docs'),
+    url(r'training_docs/edit_onboarding_cat/(?P<pk>[\w-]+)$', views.edit_onboarding_cat, name = 'edit_onboarding_cat'),
     url(r'training_docs/onboarding_requirement.html', views.onboarding_requirement, name = 'onboarding_requirement'),
     url(r'training_docs/edit_ack_requirement/(?P<pk>[\w-]+)$', views.edit_ack_requirement, name = 'edit_ack_requirement'),
     url(r'training_docs/edit_submission_req/(?P<pk>[\w-]+)$', views.edit_submission_req, name = 'edit_submission_req'),
@@ -54,6 +62,16 @@ urlpatterns = [
     url(r'training_docs/ack_doc_read/(?P<pk>[\w-]+)$', views.ack_doc_read, name = 'ack_doc_read'),
     url(r'training_docs/edit_doc_submission/(?P<pk>[\w-]+)$', views.edit_doc_submission, name = 'edit_doc_submission'),
     url(r'training_docs/manage_onboarding_docs.html', views.manage_onboarding_docs, name = 'manage_onboarding_docs'),
-    
+    url(r'training_docs/change_doc_status/(?P<pk>[\w-]+)$', views.change_doc_status, name = 'change_doc_status'),
+
+    # Pages relevant to the timesheet module
+    url(r'timesheet/timesheet_home.html', views.timesheet_home, name = 'timesheet_home'),
+    url(r'timesheet/timesheet/(?P<pk>[\w-]+)$', views.timesheet, name = 'timesheet'),
+    url(r'timesheet/jobs_upload.html', views.jobs_upload, name = 'jobs_upload'),
+    url(r'timesheet/timesheet_status.html', views.timesheet_status, name = 'timesheet_status'),
+    url(r'timesheet/admin_timesheet_home/(?P<pk>[\w-]+)$', views.admin_timesheet_home, name = 'admin_timesheet_home'),
+    url(r'timesheet/admin_timesheet/(?P<pk>[\w-]+)$', views.admin_timesheet, name = 'admin_timesheet'),
+    url(r'timesheet/export_timesheets.html', views.export_timesheets, name = 'export_timesheets'),
+
 ]
 

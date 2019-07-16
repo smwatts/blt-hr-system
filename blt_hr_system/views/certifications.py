@@ -96,7 +96,7 @@ def managed_certs(request):
     if request.method == 'POST':
         cert_form = forms.add_certification(request.POST)
         cert_form.save()
-        return HttpResponseRedirect(reverse('certs'))
+        return HttpResponseRedirect(reverse('managed_certs'))
     else:
         cert_form = forms.add_certification()
         cert_info = models.certification.objects.all()
@@ -209,7 +209,7 @@ def edit_system_certs(request, pk):
                     update.save()
             certs_form.save()
             messages.success(request, 'The certification was successfully updated!')
-            return HttpResponseRedirect(reverse('certs'))
+            return HttpResponseRedirect(reverse('managed_certs'))
     else:
         cert = models.certification.objects.get(id=pk)
         certs_form = forms.add_certification(instance=cert)

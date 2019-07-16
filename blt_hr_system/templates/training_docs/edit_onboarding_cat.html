@@ -15,16 +15,21 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Edit employee certification requirement</h2>
+<h2>Edit Onboarding Document Category</h2>
 
-  <p>Employee: {{user_account.get_full_name}}</p>
-
-  <p>Certifications can be added <a href="{% url 'managed_certs' %}">here</a><p>
-  <form method="post">
-    {% csrf_token %}
-    {{ certs_form|bootstrap }}
+<form method="post">
+  {% csrf_token %}
+  <div class='row'>
+    <div class="col-lg-6">
+      {{ doc_form.name|bootstrap }}
+    </div>
+  </div>
+  <div class='row'>
+    <div class="col-lg-6">
       <button type="submit" class="btn btn-primary pull-left">Save changes</button>
-  </form>
+    </div>
+  </div>
+</form>
 
 </html>
 {% else %}

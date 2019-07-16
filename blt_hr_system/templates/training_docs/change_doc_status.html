@@ -15,34 +15,13 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   </head>
 
-<h2>Edit Onboarding / Training Document</h2>
-
-<form method="post">
-  {% csrf_token %}
-  <div class='row'>
-    <div class="col-lg-6">
-      {{ doc_form.name|bootstrap }}
-    </div>
-    <div class="col-lg-6">
-      {{ doc_form.doc|bootstrap }}
-    </div>
-  </div>
-  <div class='row'>
-    <div class="col-lg-6">
+    <h1>Delete Document</h1>
+     <p><a href="{{ doc.upload.url }}" target="_blank">{{ doc.upload_name }}</a></p>
+    <form method="post">
+      {% csrf_token %}
+      {{form|bootstrap}}
       <button type="submit" class="btn btn-primary pull-left">Save changes</button>
-    </div>
-  </div>
-</form>
-
-    {% if error_msg %}
-    <br>
-    <div class='row'>
-      <div class='col-lg-12'>
-        <p class="text-danger">The document: {{document_name}}, cannot be assigned to a new onboarding / training document because it is currently being used by other document. 
-          You can edit the documents assigned <a href="{% url 'manage_onboarding_docs' %}">here</a>.</p>
-      </div>
-    </div>
-    {% endif %}
+    </form>
 
 </html>
 {% else %}

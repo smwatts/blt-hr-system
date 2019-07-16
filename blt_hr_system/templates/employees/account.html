@@ -69,33 +69,33 @@
         <tr>
           <td>Required Certifications</td>
           <td>{% for cert in user.profile.certs.all %}{{ cert }}<br/>{% endfor %}</td>
-          <td><a href="{% url 'certs' %}">Manage certifications</a></td>
+          <td><a href="{% url 'certifications_maintained' %}">Manage certifications</a></td>
         </tr> 
 
         <tr>
           <td>Document acknowledgement required</td>
           <td>
             {% for req in ack_docs %}
-              <li>{{ req.doc__name }}</li>
+              <li>{{ req.onboarding_cat__name }}</li>
             {% empty %}
               No acknowledgements required
             {% endfor %}
           </td>
           <td>
-            Manage acknowledgement requirements
+            <a href="{% url 'onboarding_training_docs' %}">Manage acknowledgement requirements</a>
           </td>
         </tr>
         <tr>
           <td>Document submission required</td>
           <td>
             {% for req in sub_docs %}
-              <li>{{ req.doc__name }}</li>
+              <li>{{ req.onboarding_cat__name }}</li>
             {% empty %}
               No submissions required
             {% endfor %}
           </td>
           <td>
-            Manage submission requirements
+            <a href="{% url 'onboarding_training_docs' %}">Manage submission requirements</a>
           </td>
         </tr>
       </tbody>

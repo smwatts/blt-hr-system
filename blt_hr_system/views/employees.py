@@ -37,8 +37,8 @@ def employee_directory(request):
 def account(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    ack_docs = list(models.doc_read_req.objects.all().filter(employee=request.user).values('doc__name'))
-    sub_docs = list(models.doc_submit_req.objects.all().filter(employee=request.user).values('doc__name'))
+    ack_docs = list(models.doc_read_req.objects.all().filter(employee=request.user).values('onboarding_cat__name'))
+    sub_docs = list(models.doc_submit_req.objects.all().filter(employee=request.user).values('onboarding_cat__name'))
     context = {'ack_docs':ack_docs,
                 'sub_docs':sub_docs,
     }
@@ -83,8 +83,11 @@ def signup(request):
             location_instance = models.company_info.objects.get(pk=request.POST['location'])
             obj.profile.location = location_instance
             obj.profile.position = request.POST['position']
+            obj.profile.office_staff = request.POST['office_staff']
             obj.profile.certs.set(request.POST.getlist('certifications'))
             obj.profile.save()
+            # TO DO: Save the acknowledgement & submissions requirements
+            # ----------------------------
             # send an email to the user to let them know that their account has been setup
             password = request.POST['password1']
             username = request.POST['username']
