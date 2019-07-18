@@ -1,53 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html>
+  <head>
+    {% block title %}<title>BLT HR System</title>{% endblock %}
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
-<div class="page-header"></div>
+  </head>
 
-<head>
-  
-  {% block title %}<title>BLT HR System</title>{% endblock %}
-  {% load bootstrap %}
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'static/css/styles.css' %}">
-</head>
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-sm-2">
-      {% if user.is_authenticated %}
-      {% block sidebar %}
-      <ul class="sidebar-nav">
-          <li><a href="{% url 'home' %}">Home</a></li>
-          {% if user.username == "system_admin" %}
-          <li><a href="{% url 'admin' %}">System Administrator</a></li>
-          {% endif %}
-          <li><a href="{% url 'account' %}">Employee Profile</a></li>
-          <li><a href="{% url 'employee_directory'%}">Employee Directory</a></li>
-          <li><a href="{% url 'onboarding_training_docs' %}">Onboarding / Training</a></li>
-          <li><a href="{% url 'training_center' %}">Document Center</a></li>
-          <li><a href="{% url 'absence_request' %}">Absence Requests</a></li>
-          <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
-          <li><a href="{% url 'performance_reviews' %}">Performance Reviews</a></li>
-      </ul>
-     {% endblock %}
-     {% endif %}
-      </div>
-      <div class="col-sm-9">
-      {% block content %}{% endblock %}
-      </div>
-      {% if user.is_authenticated %}
-      <div class="col-sm-1">
-        <a href="{% url 'logout' %}">logout</a>
-      </div>
-      {% endif %}
-    </div>
-  </div>
+{% if user.is_authenticated %}
+
+{% else %}
+<div class = "page-header">
+    <h2 style="text-align:center">
+      <small>BLT Construction HR Portal</small>
+    </h2>
+</div>
+
+{% endif %}
+
+{% block content %}{% endblock %}
+
 </body>
 </html>
 

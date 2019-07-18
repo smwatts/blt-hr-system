@@ -53,12 +53,12 @@ ALLOWED_HOSTS = ['.herokuapp.com','127.0.0.1']
 
 INSTALLED_APPS = [
     'blt_hr_system',
+    'django.contrib.staticfiles',
     'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'bootstrapform',
     'crispy_forms',
     'accounts',
@@ -169,7 +169,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Storage on S3
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'blt_hr_system/static'),
+    os.path.join(BASE_DIR, 'blt_hr_system/static/'),
+    'blt_hr_system/static/',
 ]
 
 AWS_STORAGE_BUCKET_NAME = os.environ['S3_BUCKET']

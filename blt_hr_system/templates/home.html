@@ -1,16 +1,61 @@
 {% extends "base.html" %}
 
-{% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
-
 {% block content %}
 {% if user.is_authenticated %}
-  <h1>Welcome to the BLT HR System!</h1>
+
+<style>
+h2.b {
+  font-family: Arial, Helvetica, sans-serif;
+}
+</style>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand">BLT Construction</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+      <li class="active"><a href="{% url 'home' %}">Home</a></li>
+      {% if user.username == "system_admin" %}
+      <li><a href="{% url 'admin' %}">System Admin</a></li>
+      {% endif %}
+      <li><a href="{% url 'account' %}">Profile</a></li>
+      <li><a href="{% url 'employee_directory'%}">Directory</a></li>
+      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
+      <li><a href="{% url 'absence_request' %}">Absences</a></li>
+      <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
+      <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
+      <li><a href="{% url 'timesheet_home' %}">Timesheets</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <h2 class="b">Welcome to the BLT HR Portal</h2>
   <p>Hi {{ user.get_full_name }},</p>
 	<p>This is your HR system, 
 	a place submit absence requests, certifications and access training material.</p>
+</div>
 {% else %}
-  <h2>You are not logged in</h2>
-  <a href="{% url 'login' %}">Login</a>
+	<body>
+    	<div class="container-fluid">
+		    <div class="col-sm-3">
+		    </div>
+		    <div class="col-sm-6">
+				<p>You are not logged in you will need to <a href="{% url 'login' %}">Login</a></p>
+			</div>
+ 		</div>
+	</body>
 {% endif %}
 {% endblock %}

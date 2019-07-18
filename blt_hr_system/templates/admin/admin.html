@@ -4,18 +4,49 @@
 {% if user.is_authenticated %}
 <!DOCTYPE html>
 <html>
-  <head>
-  {% load bootstrap %}
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-  </head>
+  <head></head>
+
+<style>
+h2.b {
+  font-family: Arial, Helvetica, sans-serif;
+}
+</style>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand">BLT Construction</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+      <li><a href="{% url 'home' %}">Home</a></li>
+      {% if user.username == "system_admin" %}
+      <li class="active"><a href="{% url 'admin' %}">System Admin</a></li>
+      {% endif %}
+      <li><a href="{% url 'account' %}">Profile</a></li>
+      <li><a href="{% url 'employee_directory'%}">Directory</a></li>
+      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
+      <li><a href="{% url 'absence_request' %}">Absences</a></li>
+      <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
+      <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
+      <li><a href="{% url 'timesheet_home' %}">Timesheets</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
   <body>
-    <h1>System Management</h1>
+    <div class="container-fluid">
+    <h2 class="b">System Management</h2>
     <p>Access all modules avaliable to the system administrator here.</p>
 
     <table class="table">
@@ -23,42 +54,65 @@
         <tr>
           <th>Module</th>
           <th>Actions</th>
+          <th>Notes</th>
         </tr>
       </thead>
       <tbody>
+          <tr>
+            <td>System Admin</td>
+            <td>
+              <div>
+                  <li><a href="{% url 'add_company_info' %}">Add, view & edit company locations</li>
+              </div>
+            </td>
+            <td></td>
+          </tr>
         <tr>
-            <td>Employee Directory</td>
+            <td>Directory</td>
             <td>
               <div>
                   <li><a href="{% url 'signup' %}">Create new employee account</a></li>
                   <li><a href="{% url 'employee_directory_edit' %}">View & edit complete employee information</a></li>
               </div>
             </td>
+            <td></td>
           </tr>
           <tr>
-            <td>Document Centre</td>
-            <td>
-              <div>
-                  <li><a href="{% url 'training_material' %}">Add new documents</a></li>
-                  <li><a href="{% url 'delete_training_doc' %}">View & delete documents</a></li>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Onboarding / training documents</td>
+            <td>Training</td>
             <td>
               <div>
                   <li><a href="{% url 'manage_onboarding_docs' %}">
-                      Add & edit onboarding document categories</a></li>
+                      Add & edit traing document categories</a></li>
                   <li><a href="{% url 'onboarding_requirement' %}">
-                      View & edit employee onboarding / training requirements</a></li>
+                      View & edit employee training requirements</a></li>
                   <li><a href="{% url 'review_ack_docs' %}">
                       Review outstanding acknowledgements of documents</a></li>
                   <li><a href="{% url 'review_sub_docs' %}">
                       Review & update outstanding submissions of documents</a></li>
               </div>
             </td>
+            <td></td>
           </tr>
+          <tr>
+            <td>Documents</td>
+            <td>
+              <div>
+                  <li><a href="{% url 'training_material' %}">Add new documents</a></li>
+                  <li><a href="{% url 'delete_training_doc' %}">View & delete documents</a></li>
+              </div>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Absences</td>
+            <td>
+              <div>
+                  <li><a href="{% url 'add_company_holidays' %}">Add & edit company holidays</a></li>
+                  <li><a href="{% url 'review_absence_request' %}">Review all pending requests for holidays</a></li>
+                  <li><a href="{% url 'view_absence_requests' %}">View absences</a></li>
+              </div>
+            </td>
+            <td></td>
           <tr>
             <td>Certifications</td>
             <td>
@@ -69,17 +123,21 @@
                   <li>View missing & 30-day expiring certifications</li>
               </div>
             </td>
+            <td></td>
           </tr>
           <tr>
-            <td>Company locations</td>
+            <td>Timesheets</td>
             <td>
               <div>
-                  <li><a href="{% url 'add_company_info' %}">Add, view & edit company location</li>
+                  <li><a href="{% url 'jobs_upload' %}">Upload jobs descriptions and IDs</a></li>
+                  <li><a href="{% url 'export_timesheets' %}">Export timesheets</a></li>
               </div>
             </td>
+            <td></td>
           </tr>
       </tbody>
     </table>
+  </div>
 
     </body>
     </html>

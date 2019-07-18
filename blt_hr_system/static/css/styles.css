@@ -1,0 +1,11 @@
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.failureMessage {
+    color: #FF0000;
+    font-weight: 700;
+    font-style: normal;
+}
