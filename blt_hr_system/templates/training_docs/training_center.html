@@ -44,6 +44,7 @@ h2.b {
   <head></head>
 
 {% if user.is_authenticated %}
+ <div class="container-fluid">
 <h2 class='b'>Document Center</h2>
 <p>Tax documents, company policies and training material can be found here.</p>
 
@@ -69,6 +70,7 @@ h2.b {
         {% endfor %}
       </tbody>
     </table>
+  </div>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

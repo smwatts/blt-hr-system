@@ -54,10 +54,14 @@ def add_birth_date(request):
             birth_date.save()
             messages.success(request, 'Your birth dates was successfully updated!')
             return HttpResponseRedirect(reverse('account'))
+        else:
+            birth_date = forms.add_birth_date(instance=request.user.profile)
+            context = {'birth_date':birth_date}
+            return render(request, 'employees/add_birth_date.html', context)
     else:
         birth_date = forms.add_birth_date(instance=request.user.profile)
         context = {'birth_date':birth_date}
-    return render(request, 'add_birth_date.html', context)
+        return render(request, 'employees/add_birth_date.html', context)
 
 # ------------------------------------------------------------------
 # ADMIN FUNCTIONS

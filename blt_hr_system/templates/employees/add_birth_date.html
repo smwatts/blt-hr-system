@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -47,13 +48,17 @@ h2.b {
   <body>
     <div class="container-fluid">
 	<h2 class='b'>Add your birth date</h2>
-  <p>Your birth year will only be viewable by yourself.</p>
+  <p>Your birth year will only be viewable to yourself.</p>
   <em>Please make sure you enter your birthday correctly, you cannot edit it once it is set.</em>
+  <div class='row'>
+    <div class='col-lg-5'>
     <form method="POST" class="add-emp-group">
-        {{birth_date|bootstrap}}
+        {{birth_date|crispy}}
         {% csrf_token %}
         <button type="submit" class="btn btn-primary pull-right">Save changes</button>
     </form> 
+    </div>
+  </div>
     </div> 
   </body>
 </html>

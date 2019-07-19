@@ -51,12 +51,12 @@ h2.b {
 <form method="post">
   {% csrf_token %}
   <div class='row'>
-    <div class="col-lg-7">
-      {{ info_form.location|crispy }}
+    <div class="col-lg-5">
+      {{ info_form.location|as_crispy_field:"bootstrap" }}
     </div>
   </div>
   <div class='row'>
-    <div class="col-lg-7">
+    <div class="col-lg-5">
       <button type="submit" class="btn btn-primary pull-left">Save changes</button>
     </div>
   </div>

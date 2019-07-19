@@ -42,7 +42,7 @@ h2.b {
   </div>
 </nav>
   <head></head>
-
+ <div class="container-fluid">
 <h2 class='b'>Edit employee profile: {{ user.get_full_name }}</h2>
 <ul>
   <li>Username: {{ user.username }}</li>
@@ -56,7 +56,7 @@ h2.b {
   {{ profile_form|bootstrap }}
   <button type="submit">Save changes</button>
 </form>
-
+ <div class="container-fluid">
 </html>
 {% else %}
   <h2>You are not logged in</h2>

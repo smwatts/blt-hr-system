@@ -1,14 +1,45 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
 <!DOCTYPE html>
 <html>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand">BLT Construction</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+      <li><a href="{% url 'home' %}">Home</a></li>
+      {% if user.username == "system_admin" %}
+      <li><a href="{% url 'admin' %}">System Admin</a></li>
+      {% endif %}
+      <li><a href="{% url 'account' %}">Profile</a></li>
+      <li><a href="{% url 'employee_directory'%}">Directory</a></li>
+      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
+      <li><a href="{% url 'absence_request' %}">Absences</a></li>
+      <li class="active"><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
+      <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
+      <li><a href="{% url 'timesheet_home' %}">Timesheets</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
   <head></head>
-
-
   <body>
-	<h1>System Managed Certifications</h1>
+    <div class="container-fluid">
+	<h2 class='b'>System Managed Certifications</h2>
 
   <p>Add system managed certifications. The certifications will include a description 
   and an expiration date (if required).</p>
@@ -16,15 +47,15 @@
         {% csrf_token %}
         <div class='row'>
           <div class="col-lg-4">
-            {{cert_form.name|bootstrap}}
+            {{cert_form.name|as_crispy_field:"bootstrap"}}
           </div>
           <div class="col-lg-8">
-            {{cert_form.description|bootstrap}}
+            {{cert_form.description|as_crispy_field:"bootstrap"}}
           </div>
         </div>
         <div class='row'>
           <div class="col-lg-4">
-            {{cert_form.expiration_yrs|bootstrap}}
+            {{cert_form.expiration_yrs|as_crispy_field:"bootstrap"}}
           </div>
         </div>
         <div class='row'>
@@ -73,7 +104,7 @@
         {% endfor %}
       </tbody>
     </table>
-
+</div>
   {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

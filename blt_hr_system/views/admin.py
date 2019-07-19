@@ -57,7 +57,7 @@ def add_company_info(request):
         return HttpResponseRedirect(reverse('add_company_info'))
     else:
         company_info_form = forms.submit_company_info()
-        company_info = models.company_info.objects.all()
+        company_info = models.company_info.objects.all().order_by('location')
         context = {'company_info_form': company_info_form,
                    'company_info' : company_info}
         return render(request, 'admin/add_company_info.html', context)
