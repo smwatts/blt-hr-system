@@ -48,10 +48,11 @@ h2.b {
 
   <body>
     <div class="container-fluid">
-    <h2 class = 'b'>Submit certification requests</h2>
+    <h2 class = 'b'>Submit certifications for Review</h2>
     <p>All certifications will be submitted for approval here. 
       A list of all system managed certifications can be found <a href="{% url 'certs' %}">here</a>.</p>
-
+    <p>If the date is not entered properly, the certification will not be submitted for review.</em></p>
+    <br></br>
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
 

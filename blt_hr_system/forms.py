@@ -166,6 +166,10 @@ class remove_doc(forms.ModelForm):
         widgets = {'id': forms.HiddenInput(),
         }
         
+# ---------------------------------------------------------------------
+# EMPLOYEE PROFILE
+# ---------------------------------------------------------------------
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -230,3 +234,18 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'position', 'location', 'start_date', 'office_staff',
             'certifications', 'manager', 'absence_allocation_annually', 'password1', 'password2',)
+
+# ---------------------------------------------------------------------
+# ABSENCES
+# ---------------------------------------------------------------------
+
+class upload_holidays(forms.Form):
+    location = forms.ModelChoiceField(queryset=company_info.objects.all().order_by('location'),
+        help_text='Select the location the holidays are for.',
+        required=True)
+    docfile = forms.FileField(
+        label='Select a csv file',
+        help_text='The csv file must contain a Holiday Names and Holiday Dates column.',
+        required=True
+    )
+

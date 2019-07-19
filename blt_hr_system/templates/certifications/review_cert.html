@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -72,7 +73,7 @@ h2.b {
     </table>
 
     <form method="POST">
-        {{review_cert|bootstrap}}
+        {{review_cert|crispy}}
         {% csrf_token %}
         <p>The employee will be sent an email with the approval decision and if required, a message.</p>
         <button type="submit" class="btn btn-primary pull-right">Send review</button>

@@ -78,7 +78,11 @@ def certification_request(request):
             else:
                 obj.exp_date = datetime.datetime.strptime(request.POST['acq_date'], '%Y-%m-%d') + datedelta.datedelta(years=exp_yrs)
             obj.save()
-        return HttpResponseRedirect(reverse('certs'))
+            return HttpResponseRedirect(reverse('certifications_maintained'))
+        else:
+            cert_request = forms.cert_request()
+            context = {'cert_request': cert_request}
+            return render(request, 'certifications/certification_request.html', context)
     cert_request = forms.cert_request()
     context = {'cert_request': cert_request}
     return render(request, 'certifications/certification_request.html', context)

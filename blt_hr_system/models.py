@@ -117,12 +117,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
-class holiday(models.Model):
-    # holidays that the company has, used for absence date calculations
-    name = models.CharField(max_length=200)
-    date = models.DateField(null=False, blank=False)
-    location = models.ManyToManyField('company_info')
-
 class employee_certification(models.Model):
     # information for certifications submitted by employees to be approved by admin
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -163,6 +157,16 @@ class employee_absence(models.Model):
     manager_comment = models.CharField(max_length=1000, blank=True)
     admin_comment = models.CharField(max_length=1000, blank=True)
 
+class company_holidays(models.Model):
+    holiday_name = models.CharField(max_length=200)
+    holiday_date = models.DateField(null=False, blank=False)
+    location = models.ForeignKey('company_info', on_delete=models.CASCADE, null=False, blank=False)
+    is_finalized = models.BooleanField(default=False, blank=False)
+    upload_id = models.PositiveIntegerField(blank=False, null=False, default=0)
+    
+class control_date(models.Model):
+    holiday_cntrl_date = models.DateField(null=False, blank=False)
+    location = models.ForeignKey('company_info', on_delete=models.CASCADE, null=False, blank=False)
 # ---------------------------------------------------------------------
 # TIMESHEETS
 # ---------------------------------------------------------------------
