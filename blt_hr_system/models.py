@@ -163,10 +163,6 @@ class company_holidays(models.Model):
     location = models.ForeignKey('company_info', on_delete=models.CASCADE, null=False, blank=False)
     is_finalized = models.BooleanField(default=False, blank=False)
     upload_id = models.PositiveIntegerField(blank=False, null=False, default=0)
-    
-class control_date(models.Model):
-    holiday_cntrl_date = models.DateField(null=False, blank=False)
-    location = models.ForeignKey('company_info', on_delete=models.CASCADE, null=False, blank=False)
 # ---------------------------------------------------------------------
 # TIMESHEETS
 # ---------------------------------------------------------------------

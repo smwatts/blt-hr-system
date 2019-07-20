@@ -50,17 +50,40 @@ h2.b {
 
     <h2 class='b'>Confirm Holdays</h2>
     <b>Once holidays are uploaded they cannot be deleted. Please ensure the holidays have been uploaded correctly.</b>
+    <br></br>
+    <div class='row'>
+      <div class="col-lg-1">
+      <form method="POST">
+      {% csrf_token %}
+          <input type="submit" class="btn btn-primary pull-left" name="cancel" value="Cancel"/>
+      </form>
+      </div>
+      <div class="col-lg-1">
+        <form method="POST">
+        {% csrf_token %}
+            <input type="submit" class="btn btn-primary pull-left" name="submit" value="Submit"/>
+        </form>
+      </div>
+    </div>
 
-    <form action="{% url 'add_company_holidays' %}" method="post">
-    {% csrf_token %}
-        <input type="submit" class="btn btn-primary pull-left" name="cancel" value="Cancel"/>
-    </form>
-
-    <!-- Pass the pk here to render the form properly -->
-    <form action="{% url 'add_company_holidays' %}" method="post">
-    {% csrf_token %}
-        <input type="submit" class="btn btn-primary pull-left" name="submit" value="Submit"/>
-    </form>
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Location</th>
+        <th>Holiday</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for hol in holiday_val %}
+      <tr>
+        <td>{{ hol.location }}</td>
+        <td>{{ hol.holiday_name }}</td>
+        <td>{{ hol.holiday_date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
     </div>
 

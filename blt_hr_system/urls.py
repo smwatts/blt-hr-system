@@ -37,7 +37,6 @@ urlpatterns = [
     # Pages relevant to absences (setting absence days, requests, approvals)
     url(r'absences/absence_request.html', views.absence_request, name = 'absence_request'),
     url(r'absences/upload_holidays.html', views.upload_holidays, name = 'upload_holidays'),
-    url(r'absences/last_absence_date/(?P<pk>[\w-]+)$', views.last_absence_date, name = 'last_absence_date'), 
     url(r'absences/validate_holidays/(?P<pk>[\w-]+)$', views.validate_holidays, name = 'validate_holidays'), 
     url(r'absences/review_absence_request.html', views.review_absence_request, name = 'review_absence_request'),
     url(r'absences/company_holidays.html', views.company_holidays, name = 'company_holidays'), 

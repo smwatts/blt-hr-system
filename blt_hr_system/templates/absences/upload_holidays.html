@@ -49,6 +49,13 @@ h2.b {
     <div class="container-fluid">
 
     <h2 class='b'>Upload Company Holidays</h2>
+
+    <ul>
+    {% for err in errors %}
+        <li>{{ err|safe }}</li>
+    {% endfor %}
+    </ul>
+
 <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
     <div class='row'>

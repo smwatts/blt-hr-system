@@ -51,6 +51,14 @@ h2.b {
 
     <div class="row">
       <div class="col-sm-5">
+        <p>To upload company holidays, please select the button below.</p> 
+          <p>Note that you cannot go back and add holidays after the most current holiday date.</p>
+
+          <form action="{% url 'upload_holidays' %}">
+        {% csrf_token %}
+            <input type="submit" class="btn btn-primary pull-left" name="upload_holidays" value="Upload company holidays"/>
+          </form>
+        <br></br>
         <h4>Company holidays are current to:</h4>
           <table class="table">
             <thead>
@@ -62,28 +70,21 @@ h2.b {
             <tbody>
               {% for loc in control_date %}
               <tr>
-                <td>{{ loc.location }}</td>
-                <td>{{ loc.holiday_cntrl_date }}</td>
+                <td>{{ loc.location__location }}</td>
+                <td>{{ loc.max_holiday_date }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
-          <p>To upload company holidays, please select the button below.</p> 
-          <p>At the end of the upload you will update the last date company holidays are current to for the uploaded location.</p>
-
-          <form action="{% url 'upload_holidays' %}" method="post">
-        {% csrf_token %}
-            <input type="submit" class="btn btn-primary pull-left" name="upload_holidays" value="Upload company holidays"/>
-          </form>
       </div>
        <div class="col-sm-1"></div>
       <div class="col-sm-6">
         <h4>View and export company holidays</h4>
         <p>The table below shows all upcoming company holidays. To view company holiday history and all upcoming company holidays, please export.</p>
-        <form action="{% url 'add_company_holidays' %}" method="post">
-        {% csrf_token %}
-            <input type="submit" class="btn btn-primary pull-left" name="export_holidays" value="Export all company holidays"/>
-        </form>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="submit" class="btn btn-primary pull-left" name="export_holidays" value="Export all company holidays"/>
+      </form>
 
         <table class="table">
             <thead>
