@@ -28,8 +28,8 @@ h2.b {
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
-      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
-      <li class="active"><a href="{% url 'training_center' %}">Documents</a></li>
+      <li class="active"><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
       <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
@@ -58,35 +58,21 @@ h2.b {
         </tr>
       </thead>
       <tbody>
-        {% for inst in data %}
+
+          {% for i in users %}
           <tr>
-            <td>{{ inst.1 }} {{ inst.2 }}</td>
-            <td>
-              {% if inst.3 %}
-                {% for doc in inst.3 %}
-                  <li>{{ doc }}</li>
-                {% endfor %}
-              {% else %}
-                No acknowledgements required 
-              {% endif %}
-            </td>
-            <td class="tg-yw4l"><a href="training_docs/edit_ack_requirement/{{inst.0}}">Edit Acknowledgements</a></td>
-            <td>
-              {% if inst.4 %}
-                {% for doc in inst.4 %}
-                  <li>{{ doc }}</li>
-                {% endfor %}
-              {% else %}
-                No submissions required 
-              {% endif %}
-            </td>
-            <td class="tg-yw4l"><a href="training_docs/edit_submission_req/{{inst.0}}">Edit Submissions</a></td>
-          </tr>
+            <td>{{ i.get_full_name }}</td>
+            <td>{% for read in i.profile.read_req.all %}{{ read }}<br/>{% endfor %}</td>
+            <td class="tg-yw4l"><a href="training_docs/edit_ack_requirement/{{i.id}}">Edit</a></td>
+            <td>{% for sub in i.profile.submit_req.all %}{{ sub }}<br/>{% endfor %}</td>
+            <td class="tg-yw4l"><a href="training_docs/edit_submission_req/{{i.id}}">Edit</a></td>
+          </tr> 
         {% empty %}
           <tr>
-            <td colspan="3">No employees uploaded.</td>
+            <td colspan="3">No employee training requirements added.</td>
           </tr>
         {% endfor %}
+
       </tbody>
     </table>
 </div>

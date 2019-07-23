@@ -49,6 +49,12 @@ class company_info(models.Model):
     def __str__(self):
         return self.location
 
+# List of all onboarding categories
+class onboarding_cat(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+
 class Profile(models.Model):
     # contains information pretaining to each employee
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
@@ -58,6 +64,8 @@ class Profile(models.Model):
     manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey('company_info', on_delete=models.SET_NULL, null=True)
     certs = models.ManyToManyField(certification)
+    read_req = models.ManyToManyField(onboarding_cat, related_name="read+")
+    submit_req = models.ManyToManyField(onboarding_cat, related_name="submit+")
     office_staff = models.BooleanField(default=False, blank=True)
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
@@ -65,12 +73,6 @@ class Profile(models.Model):
 # ---------------------------------------------------------------------
 # TRAINING DOCS
 # ---------------------------------------------------------------------
-
-# List of all onboarding categories
-class onboarding_cat(models.Model):
-    name = models.CharField(max_length=200)
-    def __str__(self):
-        return self.name
         
 # List of all training docs stored in the system
 # Includes if the training doc is active & the onboarding category for the doc
@@ -79,7 +81,6 @@ class training_docs(models.Model):
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     upload_name = models.CharField(max_length=200, null=False, blank=False)
     upload = models.FileField(upload_to=RandomFileName('media/training_docs/'), null=False, blank=False)
-    active_doc = models.BooleanField(default=False, blank=True)
     onboarding_cat = models.ForeignKey(onboarding_cat, on_delete=models.SET_NULL, null=True, blank=True) 
     def __str__(self):
         return self.upload_name
@@ -90,19 +91,16 @@ class training_docs(models.Model):
 def remove_file_from_s3(sender, instance, using, **kwargs):
     instance.upload.delete(save=False)
 
-# For each user, their required onboarding category is specified here
-# Each doc in the onboarding category that's read will be listed here
-class doc_read_req(models.Model):
-    read = models.ManyToManyField(training_docs)
+# Each doc that a user has acknowledged as read will live here
+class doc_read(models.Model):
     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    onboarding_cat = models.ForeignKey(onboarding_cat, on_delete=models.CASCADE, null=True) 
+    doc = models.ForeignKey(training_docs, on_delete=models.CASCADE, null=True) 
 
-# For each user, their required onboarding category is specified here
-# Each doc in the onboarding category that's submitted will be listed here
+# Each doc that a user has acknowledged as submitted will live here
 class doc_submit_req(models.Model):
-    submitted = models.ManyToManyField(training_docs)
     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    onboarding_cat = models.ForeignKey(onboarding_cat, on_delete=models.CASCADE, null=True) 
+    doc = models.ForeignKey(training_docs, on_delete=models.CASCADE, null=True)
+
 
 # ---------------------------------------------------------------------
 # EMPLOYEE PROFILE

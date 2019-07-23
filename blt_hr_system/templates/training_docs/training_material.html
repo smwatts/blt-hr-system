@@ -69,7 +69,6 @@ h2.b {
           {{ form.onboarding_cat|as_crispy_field:"bootstrap" }}
         </div>
         <div class="col-lg-5">
-          {{ form.active_doc|as_crispy_field:"bootstrap" }}
         </div>
       </div>
       <div class="row">
@@ -93,8 +92,7 @@ h2.b {
       <thead>
         <tr>
           <th>Name</th>
-          <th>Onboarding Category</th>
-          <th>Active Document</th>
+          <th>Training Category</th>
           <th>Uploaded at (EST)</th>
           <th>Uploaded by</th>
           <th>Size</th>
@@ -105,11 +103,6 @@ h2.b {
           <tr>
             <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
             <td>{{ document.onboarding_cat.name }}</td>
-            {% if document.active_doc %}
-              <td>Yes</td>
-            {% else %}
-              <td>No</td>
-            {% endif %}
             <td>{{ document.uploaded_at }}</td>
             <td>{{ document.uploaded_by }}</td>
             <td>{{ document.upload.size|filesizeformat }}</td>

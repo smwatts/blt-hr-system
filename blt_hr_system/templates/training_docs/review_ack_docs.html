@@ -28,8 +28,8 @@ h2.b {
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
-      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
-      <li class="active"><a href="{% url 'training_center' %}">Documents</a></li>
+      <li class="active"><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
       <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
@@ -43,48 +43,81 @@ h2.b {
 </nav>
   <head></head>
  <div class="container-fluid">
-    <h2 class='b'>Review acknowledged onboarding / training documents</h2>
-    <p>You can view the onboarding / training documents that have been acknowledged and that are outstanding here.</p>
-    <p>To make changes to the required onboarding / training documents for each employee click 
-      <a href="{% url 'manage_onboarding_docs' %}">here</a></p>
+  <div class="row">
+    <div class="col-lg-6">
 
-    <table class="table">
+    <h2 class='b'>Review Outstanding Training Documents</h2>
+    <p>You can view the onboarding / training documents that still need to be acknowledged and submitted to HR.</p>
+    <p>To make changes to the required training documents for each employee click 
+      <a href="{% url 'manage_onboarding_docs' %}">here</a></p>
+    <br></br>
+    </div>
+      <div class="col-lg-6">
+        <br></br>
+        <br>
+      <a class="btn btn-primary pull-left" href="employee_doc_submitted.html">Add a submitted document</a>
+      <br></br>
+     <p>Click the button above to update the system with employees who have submitted documents.</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-6">
+    <h4 class='b'>Outstanding Acknowledgements</h4>
+       <form method="POST">
+          {% csrf_token %}
+          <input type="submit" class="btn btn-primary pull-left" name="export_ack" value="Export outstanding acknowledgements"/>
+      </form>
+      <table class="table">
       <thead>
         <tr>
+          <th>Document</th>
           <th>Employee</th>
-          <th>Submitted documents</th>
-          <th>Outstanding documents</th>
         </tr>
       </thead>
       <tbody>
-        {% for inst in data %}
+        {% for inst in dic_ack %}
           <tr>
-            <td>{{ inst.1 }} {{ inst.2 }}</td>
-            <td>{% if inst.3 %}
-                  {% for doc in inst.3 %}
-                    <li>{{ doc }}</li>
-                  {% endfor %}
-                {% else %}
-                  No documents submitted 
-                {% endif %}
-            </td>
-            <td>{% if inst.4 %}
-                  {% for doc in inst.4 %}
-                      <li>{{ doc }}</li>
-                  {% endfor %}
-                {% else %}
-                  No outstanding documents 
-                {% endif %}
-            </td>
-            <td class="tg-yw4l"><a href="training_docs/edit_doc_submission/{{inst.0}}">Edit submissions</a></td>
+            <td><a href="https://blt-construction.s3.amazonaws.com/{{ inst.doc__url }}" target="_blank">{{ inst.doc__name }}</a></td>
+            <td>{{ inst.employee__first_name }} {{ inst.employee__last_name }} </td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No employees uploaded.</td>
+            <td colspan="3">No outstanding training documents.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
+    </div>
+     <div class="col-lg-6">
+      <h4 class='b'>Outstanding Submissions</h4>
+       <form method="POST">
+          {% csrf_token %}
+          <input type="submit" class="btn btn-primary pull-left" name="export_sub" value="Export outstanding submissions"/>
+      </form>
+      <table class="table">
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Employee</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inst in dic_sub %}
+          <tr>
+            <td><a href="https://blt-construction.s3.amazonaws.com/{{ inst.doc__url }}" target="_blank">{{ inst.doc__name }}</a></td>
+            <td>{{ inst.employee__first_name }} {{ inst.employee__last_name }} </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No outstanding training documents.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+
 </div>
 </html>
 {% else %}

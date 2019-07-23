@@ -89,7 +89,8 @@ def add_company_holidays(request):
 
 # Admin function used to export all historical and upcoming company holidays
 def export_holidays():
-    df = pd.DataFrame((list(models.company_holidays.objects.all().values('holiday_date', 'holiday_name', 'location__location'))))
+    df = pd.DataFrame((list(models.company_holidays.objects.all().values('holiday_date', 'holiday_name', 'location__location') \
+        .filter(is_finalized=True))))
     if len(df.index) > 0:
         df = df.sort_values(by=['holiday_date', 'location__location'])
         df = df[['holiday_name', 'holiday_date', 'location__location']]

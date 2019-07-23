@@ -104,26 +104,14 @@ h2.b {
 
         <tr>
           <td>Document acknowledgement required</td>
-          <td>
-            {% for req in ack_docs %}
-              <li>{{ req.onboarding_cat__name }}</li>
-            {% empty %}
-              No acknowledgements required
-            {% endfor %}
-          </td>
+          <td>{% for read in user.profile.read_req.all %}{{ read }}<br/>{% endfor %}</td>
           <td>
             <a href="{% url 'onboarding_training_docs' %}">Manage acknowledgement requirements</a>
           </td>
         </tr>
         <tr>
           <td>Document submission required</td>
-          <td>
-            {% for req in sub_docs %}
-              <li>{{ req.onboarding_cat__name }}</li>
-            {% empty %}
-              No submissions required
-            {% endfor %}
-          </td>
+          <td>{% for submit in user.profile.submit_req.all %}{{ submit }}<br/>{% endfor %}</td>
           <td>
             <a href="{% url 'onboarding_training_docs' %}">Manage submission requirements</a>
           </td>

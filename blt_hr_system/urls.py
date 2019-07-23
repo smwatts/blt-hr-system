@@ -50,6 +50,8 @@ urlpatterns = [
     url(r'performance/performance_reviews.html', views.performance_reviews, name = 'performance_reviews'),
 
     # Pages relevant to employee training (onboarding requirements, system managed documents)
+    url(r'training_docs/completed_ack_sub_docs.html', views.completed_ack_sub_docs, name = 'completed_ack_sub_docs'),
+    url(r'training_docs/employee_doc_submitted.html', views.employee_doc_submitted, name = 'employee_doc_submitted'),
     url(r'training_docs/training_center.html', views.training_center, name = 'training_center'),
     url(r'training_docs/training_material.html', views.training_material, name = 'training_material'),
     url(r'training_docs/delete_training_doc.html', views.delete_training_doc, name = 'delete_training_doc'),

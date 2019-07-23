@@ -29,8 +29,8 @@ h2.b {
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
-      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
-      <li class="active"><a href="{% url 'training_center' %}">Documents</a></li>
+      <li class="active"><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
       <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
@@ -44,14 +44,15 @@ h2.b {
 </nav>
   <head></head>
  <div class="container-fluid">
-  <h2 class='b'>Update submissions</h2>
-  <h4>{{name_print}}</h4>
-  <p>Please select the outstanding documents below if they have been submitted.</p>
+<h2 class='b'>Edit employee submission requirements</h2>
 
+  <p>Employee: {{user_account.get_full_name}}</p>
+
+  <p>Training categories can be added <a href="{% url 'manage_onboarding_docs' %}">here</a><p>
   <form method="post">
     {% csrf_token %}
-    {{edit_sub_require|crispy}}
-    <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+    {{ sub_form|crispy }}
+      <button type="submit" class="btn btn-primary pull-left">Save changes</button>
   </form>
 </div>
 </html>

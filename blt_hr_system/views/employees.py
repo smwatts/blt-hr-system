@@ -16,6 +16,7 @@ import datedelta
 from django.db.models import Q
 from collections import defaultdict
 from django.db import connection
+from django.contrib.auth.models import User
 
 # -----------------------------------------------------------------
 # GENERAL/HELPER FUNCTIONS
@@ -37,10 +38,7 @@ def employee_directory(request):
 def account(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    ack_docs = list(models.doc_read_req.objects.all().filter(employee=request.user).values('onboarding_cat__name'))
-    sub_docs = list(models.doc_submit_req.objects.all().filter(employee=request.user).values('onboarding_cat__name'))
-    context = {'ack_docs':ack_docs,
-                'sub_docs':sub_docs,
+    context = {
     }
     return render(request, 'employees/account.html', context)
 
@@ -75,25 +73,37 @@ def signup(request):
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
-        print(form)
+        password = User.objects.make_random_password()
+        password1 = request.POST.get('password1', password)
+        password2 = request.POST.get('password2', password)
+        print(form.errors)
         if form.is_valid():
             print('valid')
             # submit employee informatation to create an account with profile information
             obj = form.save()
             obj.refresh_from_db() 
             obj.profile.start_date = request.POST['start_date']
-            profile_instance = models.Profile.objects.get(pk=request.POST['manager'])
-            obj.profile.manager = profile_instance
+            manager = request.POST.get('password1', "no manager")
+            if manager != "no manager": 
+                profile_instance = models.Profile.objects.get(pk=request.POST['manager'])
+                obj.profile.manager = profile_instance
             location_instance = models.company_info.objects.get(pk=request.POST['location'])
             obj.profile.location = location_instance
             obj.profile.position = request.POST['position']
-            obj.profile.office_staff = request.POST['office_staff']
-            obj.profile.certs.set(request.POST.getlist('certifications'))
+            office_staff = request.POST.get('office_staff', False)
+            obj.profile.office_staff = office_staff
+            certs_submitted = request.POST.get('certifications', "no certs")
+            if certs_submitted != "no certs":
+                obj.profile.certs.set(request.POST.getlist('certifications'))
+            onboard_read = request.POST.get('onbaording_read', "no onboarding read req")
+            if onboard_read != "no onboarding read req":
+                obj.profile.read_req.set(request.POST.getlist('onbaording_read'))
+            onboard_sub = request.POST.get('onbaording_submit', "no onboarding sub req")
+            if onboard_sub != "no onboarding sub req":
+                obj.profile.submit_req.set(request.POST.getlist('onbaording_submit'))
             obj.profile.save()
-            # TO DO: Save the acknowledgement & submissions requirements
             # ----------------------------
             # send an email to the user to let them know that their account has been setup
-            password = request.POST['password1']
             username = request.POST['username']
             domain = request.META['HTTP_HOST']
             mail_subject = 'Welcome to your BLT HR System.'

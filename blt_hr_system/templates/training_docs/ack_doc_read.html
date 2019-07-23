@@ -29,8 +29,8 @@ h2.b {
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
-      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
-      <li class="active"><a href="{% url 'training_center' %}">Documents</a></li>
+      <li class="active"><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
       <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
@@ -47,33 +47,16 @@ h2.b {
   <h2 class='b'>Acknowledge Document</h2>
 
   <div class="row">
-    <div class="col-lg-9">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Document Name</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for document in doc_vals %}
-            <tr>
-              <td>{{ document.doc__name }}</td>
-              <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="3">No document selected.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="col-lg-4">
+    <p>{{employee}}, 
+        please confirm that you have read the document: </p>
+    <p>{{doc}}</p>
+    
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-8">
       <form method="post">
         {% csrf_token %}
-        {{ack_form|crispy}}
-        <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+        <button type="submit" class="btn btn-primary pull-left">Confirm</button>
       </form>
     </div>
   </div>

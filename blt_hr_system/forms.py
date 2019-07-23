@@ -1,5 +1,5 @@
 from django import forms
-from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification, onboarding_cat, doc_read_req, doc_submit_req
+from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification, onboarding_cat, doc_submit_req, doc_read
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -8,11 +8,11 @@ from django.db.models import Q
 
 class ack_doc(forms.ModelForm):
     class Meta:
-        model = doc_read_req
-        fields = ['read']
-        labels = {'read': "Read acknowledgement",
+        model = doc_read
+        fields = ['doc']
+        labels = {'doc': "Read acknowledgement",
         }
-        help_texts = {'read': "Check this box if you have read the onboarding / training document.",
+        help_texts = {'doc': "Check this box if you have read the onboarding / training document.",
         }
 
 class review_cert(forms.ModelForm):
@@ -57,43 +57,29 @@ class add_onboarding_cat(forms.ModelForm):
         labels = {'name':"Onboarding document category name",
         }
 
-class edit_ack_require(forms.Form):
-    def __init__(self, *args, **kwargs):
-        pk = kwargs.pop('pk')
-        super(edit_ack_require,self).__init__(*args,**kwargs)
-        doc_list = list(doc_read_req.objects.all().filter(employee=pk).values_list('onboarding_cat__id', flat = True))
-        self.fields['onboarding_cat'] = forms.ModelMultipleChoiceField(
-            queryset=onboarding_cat.objects.all().filter(~Q(id__in=doc_list)).order_by('name'),
-            label="Required Onboarding / training documents", 
-            help_text="Please select all onboarding / training documents that require acknowledgement",
-            required=False,
-            widget=forms.CheckboxSelectMultiple())
+class edit_ack_require(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['read_req']
+        widgets = {
+            'read_req': forms.CheckboxSelectMultiple,
+        }
+        labels = {'read_req':"Acknowledgement Requirement",
+        }
+        help_texts = {'read_req':"Please select all training categories this employee has to acknowledge training documents for."
+        }
 
-class edit_sub_require(forms.Form):
-    def __init__(self, *args, **kwargs):
-        pk = kwargs.pop('pk')
-        super(edit_sub_require,self).__init__(*args,**kwargs)
-        doc_list = list(doc_submit_req.objects.all().filter(employee=pk).values_list('onboarding_cat__id', flat = True))
-        self.fields['docs'] = forms.ModelMultipleChoiceField(
-            queryset=onboarding_cat.objects.all().filter(~Q(id__in=doc_list)).order_by('name'),
-            label="Required Onboarding / training documents", 
-            help_text="Please select all onboarding / training documents that require submission",
-            required=False,
-            widget=forms.CheckboxSelectMultiple(),
-            initial=doc_list)
-
-# class edit_sub_docs(forms.Form):
-#     def __init__(self, *args, **kwargs):
-#         pk = kwargs.pop('pk')
-#         super(edit_sub_docs,self).__init__(*args,**kwargs)
-#         req_doc = list(doc_submit_req.objects.all().filter(employee=pk, submitted=False).values_list('doc', flat = True))
-#         self.fields['docs'] = forms.ModelMultipleChoiceField(
-#             queryset=onboarding_docs.objects.all().filter(id__in=req_doc).order_by('name'),
-#             label="Update documents", 
-#             help_text="Please select all documents that have been submitted",
-#             required=False,
-#             widget=forms.CheckboxSelectMultiple()
-#             )
+class edit_sub_require(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['submit_req']
+        widgets = {
+            'submit_req': forms.CheckboxSelectMultiple,
+        }
+        labels = {'submit_req':"Submission Requirement",
+        }
+        help_texts = {'submit_req':"Please select all training categories this employee has to submit training documents for."
+        }
 
 class submit_company_info(forms.ModelForm):
     class Meta:
@@ -144,15 +130,13 @@ class cert_approval(forms.ModelForm):
 class training_docs_submit(forms.ModelForm):
     class Meta:
         model = training_docs
-        fields = ['upload', 'upload_name','active_doc','onboarding_cat',]
+        fields = ['upload', 'upload_name','onboarding_cat',]
         labels = {
             "upload_name": "Training document name",
             "upload": "Select the training document",
-            "active_doc": "Current document?",
             "onboarding_cat": "Onboarding document?",
         }
         help_texts = {
-            "active_doc": "This will help employees know which document is currently in use and which document is a historical record.",
             "onboarding_cat": "If this is a document that will be tracked for employee onbaording, please select the category name. Otherwise please leave this field blank.",
         }
 
@@ -196,7 +180,7 @@ class SignUpForm(UserCreationForm):
     last_name = forms.CharField(max_length=50, required=True)
     email = forms.EmailField(max_length=254, required=True,
         help_text='Required. Enter the email address for that will be associated with this users account.')
-    position = forms.CharField(max_length=50, required=False,
+    position = forms.CharField(max_length=50, required=True,
         help_text='Enter the name of the employees postiion.')
     location = forms.ModelChoiceField(queryset=company_info.objects.all().order_by('location'),
          help_text='Select the primary location for the employee.')
@@ -215,7 +199,8 @@ class SignUpForm(UserCreationForm):
         widget=forms.CheckboxSelectMultiple(),
         help_text='Select all documents this employee must submit to HR.',
         label='Documents requiring submission')
-    manager = forms.ModelChoiceField(queryset=Profile.objects.all().filter(user__is_active=True).exclude(user__username='system_admin').order_by('user__first_name'),
+    manager = forms.ModelChoiceField(required=False,
+        queryset=Profile.objects.all().filter(user__is_active=True).exclude(user__username='system_admin').order_by('user__first_name'),
         help_text='The manager selected will be responsible for approving absence requests and conducting performance reviews.')
     absence_allocation_annually = forms.IntegerField(required=False, initial=0,
         help_text='Enter the number of days for absences allocated for the employee annually. If the employee does not have allocated absence days, enter 0.')
@@ -224,11 +209,13 @@ class SignUpForm(UserCreationForm):
     password = User.objects.make_random_password()
     password1 = forms.CharField(
         widget=forms.HiddenInput(),
-        initial=password
+        initial=password,
+        required=False
     )
     password2 = forms.CharField(
         widget=forms.HiddenInput(),
-        initial=password
+        initial=password,
+        required=False
     )
     class Meta:
         model = User
@@ -249,3 +236,14 @@ class upload_holidays(forms.Form):
         required=True
     )
 
+# ---------------------------------------------------------------------
+# TRAINING DOCS
+# ---------------------------------------------------------------------
+
+class training_doc_submitted(forms.Form):
+    employee = forms.ModelChoiceField(required=True,
+        queryset=Profile.objects.all().filter(user__is_active=True).exclude(user__username='system_admin').order_by('user__first_name'),
+        help_text='Select the employee that has submitted the training document.')
+    doc = forms.ModelChoiceField(required=True,
+        queryset=training_docs.objects.all().order_by('upload_name'),
+        help_text='Select the submitted training document.')

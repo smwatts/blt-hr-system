@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
+{% if user.is_authenticated %}
 <!DOCTYPE html>
 <html>
-
 <style>
 h2.b {
   font-family: Arial, Helvetica, sans-serif;
@@ -28,8 +29,8 @@ h2.b {
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
-      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
-      <li class="active"><a href="{% url 'training_center' %}">Documents</a></li>
+      <li class="active"><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
       <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
@@ -42,35 +43,29 @@ h2.b {
   </div>
 </nav>
   <head></head>
-
-{% if user.is_authenticated %}
  <div class="container-fluid">
-<h2 class='b'>Document Center</h2>
-<p>Tax documents, company policies and training material can be found here.</p>
+  <h2 class='b'>Submitted Document</h2>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Document</th>
-          <th>Training Category</th>
-          <th>Last Updated (EST)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for document in documents %}
-          <tr>
-            <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
-            <td>{{ document.onboarding_cat.name }}</td>
-            <td>{{ document.uploaded_at }}</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3">No training documents uploaded.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="row">
+    <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+          <div class="col-lg-5">
+            {{sub_form.employee|as_crispy_field:"bootstrap"}} 
+          </div>
+          <div class="col-lg-5">
+            {{sub_form.doc|as_crispy_field:"bootstrap"}}
+          </div>
+          <div class="col-lg-2">
+          </div>
   </div>
+        <div class='row'>
+          <div class="col-lg-12">
+            <button type="submit" class="btn btn-primary pull-left">Confirm & Save</button>
+          </div>
+        </div>
+    </form>
+</div>
+</html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

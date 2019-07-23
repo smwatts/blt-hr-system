@@ -28,8 +28,8 @@ h2.b {
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
-      <li><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
-      <li class="active"><a href="{% url 'training_center' %}">Documents</a></li>
+      <li class="active"><a href="{% url 'onboarding_training_docs' %}">Training</a></li>
+      <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
       <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
@@ -44,132 +44,69 @@ h2.b {
   <head></head>
 
  <div class="container-fluid">
-    <h2 class='b'>Onboarding / Training Requirements</h2>
-    <p>This is your customized onboarding / training center. Please review the requirements below.</p>
-
+  <div class="row">
     <div class="col-lg-6">
-      <div class="row">
-        <h4>Acknowledgement Required</h4>
-      </div>
-      <div class="row"><hr></div>
-      <div class="row">
-        <p class="text-info">View & acknowledge outstanding documents.</p>
-        <p>Please read and then acknowledge all documents below.</p>
-      </div>
-      <div class="row">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Link</th>
-              <th>Acknowledge</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for document in ack_missing %}
-              <tr>
-                <td>{{ document.doc__name }}</td>
-                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
-                <td class="tg-yw4l"><a href="training_docs/ack_doc_read/{{document.id}}">Mark as read</a></td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="3">No outstanding acknowledgement requirements.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="row"><hr></div>
-      <div class="row">
-        <p class="text-info">View acknowledged documents.</p>
-      </div>
-      <div class="row">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Link</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for document in ack_complete %}
-              <tr>
-                <td>{{ document.doc__name }}</td>
-                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="3">No documents acknowledged.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    <h2 class='b'>Review Training Documents</h2>
+    <p>You can view the onboarding / training documents that still need to be acknowledged and submitted to HR.</p>
+    <br></br>
     </div>
-
-    <div class="col-lg-1">
+      <div class="col-lg-6">
+        <br></br>
+        <br>
+      <a class="btn btn-primary pull-left" href="completed_ack_sub_docs.html">View acknowledged & submitted documents</a>
+      <br></br>
+     <p>Click the button above to view documents that have been acknowledged and submitted.</p>
     </div>
-
-    <div class="col-lg-5">
-        <div class="row">
-        <h4>Submission Required</h4>
-      </div>
-      <div class="row"><hr></div>
-      <div class="row">
-        <p class="text-info">View outstanding documents for submission.</p>
-        <p>Please print and submit the documents below to HR.</p>
-      </div>
-      <div class="row">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Link</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for document in sub_missing %}
-              <tr>
-                <td>{{ document.doc__name }}</td>
-                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="3">No outstanding submissions required.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="row"><hr></div>
-      <div class="row">
-        <p class="text-info">View submitted documents.</p>
-      </div>
-      <div class="row">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Document Name</th>
-              <th>Link</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for document in sub_complete %}
-              <tr>
-                <td>{{ document.doc__name }}</td>
-                <td><a href="https://blt-construction.s3.amazonaws.com/{{ document.doc__doc__upload }}" target="_blank">{{ document.doc__doc__upload_name }}</a></td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="3">No documents submitted.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-6">
+    <h4 class='b'>Outstanding Acknowledgements</h4>
+    <p>Please click "acknowledge" once you have read the training document.</p>
+      <table class="table">
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Read?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inst in dic_ack %}
+          <tr>
+            <td><a href="https://blt-construction.s3.amazonaws.com/{{ inst.doc__url }}" target="_blank">{{ inst.doc__name }}</a></td>
+            <td class="tg-yw4l"><a href="training_docs/ack_doc_read/{{inst.doc}}">Acknowledge</a></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No outstanding training documents to acknowledge.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     </div>
-</div>
+     <div class="col-lg-6">
+      <h4 class='b'>Outstanding Submissions</h4>
+      <p>Please print and complete the documents below and submit them to HR.</p>
+      <table class="table">
+      <thead>
+        <tr>
+          <th>Document</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inst in dic_sub %}
+          <tr>
+            <td><a href="https://blt-construction.s3.amazonaws.com/{{ inst.doc__url }}" target="_blank">{{ inst.doc__name }}</a></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No outstanding training documents to submit to HR.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
 </html>
 {% else %}
   <h2>You are not logged in</h2>
