@@ -26,7 +26,7 @@ h2.b {
       <ul class="nav navbar-nav">
       <li><a href="{% url 'home' %}">Home</a></li>
       {% if user.username == "system_admin" %}
-      <li class="active"><a href="{% url 'admin' %}">System Admin</a></li>
+      <li><a href="{% url 'admin' %}">System Admin</a></li>
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
@@ -34,7 +34,7 @@ h2.b {
       <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
-      <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
+      <li class="active"><a href="{% url 'performance_reviews' %}">Performance</a></li>
       <li><a href="{% url 'timesheet_home' %}">Timesheets</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -45,24 +45,34 @@ h2.b {
 </nav>
 
   <head></head>
+  <div class="container-fluid">
+<h2 class='b'>Add Performance Forms</h2>
 
-  <body>
-    <div class="container-fluid">
-	<h2 class = "b">Add location information</h2>
-  <p>Add information such as location that the system will maintain.</p>
-    <form method="POST" class="add-emp-group">
-         {% csrf_token %}
-         <div class='row'>
-          <div class="col-lg-5">
-            {{company_info_form.location|as_crispy_field:"bootstrap"}}
-          </div>
+  <p>Add a new performance form that will be used for employee performance reviews. 
+  Please note that the latest performance form will be used for each category.</p>
+
+  <p>Upload performance review categories <a href="performance/add_perf_cats.html">here</a></p>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-lg-4">
+          {{ form.upload_name|as_crispy_field:"bootstrap" }}
         </div>
-         <div class='row'>
-          <div class="col-lg-5">
-            <button type="submit" class="btn btn-primary pull-left">Save Location</button>
-          </div>
+        <div class="col-lg-4">
+          {{ form.perf_cat|as_crispy_field:"bootstrap" }}
         </div>
-    </form>  
+        <div class="col-lg-4">
+          {{ form.upload|as_crispy_field:"bootstrap" }}
+        </div>
+      </div>
+        <br>
+      <div class="row">
+        <div class="col-md-10 text-center">
+          <button type="submit" class="btn btn-primary pull-left">Save Document</button>
+        </div>
+      </div>
+    </form>
+ 
 
   <br></br>
 
@@ -72,34 +82,35 @@ h2.b {
        </div>
     </div>
 
-    <p class="text-info">View & edit company locations for BLT below.</p>
+    <p class="text-info">View & edit existing performance review forms.</p>
 
     <table class="table">
       <thead>
         <tr>
-          <th>Location</th>
-          <th>Edit Location</th>
+          <th>Performance Form</th>
+          <th>Update File</th>
+          <th>Performance Category</th>
         </tr>
       </thead>
       <tbody>
-        {% for company_info in company_info %}
+        {% for perf_form in perf_forms %}
           <tr>
-            <td>{{ company_info.location }}</td>
-            <td class="tg-yw4l"><a href="admin/edit_company_info/{{company_info.id}}">Edit</a></td>
+            <td><a href="{{ perf_form.upload.url }}" target="_blank">{{ perf_form.upload_name }}</a></td>
+            <td>{{ perf_form.uploaded_at }}</td>
+            <td>{{perf_form.perf_cat}}</td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No company information created.</td>
+            <td colspan="3">No performance review forms created.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-  </div>
 
+</div>
+</html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>
 {% endif %}
-
-</html>
 {% endblock %}

@@ -26,7 +26,7 @@ h2.b {
       <ul class="nav navbar-nav">
       <li><a href="{% url 'home' %}">Home</a></li>
       {% if user.username == "system_admin" %}
-      <li class="active"><a href="{% url 'admin' %}">System Admin</a></li>
+      <li><a href="{% url 'admin' %}">System Admin</a></li>
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
       <li><a href="{% url 'employee_directory'%}">Directory</a></li>
@@ -34,7 +34,7 @@ h2.b {
       <li><a href="{% url 'training_center' %}">Documents</a></li>
       <li><a href="{% url 'absence_request' %}">Absences</a></li>
       <li><a href="{% url 'certifications_maintained' %}">Certifications</a></li>
-      <li><a href="{% url 'performance_reviews' %}">Performance</a></li>
+      <li class="active"><a href="{% url 'performance_reviews' %}">Performance</a></li>
       <li><a href="{% url 'timesheet_home' %}">Timesheets</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -46,21 +46,57 @@ h2.b {
 
   <head></head>
   <div class="container-fluid">
-<h2 class='b'>Edit company name</h2>
+<h2 class='b'>Add and Edit Performance Categories</h2>
 
-<form method="post">
-  {% csrf_token %}
-  <div class='row'>
-    <div class="col-lg-5">
-      {{ info_form.location|as_crispy_field:"bootstrap" }}
+  <p>Add performance categories here.</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-lg-4">
+          {{ add_edit_perf_cats.name | as_crispy_field:"bootstrap" }}
+        </div>
+      </div>
+        <br>
+      <div class="row">
+        <div class="col-md-10 text-center">
+          <button type="submit" class="btn btn-primary pull-left">Save Category</button>
+        </div>
+      </div>
+    </form>
+ 
+
+  <br></br>
+
+    <div class='row'>
+        <div class='col-lg-8 col-lg-offset-2'>
+        <hr>
+       </div>
     </div>
-  </div>
-  <div class='row'>
-    <div class="col-lg-5">
-      <button type="submit" class="btn btn-primary pull-left">Save changes</button>
-    </div>
-  </div>
-</form>
+
+    <p class="text-info">View & edit existing performance review forms.</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Performance Category</th>
+          <th>Edit Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in perf_cat %}
+          <tr>
+            <td>{{ cat.name }}</td>
+            <td class="tg-yw4l"><a href="performance/update_perf_cat/{{cat.id}}">Edit category name</a></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No performance categories created.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
 </div>
 </html>
 {% else %}

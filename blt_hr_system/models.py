@@ -63,6 +63,7 @@ class Profile(models.Model):
     start_date = models.DateField(null=True, blank=True)
     manager = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey('company_info', on_delete=models.SET_NULL, null=True)
+    perf_cat = models.ForeignKey('perf_cat', on_delete=models.SET_NULL, null=True)
     certs = models.ManyToManyField(certification)
     read_req = models.ManyToManyField(onboarding_cat, related_name="read+")
     submit_req = models.ManyToManyField(onboarding_cat, related_name="submit+")
@@ -178,3 +179,28 @@ class hourly_timesheet(models.Model):
     sage_job = models.ForeignKey('sage_jobs', on_delete=models.CASCADE, null=False, blank=False)
     hours = models.PositiveIntegerField(blank=False, null=False, default=0)
     description = models.CharField(max_length=1000, blank=True)
+
+# ---------------------------------------------------------------------
+# PERFORMANCE REVIEW
+# ---------------------------------------------------------------------
+
+# List of all performance categories
+class perf_cat(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+
+class perf_forms(models.Model):
+    upload_name = models.CharField(max_length=200, null=False, blank=False)
+    upload = models.FileField(upload_to=RandomFileName('media/perf_form/'), null=False, blank=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    perf_cat = models.ForeignKey('perf_cat', on_delete=models.CASCADE, null=True)
+    def __str__(self):
+        return self.upload_name
+
+class emp_perf_forms(models.Model):
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    upload_name = models.CharField(max_length=200, null=False, blank=False)
+    upload = models.FileField(upload_to=RandomFileName('media/emp_perf_form/'), null=False, blank=False)
+    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    manager_comment = models.CharField(max_length=5000, null=False, blank=False)

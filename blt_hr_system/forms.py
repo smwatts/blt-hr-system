@@ -1,5 +1,7 @@
 from django import forms
-from .models import employee_absence, employee_certification, training_docs, Profile, company_info, certification, onboarding_cat, doc_submit_req, doc_read
+from .models import employee_absence, employee_certification, training_docs, Profile, \
+    company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
+    perf_cat
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -247,3 +249,40 @@ class training_doc_submitted(forms.Form):
     doc = forms.ModelChoiceField(required=True,
         queryset=training_docs.objects.all().order_by('upload_name'),
         help_text='Select the submitted training document.')
+
+# ---------------------------------------------------------------------
+# PERFORMANCE FORMS
+# ---------------------------------------------------------------------
+
+# submit a performance form
+class perf_forms_submit(forms.ModelForm):
+    class Meta:
+        model = perf_forms
+        fields = ['upload', 'upload_name', 'perf_cat']
+        fields_required = ['upload', 'upload_name', 'perf_cat']
+        labels = {
+            "upload_name": "Performance form name",
+            "upload": "Select the performance form",
+            "perf_cat": "Select the performance review category"
+        }
+
+# update an employee's performace category
+class edit_emp_perf_cat(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['perf_cat']
+        help_texts = {
+            'perf_cat': 'Select the performance category for this employee.',
+        }
+        labels = {
+            'perf_cat': 'Performance Category'
+        }
+
+# edit the names of performance categories
+class add_edit_perf_cats(forms.ModelForm):
+    class Meta:
+        model = perf_cat
+        fields = ['name']
+        help_texts = {
+            'name': 'Edit the performance category.',
+        }

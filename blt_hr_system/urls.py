@@ -48,6 +48,13 @@ urlpatterns = [
 
     # Pages relevant to performance reviews
     url(r'performance/performance_reviews.html', views.performance_reviews, name = 'performance_reviews'),
+    url(r'performance/add_perf_forms.html', views.add_perf_forms, name = 'add_perf_forms'),
+    url(r'performance/add_perf_cats.html', views.add_perf_cats, name = 'add_perf_cats'),
+    url(r'performance/outstanding_perf_forms.html', views.outstanding_perf_forms, name = 'outstanding_perf_forms'),
+    url(r'performance/view_perf_history.html', views.view_perf_history, name = 'view_perf_history'),
+    url(r'performance/update_perf_cat/(?P<pk>[\w-]+)$', views.update_perf_cat, name = 'update_perf_cat'),
+    url(r'performance/edit_emp_perf_cat/(?P<pk>[\w-]+)$', views.edit_emp_perf_cat, name = 'edit_emp_perf_cat'),
+    url(r'performance/add_edit_perf_cat.html', views.add_edit_perf_cat, name = 'add_edit_perf_cat'),
 
     # Pages relevant to employee training (onboarding requirements, system managed documents)
     url(r'training_docs/completed_ack_sub_docs.html', views.completed_ack_sub_docs, name = 'completed_ack_sub_docs'),
