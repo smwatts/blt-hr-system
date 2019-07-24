@@ -143,9 +143,12 @@ class employee_absence(models.Model):
     yr2 = models.PositiveIntegerField(blank=False, null=False, default=0)
     yr2_num_days = models.PositiveIntegerField(blank=False, null=False, default=0)
     num_days_prior_apr_31 = models.PositiveIntegerField(blank=False, null=False, default=0)
-    ABSCENCES = (('Sick','Sick'), ('Vacation','Vacation'), ('Bereavement','Bereavement'), 
-        ('Time off without pay','Time off without pay'), ('Maternity or Paternity','Maternity or Paternity'),
-        ('Other', 'Other'))
+    ABSCENCES = (('Sick','Sick'), 
+                ('Vacation','Vacation'), 
+                ('Bereavement','Bereavement'), 
+                ('Time off without pay','Time off without pay'), 
+                ('Maternity or Paternity','Maternity or Paternity'),
+                ('Other', 'Other'))
     absence_type = models.CharField(max_length=200, choices=ABSCENCES)
     absence_reason = models.CharField(max_length=1000)
     date_submitted = models.DateField(auto_now_add=True)
@@ -166,10 +169,6 @@ class company_holidays(models.Model):
 # TIMESHEETS
 # ---------------------------------------------------------------------
 
-class timesheets(models.Model):
-    start_date = models.DateField(null=False, blank=False)
-    end_date = models.DateField(null=False, blank=False)
-
 class sage_jobs(models.Model):
     job_id = models.CharField(max_length=200)
     job_desc = models.CharField(max_length=1000)
@@ -177,8 +176,76 @@ class sage_jobs(models.Model):
 class hourly_timesheet(models.Model):
     employee_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sage_job = models.ForeignKey('sage_jobs', on_delete=models.CASCADE, null=False, blank=False)
+    is_finalized = models.BooleanField(default=False, blank=False)
     hours = models.PositiveIntegerField(blank=False, null=False, default=0)
-    description = models.CharField(max_length=1000, blank=True)
+    description = models.CharField(max_length=2000, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    ts_period = (('2019-07-01 to 2019-07-14','2019-07-01 to 2019-07-14'),
+                ('2019-07-15 to 2019-07-28','2019-07-15 to 2019-07-28'),
+                ('2019-07-29 to 2019-08-11','2019-07-29 to 2019-08-11'),
+                ('2019-08-12 to 2019-08-25','2019-08-12 to 2019-08-25'),
+                ('2019-08-26 to 2019-09-08','2019-08-26 to 2019-09-08'),
+                ('2019-09-09 to 2019-09-22','2019-09-09 to 2019-09-22'),
+                ('2019-09-23 to 2019-10-06','2019-09-23 to 2019-10-06'),
+                ('2019-10-07 to 2019-10-20','2019-10-07 to 2019-10-20'),
+                ('2019-10-21 to 2019-11-03','2019-10-21 to 2019-11-03'),
+                ('2019-11-04 to 2019-11-17','2019-11-04 to 2019-11-17'),
+                ('2019-11-18 to 2019-12-01','2019-11-18 to 2019-12-01'),
+                ('2019-12-02 to 2019-12-15','2019-12-02 to 2019-12-15'),
+                ('2019-12-16 to 2019-12-29','2019-12-16 to 2019-12-29'),
+                ('2019-12-30 to 2020-01-12','2019-12-30 to 2020-01-12'),
+                ('2020-01-13 to 2020-01-26','2020-01-13 to 2020-01-26'),
+                ('2020-01-27 to 2020-02-09','2020-01-27 to 2020-02-09'),
+                ('2020-02-10 to 2020-02-23','2020-02-10 to 2020-02-23'),
+                ('2020-02-24 to 2020-03-08','2020-02-24 to 2020-03-08'),
+                ('2020-03-09 to 2020-03-22','2020-03-09 to 2020-03-22'),
+                ('2020-03-23 to 2020-04-05','2020-03-23 to 2020-04-05'),
+                ('2020-04-06 to 2020-04-19','2020-04-06 to 2020-04-19'),
+                ('2020-04-20 to 2020-05-03','2020-04-20 to 2020-05-03'),
+                ('2020-05-04 to 2020-05-17','2020-05-04 to 2020-05-17'),
+                ('2020-05-18 to 2020-05-31','2020-05-18 to 2020-05-31'),
+                ('2020-06-01 to 2020-06-14','2020-06-01 to 2020-06-14'),
+                ('2020-06-15 to 2020-06-28','2020-06-15 to 2020-06-28'),
+                ('2020-06-29 to 2020-07-12','2020-06-29 to 2020-07-12'),
+                ('2020-07-13 to 2020-07-26','2020-07-13 to 2020-07-26'),
+                ('2020-07-27 to 2020-08-09','2020-07-27 to 2020-08-09'),
+                ('2020-08-10 to 2020-08-23','2020-08-10 to 2020-08-23'),
+                ('2020-08-24 to 2020-09-06','2020-08-24 to 2020-09-06'),
+                ('2020-09-07 to 2020-09-20','2020-09-07 to 2020-09-20'),
+                ('2020-09-21 to 2020-10-04','2020-09-21 to 2020-10-04'),
+                ('2020-10-05 to 2020-10-18','2020-10-05 to 2020-10-18'),
+                ('2020-10-19 to 2020-11-01','2020-10-19 to 2020-11-01'),
+                ('2020-11-02 to 2020-11-15','2020-11-02 to 2020-11-15'),
+                ('2020-11-16 to 2020-11-29','2020-11-16 to 2020-11-29'),
+                ('2020-11-30 to 2020-12-13','2020-11-30 to 2020-12-13'),
+                ('2020-12-14 to 2020-12-27','2020-12-14 to 2020-12-27'),
+                ('2020-12-28 to 2021-01-10','2020-12-28 to 2021-01-10'),
+                ('2021-01-11 to 2021-01-24','2021-01-11 to 2021-01-24'),
+                ('2021-01-25 to 2021-02-07','2021-01-25 to 2021-02-07'),
+                ('2021-02-08 to 2021-02-21','2021-02-08 to 2021-02-21'),
+                ('2021-02-22 to 2021-03-07','2021-02-22 to 2021-03-07'),
+                ('2021-03-08 to 2021-03-21','2021-03-08 to 2021-03-21'),
+                ('2021-03-22 to 2021-04-04','2021-03-22 to 2021-04-04'),
+                ('2021-04-05 to 2021-04-18','2021-04-05 to 2021-04-18'),
+                ('2021-04-19 to 2021-05-02','2021-04-19 to 2021-05-02'),
+                ('2021-05-03 to 2021-05-16','2021-05-03 to 2021-05-16'),
+                ('2021-05-17 to 2021-05-30','2021-05-17 to 2021-05-30'),
+                ('2021-05-31 to 2021-06-13','2021-05-31 to 2021-06-13'),
+                ('2021-06-14 to 2021-06-27','2021-06-14 to 2021-06-27'),
+                ('2021-06-28 to 2021-07-11','2021-06-28 to 2021-07-11'),
+                ('2021-07-12 to 2021-07-25','2021-07-12 to 2021-07-25'),
+                ('2021-07-26 to 2021-08-08','2021-07-26 to 2021-08-08'),
+                ('2021-08-09 to 2021-08-22','2021-08-09 to 2021-08-22'),
+                ('2021-08-23 to 2021-09-05','2021-08-23 to 2021-09-05'),
+                ('2021-09-06 to 2021-09-19','2021-09-06 to 2021-09-19'),
+                ('2021-09-20 to 2021-10-03','2021-09-20 to 2021-10-03'),
+                ('2021-10-04 to 2021-10-17','2021-10-04 to 2021-10-17'),
+                ('2021-10-18 to 2021-10-31','2021-10-18 to 2021-10-31'),
+                ('2021-11-01 to 2021-11-14','2021-11-01 to 2021-11-14'),
+                ('2021-11-15 to 2021-11-28','2021-11-15 to 2021-11-28'),
+                ('2021-11-29 to 2021-12-12','2021-11-29 to 2021-12-12'),
+                ('2021-12-13 to 2021-12-26','2021-12-13 to 2021-12-26'))
 
 # ---------------------------------------------------------------------
 # PERFORMANCE REVIEW

@@ -1,7 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, training_docs, Profile, \
     company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
-    perf_cat
+    perf_cat, sage_jobs
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -201,6 +201,11 @@ class SignUpForm(UserCreationForm):
         widget=forms.CheckboxSelectMultiple(),
         help_text='Select all documents this employee must submit to HR.',
         label='Documents requiring submission')
+    perf_cat = forms.ModelChoiceField(required=False,
+        queryset=perf_cat.objects.all().order_by('name'),
+        help_text='Please select the performance review category this user will be associated with.')
+    absence_allocation_annually = forms.IntegerField(required=False, initial=0,
+        help_text='Enter the number of days for absences allocated for the employee annually. If the employee does not have allocated absence days, enter 0.')
     manager = forms.ModelChoiceField(required=False,
         queryset=Profile.objects.all().filter(user__is_active=True).exclude(user__username='system_admin').order_by('user__first_name'),
         help_text='The manager selected will be responsible for approving absence requests and conducting performance reviews.')
@@ -286,3 +291,26 @@ class add_edit_perf_cats(forms.ModelForm):
         help_texts = {
             'name': 'Edit the performance category.',
         }
+
+# ---------------------------------------------------------------------
+# TIMESHEETS
+# ---------------------------------------------------------------------
+
+class upload_jobs(forms.Form):
+    docfile = forms.FileField(
+        label='Select a csv file',
+        help_text='The csv file must contain a "Job" and "Description" column.',
+        required=True
+    )
+
+class sage_job_update(forms.ModelForm):
+    class Meta:
+        model = sage_jobs
+        fields = ('job_id', 'job_desc')
+        labels = {
+            'job_id': 'Job ID',
+            'job_desc':'Job Description',
+        }
+    def __init__(self, *args, **kwargs):
+        super(sage_job_update, self).__init__(*args, **kwargs)
+        self.fields['job_id'].disabled = True

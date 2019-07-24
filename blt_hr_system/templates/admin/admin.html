@@ -145,8 +145,11 @@ h2.b {
             <td>Timesheets</td>
             <td>
               <div>
-                  <li><a href="{% url 'jobs_upload' %}">Upload jobs descriptions and IDs</a></li>
-                  <li><a href="{% url 'export_timesheets' %}">Export timesheets</a></li>
+                  <li><a href="{% url 'jobs_upload' %}">Upload jobs descriptions and IDs to be used in the timesheets</a></li>
+                  <li><a href="{% url 'admin_timesheet_home' %}">
+                      Update the list of office staff who require timesheets</a></li>
+                  <li><a href="{% url 'export_timesheets' %}">Export completed timesheets</a></li>
+                  <li><a href="{% url 'timesheet_status' %}">View and export missing timesheets</a></li>
               </div>
             </td>
             <td></td>

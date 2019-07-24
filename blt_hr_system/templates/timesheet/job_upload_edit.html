@@ -47,52 +47,25 @@ h2.b {
   <body>
   	<div class="container-fluid">
 
-    <h2 class='b'>Upload Job ID's for Timesheets</h2>
-    <ul>
-    <li>Please upload all job ID's and descriptions for the timesheets.</li>
-    <li>If a job ID is already uploaded it will not be re-added.</li>
-    <li>Job descriptions can be editted here but job ID's cannot be edited to ensure data stays consistent.</li>
-    </ul>
-    <ul>
-    {% for err in errors %}
-        <li>{{ err|safe }}</li>
-    {% endfor %}
-    </ul>
-    <br>
-    <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-        <div class='row'>
-          <div class="col-lg-3">
-            {{upload_jobs.docfile|as_crispy_field:"bootstrap"}}
-          </div>
-            <div class="col-lg-9">
-              <button type="submit" class="btn btn-primary pull-left">Submit job IDs</button>
-          </div>
+    <h2 class='b'>Edit the Job Description</h2>
+
+  <form method="post">
+    {% csrf_token %}
+      <div class='row'>
+        <div class="col-lg-5">
+          {{ sage_form.job_id|as_crispy_field:"bootstrap" }}
         </div>
-    </form>
-    <br>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Job ID</th>
-          <th>Job Description</th>
-          <th>Edit Description</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for job in sage_jobs %}
-      <tr>
-        <td>{{ job.job_id }}</td>
-        <td>{{ job.job_desc }}</td>
-        <td class="tg-yw4l"><a href="timesheet/job_upload_edit/{{job.id}}">Edit</a></td>
-      </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3">No jobs added.</td>
-          </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+        <div class="col-lg-5">
+          {{ sage_form.job_desc|as_crispy_field:"bootstrap" }}
+        </div>
+      </div>
+      <br>
+      <div class='row'>
+        <div class="col-lg-6">
+          <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+        </div>
+      </div>
+  </form>
 
   	</div>
     

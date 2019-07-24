@@ -75,13 +75,23 @@ urlpatterns = [
     url(r'training_docs/change_doc_status/(?P<pk>[\w-]+)$', views.change_doc_status, name = 'change_doc_status'),
 
     # Pages relevant to the timesheet module
+    # main page for employees to view timesheets
     url(r'timesheet/timesheet_home.html', views.timesheet_home, name = 'timesheet_home'),
+    # page to create a new timesheet: pk will be the value on the form for the week in question
     url(r'timesheet/timesheet/(?P<pk>[\w-]+)$', views.timesheet, name = 'timesheet'),
+    # to do: create a sheet where you add in the hours for the week
+    # only if conditions are met will this sheet be saved as "offical"
+    # ADMIN PAGES
+    # upload the job ID's required for the timesheets to be completed
     url(r'timesheet/jobs_upload.html', views.jobs_upload, name = 'jobs_upload'),
-    url(r'timesheet/timesheet_status.html', views.timesheet_status, name = 'timesheet_status'),
-    url(r'timesheet/admin_timesheet_home/(?P<pk>[\w-]+)$', views.admin_timesheet_home, name = 'admin_timesheet_home'),
+    url(r'timesheet/job_upload_edit/(?P<pk>[\w-]+)$', views.job_upload_edit, name = 'job_upload_edit'),
+    # edit the employees who have access to the timesheets
+    url(r'timesheet/admin_timesheet_home.html', views.admin_timesheet_home, name = 'admin_timesheet_home'),
     url(r'timesheet/admin_timesheet/(?P<pk>[\w-]+)$', views.admin_timesheet, name = 'admin_timesheet'),
+    # export page to export completed timesheets either by staff or by date
     url(r'timesheet/export_timesheets.html', views.export_timesheets, name = 'export_timesheets'),
+    # view missing job sheets
+    url(r'timesheet/timesheet_status.html', views.timesheet_status, name = 'timesheet_status'),
 
 ]
 
