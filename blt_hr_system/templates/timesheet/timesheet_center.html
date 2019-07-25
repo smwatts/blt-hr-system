@@ -17,7 +17,7 @@ h2.b {
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
+        <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand">BLT Construction</a>
     </div>
@@ -45,20 +45,38 @@ h2.b {
   <head></head>
 
   <body>
-  	<div class="container-fluid">
+     <div class="container-fluid">
+    <h2 class='b'>Jobs for the {{ start_date }} to {{ end_date }} Timesheet</h2>
+    <p>Select all jobs that have been worked on between {{ start_date }} and {{ end_date }}.</p>
+    <ul>
+      <li>Please note that all required job IDs must be selected to enter job hours.</li>
+      <li><b>Any previously entered information will be deleted if the same job IDs are not selected.</b></li>
+    </ul>
 
-    <h2 class='b'>Edit Office Staff Status</h2>
-
-      <p>Employee: {{user_account.get_full_name}}</p>
-
-      <form method="post">
+    <ul>
+      {%for e in errors%}
+      <li>{{e}}</li>
+      {% endfor %}
+    </ul>
+    <div class="row">
+      <div class="col-sm-5">
+        <form method="POST">
         {% csrf_token %}
-        {{ office_form|crispy }}
-          <button type="submit" class="btn btn-primary pull-left">Save changes</button>
+        {{ select_jobs|crispy }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-1">
+          <button type="submit" class="btn btn-primary pull-left">Next</button>
       </form>
+      </div>
+      <div class="col-sm-4">
+        <a class="btn btn-primary" href="/blt_hr_system/timesheet/timesheet_selection.html">Back</a>
+      </div>
+    </div>
+      
 
-  	</div>
-
+    </div>
   </body>
 
 </html>

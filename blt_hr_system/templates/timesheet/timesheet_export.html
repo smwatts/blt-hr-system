@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -44,9 +45,19 @@ h2.b {
   <head></head>
 
   <body>
-  	  	<div class="container-fluid">
+  	 <div class="container-fluid">
+        <h2 class='b'>Export timesheets</h2>
+      <p>Either export all history or export information for a particular date.</p>
 
-  	</div>
+    <div class="row">
+      <div class="col-sm-4">
+        <form method="POST">
+        {% csrf_token %}
+        {{ export_form|crispy }}
+        <button type="submit" class="btn btn-primary pull-left" vale='export_ts'>Export timesheet</button>
+        </form>
+      </div>
+    </div>
     
   </body>
 

@@ -44,7 +44,62 @@ h2.b {
   <head></head>
 
   <body>
-  	  	<div class="container-fluid">
+  	 <div class="container-fluid">
+        <h2 class='b'>Timesheets</h2>
+    <div class='row'>
+      <div class="col-lg-2">
+        <br>
+          <a class="btn btn-primary" href="timesheet_selection.html">Create Timesheet</a>
+      </div>
+      <div class="col-lg-2">
+        <br>
+        <a class="btn btn-primary" href="timesheet_export.html">Export Timesheet History</a>
+      </div>
+      <div class="col-lg-8">
+        <br>
+        <h4 class='b'>The following timesheets need to be completed:</h4>
+          <table class="table">
+        <thead>
+          <tr>
+            <th>Timesheet</th>
+            <th>Hours Logged</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in df_final_print_query %}
+            <tr>
+              <td>{{ i.start_date }} to {{ i.end_date }}</td>
+              <td>{{ i.hours }}</td>
+          {% empty %}
+            <tr>
+              <td colspan="3">All timesheets are up-to-date.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table> 
+      <h4 class='b'>The following timesheets have been completed:</h4>
+          <table class="table">
+        <thead>
+          <tr>
+            <th>Timesheet</th>
+            <th>Hours Logged</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in df_sum %}
+            <tr>
+              <td>{{ i.start_date }} to {{ i.end_date }}</td>
+              <td>{{ i.hours }}</td>
+          {% empty %}
+            <tr>
+              <td colspan="3">No timesheets have been completed.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table> 
+
+    </div>
+  </div>
 
   	</div>
     

@@ -1,7 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, training_docs, Profile, \
     company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
-    perf_cat, sage_jobs
+    perf_cat, sage_jobs, hourly_timesheet
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -314,3 +314,51 @@ class sage_job_update(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(sage_job_update, self).__init__(*args, **kwargs)
         self.fields['job_id'].disabled = True
+
+class edit_office_staff(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['office_staff']
+        help_texts = {
+            'office_staff': 'Select if this employee should be considered an office staffer with timesheets.',
+        }
+        labels = {
+            'perf_cat': 'Office Staffer?'
+        }
+
+class timesheet_select(forms.ModelForm):
+    class Meta:
+        model = hourly_timesheet
+        fields = ['ts_period',]
+        help_texts = {
+            'ts_period':'Please select the timesheet period that you will be submitting'
+        }
+        labels = {
+            'ts_period':'Timesheet for the period'
+        }
+
+class select_jobs(forms.Form):
+    Sage_jobs = forms.ModelMultipleChoiceField(queryset=sage_jobs.objects.order_by('job_id'),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='Select all jobs that have been worked on throughout this period.')
+
+class hourly_ts(forms.ModelForm):
+    class Meta:
+        model = hourly_timesheet
+        fields = ['sage_job', 'hours', 'description', 'is_finalized']
+        widgets = {'is_finalized': forms.HiddenInput()}
+    def __init__(self, *args, **kwargs):
+        super(hourly_ts, self).__init__(*args, **kwargs)
+        self.fields['sage_job'].disabled = True
+
+class timesheet_export(forms.ModelForm):
+    class Meta:
+        model = hourly_timesheet
+        fields = ['ts_period',]
+        help_texts = {
+            'ts_period':'Please select the timesheet period that you would like to export'
+        }
+        labels = {
+            'ts_period':'Timesheet for the period'
+        }
