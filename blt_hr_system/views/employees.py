@@ -76,9 +76,7 @@ def signup(request):
         password = User.objects.make_random_password()
         password1 = request.POST.get('password1', password)
         password2 = request.POST.get('password2', password)
-        print(form.errors)
         if form.is_valid():
-            print('valid')
             # submit employee informatation to create an account with profile information
             obj = form.save()
             obj.refresh_from_db() 
@@ -91,7 +89,11 @@ def signup(request):
             obj.profile.location = location_instance
             obj.profile.position = request.POST['position']
             office_staff = request.POST.get('office_staff', False)
-            obj.profile.office_staff = office_staff
+            if office_staff != False:
+                obj.profile.office_staff = True
+            perf_cat = request.POST.get('perf_cat', "no perf cat")
+            if perf_cat != "no perf cat":
+                obj.profile.perf_cat_id = perf_cat
             certs_submitted = request.POST.get('certifications', "no certs")
             if certs_submitted != "no certs":
                 obj.profile.certs.set(request.POST.getlist('certifications'))
@@ -117,6 +119,7 @@ def signup(request):
                         mail_subject, message, to=[to_email]
             )
             email.send()
+            return HttpResponseRedirect(reverse('employee_directory_edit'))
     else:
         form = forms.SignUpForm()
     return render(request, 'employees/signup.html', {'form': form})

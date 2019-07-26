@@ -170,7 +170,8 @@ class UserForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('location', 'position', 'manager', 'start_date')
+        fields = ['location', 'position', 'manager', 'start_date']
+        fields_required = ['location', 'position', 'start_date']
         help_texts = {
             'start_date': 'Format: YYYY-MM-DD.',
         }

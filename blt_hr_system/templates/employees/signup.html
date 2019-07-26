@@ -48,7 +48,7 @@ h2.b {
   <form method="post">
     {% csrf_token %}
 
-     <p class="text-info">Enter general employee information.</p>
+     <p class="text-info">Login and Directory Information.</p>
     <div class='row'>
       <div class="col-lg-6">
         {{form.username|as_crispy_field:"bootstrap"}}
@@ -82,15 +82,9 @@ h2.b {
       </div>
     </div>
     <div class='row'>
-      <div class="col-lg-6">
-        {{form.office_staff|as_crispy_field:"bootstrap"}}
-      </div>
-    </div>
-    <div class='row'>
       <div class='col-lg-8 col-lg-offset-2'><hr></div>
     </div>
-
-    <p class="text-info">Enter onboarding information.</p>
+    <p class="text-info">Enter training requirements.</p>
     <div class='row'>
       <div class="col-lg-6">
         {{form.onbaording_read|as_crispy_field:"bootstrap"}}
@@ -121,6 +115,27 @@ h2.b {
         {{form.certifications|as_crispy_field:"bootstrap"}}
       </div>
     </div>
+
+    <div class='row'>
+      <div class='col-lg-8 col-lg-offset-2'><hr></div>
+    </div>
+    <div class='row'>
+      <p class="text-info">Enter performance review.</p>
+      <div class="col-lg-6">
+        {{form.perf_cat|as_crispy_field:"bootstrap"}}
+      </div>
+    </div>
+
+    <div class='row'>
+      <div class='col-lg-8 col-lg-offset-2'><hr></div>
+    </div>
+    <div class='row'>
+      <p class="text-info">Enter timesheet information.</p>
+      <div class="col-lg-6">
+        {{form.office_staff|as_crispy_field:"bootstrap"}}
+      </div>
+    </div>
+
     <div class='row'>
       <div class="col-lg-12">
         <p>Upon completion, the employee with be emailed with their account information.</p>
