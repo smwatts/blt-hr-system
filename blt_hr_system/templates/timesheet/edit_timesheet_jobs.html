@@ -45,27 +45,38 @@ h2.b {
   <head></head>
 
   <body>
-  	 <div class="container-fluid">
-        <h2 class='b'>Export timesheets</h2>
-      <p>Either export all history or export information for a particular date.</p>
 
+     <div class="container-fluid">
+    <h2 class='b'>{{ first_name }} {{ last_name }}: {{ start_date }} to {{ end_date }} Timesheet</h2>
+    <p>Select all jobs that have been worked on between {{ start_date }} and {{ end_date }}.</p>
+    <ul>
+      <li>Please note that all required job IDs must be selected to enter job hours.</li>
+      <li><b>Any previously entered information will be deleted if the same job IDs are not selected.</b></li>
+    </ul>
+
+    <ul>
+      {%for e in errors%}
+      <li>{{e}}</li>
+      {% endfor %}
+    </ul>
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-5">
         <form method="POST">
         {% csrf_token %}
-        {{ export_form|crispy }}
-        <button type="submit" class="btn btn-primary pull-left" name='export'>Export timesheet</button>
-        </form>
+        {{ select_jobs|crispy }}
       </div>
-      <div class='col-sm-1'>
+    </div>
+    <div class="row">
+      <div class="col-sm-1">
+          <button type="submit" class="btn btn-primary pull-left">Next</button>
+      </form>
       </div>
-      <div class='col-sm-7'>
-        <p><b>To export all timesheet history please click the button below.</b></p>
-        <form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-primary pull-left" name="export_all" value="Export all timesheets"/>
-        </form>
+      <div class="col-sm-4">
+        <a class="btn btn-primary" href="/blt_hr_system/timesheet/edit_timesheet_home.html">Back</a>
       </div>
+    </div>
+      
+
     </div>
     
   </body>

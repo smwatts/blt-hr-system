@@ -45,28 +45,20 @@ h2.b {
   <head></head>
 
   <body>
-  	 <div class="container-fluid">
-        <h2 class='b'>Export timesheets</h2>
-      <p>Either export all history or export information for a particular date.</p>
-
+  	<div class="container-fluid">
+    <h2 class='b'>Create and Edit a Timesheet</h2>
     <div class="row">
       <div class="col-sm-4">
+        <p class="text-info">Select the employee and timesheet you'd like to create or edit.</p>
         <form method="POST">
         {% csrf_token %}
-        {{ export_form|crispy }}
-        <button type="submit" class="btn btn-primary pull-left" name='export'>Export timesheet</button>
-        </form>
-      </div>
-      <div class='col-sm-1'>
-      </div>
-      <div class='col-sm-7'>
-        <p><b>To export all timesheet history please click the button below.</b></p>
-        <form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-primary pull-left" name="export_all" value="Export all timesheets"/>
+        {{ ts_form|crispy }}
+        <button type="submit" class="btn btn-primary pull-left" name='export_emp_ts'>Edit timesheet</button>
         </form>
       </div>
     </div>
+          
+  	</div>
     
   </body>
 

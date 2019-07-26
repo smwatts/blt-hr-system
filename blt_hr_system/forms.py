@@ -357,8 +357,31 @@ class timesheet_export(forms.ModelForm):
         model = hourly_timesheet
         fields = ['ts_period',]
         help_texts = {
-            'ts_period':'Please select the timesheet period that you would like to export'
+            'ts_period':'Please select the timesheet period that you would like to export',
         }
         labels = {
-            'ts_period':'Timesheet for the period'
+            'ts_period':'Timesheet for the period',
+        }
+
+class timesheet_emp(forms.Form):
+    employee_id = forms.ModelChoiceField(required=True,
+        queryset=Profile.objects.all().filter(office_staff=True).order_by('user__first_name'),
+        help_text='Select the employee.',
+        label='Employee')
+
+class timesheet_emp_ts(forms.ModelForm):
+    employee_id = forms.ModelChoiceField(required=True,
+        queryset=Profile.objects.all().filter(office_staff=True).order_by('user__first_name'),
+        help_text='Select the employee.',
+        label='Employee')
+    class Meta:
+        model = hourly_timesheet
+        fields = ['employee_id', 'ts_period']
+        help_texts = {
+            'employee_id':'Please select an employee',
+            'ts_period':'Please select a timesheet period',
+        }
+        labels = {
+            'employee_id':'Employee',
+            'ts_period':'Timesheet for the period',
         }

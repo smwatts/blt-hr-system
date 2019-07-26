@@ -71,6 +71,10 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
 
+class ExtendedUser(User): # inherits from django.contrib.auth.models.User
+    def __unicode__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
 # ---------------------------------------------------------------------
 # TRAINING DOCS
 # ---------------------------------------------------------------------

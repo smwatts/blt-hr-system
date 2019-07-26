@@ -86,6 +86,9 @@ urlpatterns = [
     url(r'timesheet/timesheet_status.html', views.timesheet_status, name = 'timesheet_status'),
     url(r'timesheet/timesheet_hourly/(?P<pk>[\w-]+)$', views.timesheet_hourly, name = 'timesheet_hourly'),
     url(r'timesheet/timesheet_export.html', views.timesheet_export, name = 'timesheet_export'),
+    url(r'timesheet/edit_timesheet_home.html', views.edit_timesheet_home, name = 'edit_timesheet_home'),
+    url(r'timesheet/edit_timesheet_jobs/(?P<pk>[\w-]+)$', views.edit_timesheet_jobs, name = 'edit_timesheet_jobs'),
+    url(r'timesheet/edit_timesheet_complete/(?P<pk>[\w-]+)$', views.edit_timesheet_complete, name = 'edit_timesheet_complete'),
     
 ]
 

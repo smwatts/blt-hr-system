@@ -45,7 +45,41 @@ h2.b {
 
   <body>
   	  	<div class="container-fluid">
-
+          <h2 class='b'>Missing Employee Timesheets</h2>
+          <div class="row">
+            <div class="col-sm-8">
+            <p>To export the list of missing employee timesheets please click the button below:</p>
+            <form method="POST">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-primary pull-left" name="export_all" value="Export missing timesheets"/>
+          </form>
+        </div>
+      </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <table class="table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Timesheet</th>
+              <th>Hours Logged</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in df_users_final_qr %}
+              <tr>
+                <td>{{ i.user__first_name }} {{ i.user__last_name }}</td>
+                <td>{{ i.start_date }} to {{ i.end_date }}</td>
+                <td>{{ i.hours }}</td>
+            {% empty %}
+              <tr>
+                <td colspan="3">No timesheets are missing.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table> 
+      </div>
+      </div>
   	</div>
     
   </body>

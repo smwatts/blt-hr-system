@@ -19,6 +19,10 @@ from django.db import connection
 import pandas as pd
 from datetime import datetime, timedelta
 from django.forms import modelformset_factory
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.utils import get_column_letter
+import csv
 
 # -----------------------------------------------------------------
 # GENERAL/HELPER FUNCTIONS
@@ -91,15 +95,271 @@ ts_dict = {
     "64": ["Nov 29 2021", "Dec 12 2021"],
     "65": ["Dec 13 2021", "Dec 26 2021"]
 }
+
+def export_ts(ts_period):
+    category_df = pd.DataFrame(list(models.hourly_timesheet.objects.all()
+        .filter(ts_period=ts_period, is_finalized=True) \
+        .order_by('ts_period', 'sage_job__job_id') \
+        .values('sage_job__job_id', 'sage_job__job_desc', 'hours', 'description',
+                'start_date', 'end_date', 'ts_period',
+                'employee_id__first_name', 'employee_id__last_name', 'employee_id')))
+    if len(category_df.index) < 1:
+        category_df = pd.DataFrame(columns=['sage_job__job_id', 'sage_job__job_desc', 
+                'hours', 'description',
+                'start_date', 'end_date', 'ts_period',
+                'employee_id__first_name', 'employee_id__last_name', 'employee_id'])
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename={date}-timesheet.xlsx'.format(
+        date=(ts_dict[str(ts_period)][0] + "-" + ts_dict[str(ts_period)][1]),
+    )
+    workbook = Workbook()
+    # Delete the default worksheet
+    workbook.remove(workbook.active)
+    # Define some styles and formatting that will be later used for cells
+    header_font = Font(name='Calibri', bold=True)
+    centered_alignment = Alignment(horizontal='center')
+    border_bottom = Border(
+        bottom=Side(border_style='medium', color='FF000000'),
+    )
+    wrapped_alignment = Alignment(
+        vertical='top',
+        wrap_text=True
+    )
+    # Define the column titles and widths
+    columns = [
+        ('Sage Job ID', 15),
+        ('Sage Job Description', 40),
+        ('Hours Worked', 15),
+        ('Work Description', 50),
+    ]
+    df_tmp = category_df[['employee_id__first_name', 'employee_id__last_name', 'employee_id']]
+    df_tmp = df_tmp.sort_values(['employee_id__first_name', 'employee_id__last_name'])
+    df_tmp = df_tmp.drop_duplicates()
+    for index, row in df_tmp.iterrows():
+        worksheet = workbook.create_sheet(
+            title=row['employee_id__first_name'] + ' ' + row['employee_id__last_name'],
+            index=index,
+        )
+        row_num = 1
+        iter_emp = row['employee_id']
+
+        # Assign values, styles, and formatting for each cell in the header
+        for col_num, (column_title, column_width) in enumerate(columns, 1):
+            cell = worksheet.cell(row=row_num, column=col_num)
+            cell.value = column_title
+            cell.font = header_font
+            cell.border = border_bottom
+            cell.alignment = centered_alignment
+            column_letter = get_column_letter(col_num)
+            column_dimensions = worksheet.column_dimensions[column_letter]
+            column_dimensions.width = column_width
+
+        # Iterate through all movies of a category
+        category_ts = category_df.query('employee_id == @iter_emp')
+        for index, job in category_ts.iterrows():
+            row_num += 1
+            
+            # Define data and formats for each cell in the row
+            row = [
+                (job['sage_job__job_id'], 'Normal'),
+                (job['sage_job__job_desc'], 'Normal'),
+                (job['hours'], 'Normal'),
+                (job['description'], 'Normal'),
+            ]
+
+            # Assign values, styles, and formatting for each cell in the row
+            for col_num, (cell_value, cell_format) in enumerate(row, 1):
+                cell = worksheet.cell(row=row_num, column=col_num)
+                cell.value = cell_value
+                cell.style = cell_format
+                if cell_format == 'Currency':
+                    cell.number_format = '#,##0.00 €'
+                if col_num == 4:
+                    cell.number_format = '[h]:mm;@'
+                cell.alignment = wrapped_alignment
+
+    workbook.save(response)
+    return response
+
+def export_emp(user_id):
+    category_df = pd.DataFrame(list(models.hourly_timesheet.objects.all()
+        .filter(employee_id=user_id, is_finalized=True) \
+        .order_by('ts_period', 'sage_job__job_id') \
+        .values('sage_job__job_id', 'sage_job__job_desc', 'hours', 'description',
+                'start_date', 'end_date', 'ts_period')))
+    if len(category_df.index) < 1:
+        category_df = pd.DataFrame(columns=['sage_job__job_id', 
+            'sage_job__job_desc', 'hours', 'description',
+                'start_date', 'end_date', 'ts_period'])
+    user_queryset = User.objects.all().filter(id=user_id) \
+        .values('first_name', 'last_name')
+    for u in user_queryset:
+        first_name = u['first_name']
+        last_name = u['last_name']
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename={emp}-timesheet.xlsx'.format(
+        emp=(first_name + " " + last_name),
+    )
+    workbook = Workbook()
+    # Delete the default worksheet
+    workbook.remove(workbook.active)
+    # Define some styles and formatting that will be later used for cells
+    header_font = Font(name='Calibri', bold=True)
+    centered_alignment = Alignment(horizontal='center')
+    border_bottom = Border(
+        bottom=Side(border_style='medium', color='FF000000'),
+    )
+    wrapped_alignment = Alignment(
+        vertical='top',
+        wrap_text=True
+    )
+    # Define the column titles and widths
+    columns = [
+        ('Sage Job ID', 15),
+        ('Sage Job Description', 40),
+        ('Hours Worked', 15),
+        ('Work Description', 50),
+    ]
+    df_tmp = category_df[['start_date', 'end_date', 'ts_period']]
+    df_tmp = df_tmp.drop_duplicates()
+    for index, row in df_tmp.iterrows():
+        worksheet = workbook.create_sheet(
+            title=row['start_date'].strftime('%b %d %Y') + ' to ' + row['end_date'].strftime('%b %d %Y'),
+            index=index,
+        )
+        row_num = 1
+        iter_ts = row['ts_period']
+
+        # Assign values, styles, and formatting for each cell in the header
+        for col_num, (column_title, column_width) in enumerate(columns, 1):
+            cell = worksheet.cell(row=row_num, column=col_num)
+            cell.value = column_title
+            cell.font = header_font
+            cell.border = border_bottom
+            cell.alignment = centered_alignment
+            column_letter = get_column_letter(col_num)
+            column_dimensions = worksheet.column_dimensions[column_letter]
+            column_dimensions.width = column_width
+
+        # Iterate through all movies of a category
+        category_ts = category_df.query('ts_period == @iter_ts')
+        for index, job in category_ts.iterrows():
+            row_num += 1
+            
+            # Define data and formats for each cell in the row
+            row = [
+                (job['sage_job__job_id'], 'Normal'),
+                (job['sage_job__job_desc'], 'Normal'),
+                (job['hours'], 'Normal'),
+                (job['description'], 'Normal'),
+            ]
+
+            # Assign values, styles, and formatting for each cell in the row
+            for col_num, (cell_value, cell_format) in enumerate(row, 1):
+                cell = worksheet.cell(row=row_num, column=col_num)
+                cell.value = cell_value
+                cell.style = cell_format
+                if cell_format == 'Currency':
+                    cell.number_format = '#,##0.00 €'
+                if col_num == 4:
+                    cell.number_format = '[h]:mm;@'
+                cell.alignment = wrapped_alignment
+
+    workbook.save(response)
+    return response
+
+def export_emp_ts(ts_period, user_id):
+    category_queryset = models.hourly_timesheet.objects.all().filter(employee_id=user_id,
+        ts_period=ts_period, is_finalized=True).order_by('sage_job__job_id') \
+        .values('sage_job__job_id', 'sage_job__job_desc', 'hours', 'description')
+    user_queryset = User.objects.all().filter(id=user_id) \
+        .values('first_name', 'last_name')
+    for u in user_queryset:
+        first_name = u['first_name']
+        last_name = u['last_name']
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename={date}-{emp}-timesheet.xlsx'.format(
+        date=(ts_dict[str(ts_period)][0] + "-" + ts_dict[str(ts_period)][1]),
+        emp=(first_name + " " + last_name),
+    )
+    workbook = Workbook()
+    # Delete the default worksheet
+    workbook.remove(workbook.active)
+    # Define some styles and formatting that will be later used for cells
+    header_font = Font(name='Calibri', bold=True)
+    centered_alignment = Alignment(horizontal='center')
+    border_bottom = Border(
+        bottom=Side(border_style='medium', color='FF000000'),
+    )
+    wrapped_alignment = Alignment(
+        vertical='top',
+        wrap_text=True
+    )
+    # Define the column titles and widths
+    columns = [
+        ('Sage Job ID', 15),
+        ('Sage Job Description', 40),
+        ('Hours Worked', 15),
+        ('Work Description', 50),
+    ]
+    worksheet = workbook.create_sheet(
+        title=ts_dict[str(ts_period)][0] + " " + ts_dict[str(ts_period)][1],
+        index=1,
+    )
+    row_num = 1
+    # Assign values, styles, and formatting for each cell in the header
+    for col_num, (column_title, column_width) in enumerate(columns, 1):
+        cell = worksheet.cell(row=row_num, column=col_num)
+        cell.value = column_title
+        cell.font = header_font
+        cell.border = border_bottom
+        cell.alignment = centered_alignment
+        # set column width
+        column_letter = get_column_letter(col_num)
+        column_dimensions = worksheet.column_dimensions[column_letter]
+        column_dimensions.width = column_width
+    # Iterate through all movies of a category
+    for category in category_queryset:
+        row_num += 1
+        # Define data and formats for each cell in the row
+        row = [
+            (category['sage_job__job_id'], 'Normal'),
+            (category['sage_job__job_desc'], 'Normal'),
+            (category['hours'], 'Normal'),
+            (category['description'], 'Normal'),
+        ]
+        # Assign values, styles, and formatting for each cell in the row
+        for col_num, (cell_value, cell_format) in enumerate(row, 1):
+            cell = worksheet.cell(row=row_num, column=col_num)
+            cell.value = cell_value
+            cell.style = cell_format
+            if cell_format == 'Currency':
+                cell.number_format = '#,##0.00 €'
+            if col_num == 4:
+                cell.number_format = '[h]:mm;@'
+            cell.alignment = wrapped_alignment
+    workbook.save(response)
+    return response
+
 # ------------------------------------------------------------------
 # EMPLOYEE FUNCTIONS
 # ------------------------------------------------------------------
+
 def timesheet_export(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.method == 'POST':
-        print(request.POST) 
     user_id = request.user.id
+    if request.method == 'POST' and 'export' in request.POST: 
+        ts_period = int(request.POST['ts_period'])
+        return export_emp_ts(ts_period, user_id)
+    if request.method == 'POST' and 'export_all' in request.POST:
+        return export_emp(user_id)
     models.hourly_timesheet.objects.all().filter(employee_id=user_id, is_finalized=True)
     export_form = forms.timesheet_export()
     context = {'export_form':export_form}
@@ -408,7 +668,47 @@ def timesheet_status(request):
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
-    context = {}
+    # get list of all office staff
+    df_users = pd.DataFrame(list(models.Profile.objects.all() \
+        .filter(office_staff=True) \
+        .values('user', 'user__first_name','user__last_name')))
+    if len(df_users.index) < 1:
+        df_users = pd.DataFrame(columns=['user', 'user__first_name','user__last_name'])
+    df_users = df_users.rename(columns={'user':'employee_id'})
+    # get list of all completed timesheets
+    df = pd.DataFrame(list(models.hourly_timesheet.objects.all() \
+            .order_by('start_date').values('employee_id', 'hours', 'start_date')))
+    if len(df.index) < 1:
+        df = pd.DataFrame(columns=['start_date'])
+    df_sum = df.groupby(['start_date', 'employee_id'])['hours'].sum().reset_index()
+    # create a list of the start dates where we require the employee to have a timesheet
+    start_lst = [ ts_dict[k][0] for k in ts_dict ]
+    now = datetime.now()
+    required_lst = []
+    for i in start_lst:
+        if datetime.strptime(i, "%b %d %Y") <= now:
+            add_date = datetime.strptime(i, "%b %d %Y").date()
+            required_lst.append(add_date)
+    df_users_final = pd.DataFrame(columns=['employee_id', 'user__first_name','user__last_name'])
+    for st_dt in required_lst: 
+        df_users['start_date'] = st_dt
+        df_users_final = df_users_final.append(df_users, sort=True)    
+    df_users_final['end_date'] = df_users_final['start_date'] + timedelta(days=13)
+    df_users_final = pd.merge(df_users_final, df_sum, on=['start_date', 'employee_id'], how='left')
+    df_users_final = df_users_final.fillna(0)
+    df_users_final.hours = df_users_final.hours.astype(int)
+    df_users_final = df_users_final.query('hours < 40')
+    df_users_final_qr = df_users_final.T.to_dict().values()
+    if request.method == 'POST':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=missing_timesheets.csv'
+        df_users_final = df_users_final.rename(columns={'user__first_name':'first_name',
+                                                        'user__last_name': 'last_name'})
+        df_users_final = df_users_final[['start_date', 'end_date', 'first_name', 'last_name', 'hours']]
+        df_users_final.to_csv(path_or_buf=response, header=True, index=False, quoting=csv.QUOTE_NONNUMERIC,encoding='utf-8')
+        return response
+    context = {'df_users_final_qr':df_users_final_qr,
+    }
     return render(request, 'timesheet/timesheet_status.html', context)
 
 # Admin function to export timesheets
@@ -417,5 +717,171 @@ def export_timesheets(request):
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
-    context = {}
+    if request.method == 'POST' and 'export_emp_ts' in request.POST: 
+        ts_period = int(request.POST['ts_period'])
+        user_id = int(request.POST['employee_id'])
+        return export_emp_ts(ts_period, user_id)
+        errors = []
+    if request.method == 'POST' and 'export_emp' in request.POST:
+        user_id = int(request.POST['employee_id'])
+        try:
+            return export_emp(user_id)
+        except:
+            pass
+    if request.method == 'POST' and 'export_ts' in request.POST:
+        ts_period = int(request.POST['ts_period'])
+        try:
+            return export_ts(ts_period)
+        except:
+            pass
+    export_ts_form = forms.timesheet_export()
+    export_emp_form = forms.timesheet_emp()
+    export_emp_ts_form = forms.timesheet_emp_ts()
+    context = {'export_ts_form': export_ts_form,
+            'export_emp_form':export_emp_form,
+            'export_emp_ts_form': export_emp_ts_form,}
     return render(request, 'timesheet/export_timesheets.html', context)
+
+def edit_timesheet_home(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        employee_id = request.POST['employee_id']
+        ts_period = request.POST['ts_period']
+        pk = employee_id + "-" + ts_period
+        return redirect('edit_timesheet_jobs', pk=pk)
+    ts_form = forms.timesheet_emp_ts()
+    context = {'ts_form': ts_form}
+    return render(request, 'timesheet/edit_timesheet_home.html', context)
+
+def val_job_form_admin(user_id, ts_id, start_date, end_date, job_lst):
+    job_lst = list(map(int, job_lst))
+    df = pd.DataFrame(list(models.hourly_timesheet.objects.all().values('id', 'employee_id', 
+        'sage_job', 'is_finalized', 'hours', 'description', 'start_date', 'end_date', 'ts_period')))
+    if len(df.index) < 1:
+        df = pd.DataFrame(columns=['id', 'employee_id', 'sage_job', 'is_finalized', 'hours', 
+            'description', 'start_date', 'end_date', 'ts_period'])
+    df = df.query('employee_id == @user_id and ts_period == @ts_id')
+    if len(df.index) > 0:
+        # first step is to delete any entries we don't want anymore
+        to_delete_df = df[df['sage_job'].isin(job_lst) == False]
+        delete_ids = set(to_delete_df['id'])
+        for i in delete_ids:
+            del_obj = models.hourly_timesheet.objects.filter(id=i).delete()
+        # get the "to add" list by finding missing values from the db
+        db_job_lst = df.sage_job.values.tolist()
+        to_add_lst = list(set(job_lst) - set(db_job_lst))
+        for i in to_add_lst:
+            row = models.hourly_timesheet.objects.create(employee_id_id=user_id, sage_job_id=i,
+                is_finalized=False, hours=0, start_date=datetime.strptime(start_date, "%b %d %Y"),
+                end_date=datetime.strptime(end_date, "%b %d %Y"), ts_period=ts_id) 
+    else:
+        for i in job_lst:
+            row = models.hourly_timesheet.objects.create(employee_id_id=user_id, sage_job_id=i,
+                is_finalized=False, hours=0, start_date=datetime.strptime(start_date, "%b %d %Y"),
+                end_date=datetime.strptime(end_date, "%b %d %Y"), ts_period=ts_id)
+    errors = []
+    return errors
+
+def edit_timesheet_jobs(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    emp_id_str, ts_id_str = pk.split('-')
+    emp_id = int(emp_id_str)
+    ts_id = int(ts_id_str)
+    select_jobs = forms.select_jobs()
+    start_date, end_date = ts_dict[ts_id_str]
+    user_query = User.objects.get(id=emp_id)
+    first_name, last_name = user_query.first_name, user_query.last_name
+    if request.method == 'POST':
+        job_lst = request.POST.getlist('Sage_jobs')
+        if len(job_lst) < 1:
+            errors = ['Please select at least one job for the timesheet.']
+            context = {'select_jobs':select_jobs,
+                        'start_date':start_date,
+                        'end_date':end_date,
+                        'errors':errors,
+                        'first_name': first_name,
+                        'last_name': last_name,
+            }
+            return render(request, 'timesheet/edit_timesheet_jobs.html', context)
+        else:
+            errors = val_job_form_admin(emp_id_str, ts_id_str, start_date, end_date, job_lst)
+            context = {'select_jobs':select_jobs,
+                        'start_date':start_date,
+                        'end_date':end_date,
+                        'errors':errors,
+                        'first_name': first_name,
+                        'last_name': last_name,
+            }
+            return redirect('edit_timesheet_complete', pk=pk)
+    errors = []
+    context = {'select_jobs':select_jobs,
+        'start_date':start_date,
+        'end_date':end_date,
+        'errors':errors,
+        'first_name': first_name,
+        'last_name': last_name,
+    }
+    return render(request, 'timesheet/edit_timesheet_jobs.html', context)
+
+def edit_timesheet_complete(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    emp_id_str, ts_id_str = pk.split('-')
+    emp_id = int(emp_id_str)
+    ts_id = int(ts_id_str)
+    start_date, end_date = ts_dict[ts_id_str]
+    user_query = User.objects.get(id=emp_id)
+    first_name, last_name = user_query.first_name, user_query.last_name
+    if request.method == 'POST':
+        myModelFormset = modelformset_factory(models.hourly_timesheet, form=forms.hourly_ts
+        , extra=0)
+        items = models.hourly_timesheet.objects.filter(ts_period=ts_id, 
+            employee_id=emp_id).order_by('sage_job')
+        formsetInstance = myModelFormset(queryset = items, data=request.POST)
+        print(formsetInstance)
+        if formsetInstance.is_valid():
+            print('valid')
+            # If there is already finalized data, don't let the form be re-submitted
+            df = pd.DataFrame(list(models.hourly_timesheet.objects.all().values('id', 'employee_id', 
+                'sage_job', 'is_finalized', 'hours', 'description', 'start_date', 'end_date', 'ts_period')))
+            if len(df.index) < 1:
+                df = pd.DataFrame(columns=['id', 'employee_id', 'sage_job', 'is_finalized', 'hours', 
+                    'description', 'start_date', 'end_date', 'ts_period'])
+            user_id = request.user.id
+            df = df.query('employee_id == @emp_id_str and ts_period == @ts_id_str')
+            if len(df.index) > 0:
+                formsetInstance.save()
+                sum_hours = 0
+                for form_id in range(0, int(request.POST['form-TOTAL_FORMS'])):
+                    hours_id = 'form-' + str(form_id) + '-hours'
+                    tmp_hrs = int(request.POST[hours_id])
+                    sum_hours += tmp_hrs
+                if sum_hours > 39:
+                    items.update(is_finalized=True)
+                    return HttpResponseRedirect(reverse('export_timesheets'))
+                else:
+                    items.update(is_finalized=False)
+                    return HttpResponseRedirect(reverse('timesheet_status'))
+    myModelFormset = modelformset_factory(models.hourly_timesheet, form=forms.hourly_ts
+        , extra=0)
+    items = models.hourly_timesheet.objects.filter(ts_period=ts_id, 
+        employee_id=emp_id).order_by('sage_job')
+    formsetInstance = myModelFormset(queryset = items)
+    errors = []
+    context = {'start_date': start_date,
+                'end_date': end_date,
+                'formsetInstance': formsetInstance,
+                'errors':errors,
+                'first_name':first_name,
+                'last_name':last_name,
+                }
+    return render(request, 'timesheet/edit_timesheet_complete.html', context)
+

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -44,10 +45,50 @@ h2.b {
   <head></head>
 
   <body>
-  	  	<div class="container-fluid">
+     <div class="container-fluid">
+        <h2 class='b'>Export Completed Timesheets</h2>
+    <div class="row">
+        <ul>
+       {% for err in errors %}
+          <li>{{ err|safe }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+    <div class="row">
+      <div class="col-sm-4">
+        <p class="text-info">Export a timesheet for a particular employee and payroll period.</p>
+        <form method="POST">
+        {% csrf_token %}
+        {{ export_emp_ts_form|crispy }}
+        <button type="submit" class="btn btn-primary pull-left" name='export_emp_ts'>Export timesheet</button>
+        </form>
+      </div>
+      <div class="col-sm-1">
+      </div>
+      <div class="col-sm-3">
+        <p class="text-info">Export a timesheet for a particular payroll period.</p>
+        <p><b>If nothing is exported, there are no completed timesheets for this period.</b></p>
+        <form method="POST">
+        {% csrf_token %}
+        {{ export_ts_form|crispy }}
+        <button type="submit" class="btn btn-primary pull-left" name='export_ts'>Export timesheet</button>
+        </form>
+      </div>
+      <div class="col-sm-1">
+      </div>
+      <div class="col-sm-3">
+        <p class="text-info">Export a timesheet for a particular employee.</p>
+        <p><b>If nothing is exported, there are no completed timesheets for this employee.</b></p>
+        <form method="POST">
+        {% csrf_token %}
+        {{ export_emp_form|crispy }}
+        <button type="submit" class="btn btn-primary pull-left" name='export_emp'>Export timesheet</button>
+        </form>
+      </div>
 
-  	</div>
-    
+    </div>
+  </div>
+
   </body>
 
 </html>

@@ -45,30 +45,34 @@ h2.b {
   <head></head>
 
   <body>
-  	 <div class="container-fluid">
-        <h2 class='b'>Export timesheets</h2>
-      <p>Either export all history or export information for a particular date.</p>
+     <div class="container-fluid">
+    <h2 class='b'>{{ first_name }} {{ last_name }}: {{ start_date }} to {{ end_date }} Timesheet</h2>
+    <p>Please enter the number of hours completed for each job below and submit.</p>
+    <p>There must be 40 or more hours recorded for the timesheet to be subitted for the form to be considered complete. Otherwise the form will still be outstanding.</p>
 
+    <ul>
+      {%for e in errors%}
+      <li>{{e}}</li>
+      {% endfor %}
+    </ul>
+    
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-10">
         <form method="POST">
         {% csrf_token %}
-        {{ export_form|crispy }}
-        <button type="submit" class="btn btn-primary pull-left" name='export'>Export timesheet</button>
-        </form>
-      </div>
-      <div class='col-sm-1'>
-      </div>
-      <div class='col-sm-7'>
-        <p><b>To export all timesheet history please click the button below.</b></p>
-        <form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-primary pull-left" name="export_all" value="Export all timesheets"/>
-        </form>
+        {{ formsetInstance|crispy }}
       </div>
     </div>
-    
+
+    <div class="row">
+      <div class="col-sm-1">
+          <button type="submit" class="btn btn-primary pull-left">Submit</button>
+      </form>
+      </div>
+    </div>
+    </div>
   </body>
+  <br></br>
 
 </html>
 
