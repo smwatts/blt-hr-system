@@ -16,6 +16,7 @@ import datedelta
 from django.db.models import Q
 from collections import defaultdict
 from django.db import connection
+import datetime
 
 # -----------------------------------------------------------------
 # GENERAL/HELPER FUNCTIONS
@@ -29,7 +30,32 @@ from django.db import connection
 def performance_reviews(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    return render(request, 'performance/performance_reviews.html')
+    user = request.user.id
+    perf_type = models.Profile.objects.values_list('perf_cat', flat=True).get(id=user)
+    req_perf = models.perf_forms.objects.all().filter(perf_cat=str(perf_type)) \
+        .order_by('-uploaded_at')[:1].values('upload', 'upload_name')
+    if req_perf.exists():
+        perf_required = True
+    else:
+        perf_required = False
+    year = datetime.date.today().year
+    month = datetime.date.today().month
+    if month < 11:
+        year = year - 1
+    last_uploaded = models.emp_perf_forms.objects.all().filter(employee=user, year=year)
+    upload_req = True
+    if last_uploaded.exists():
+        upload_req = False
+    completed_forms = models.emp_perf_forms.objects.all().filter(employee=user).order_by('uploaded_at')
+    form = forms.submit_perf()
+    context = {'req_perf':req_perf,
+                'perf_required':perf_required,
+                'completed_forms':completed_forms,
+                'form':form,
+                'upload_req':upload_req,
+                'year':year,
+    }
+    return render(request, 'performance/performance_reviews.html', context)
 
 # ------------------------------------------------------------------
 # ADMIN FUNCTIONS
@@ -76,10 +102,17 @@ def add_perf_forms(request):
         if form.is_valid():
             obj = form.save()
             return HttpResponseRedirect(reverse('add_perf_forms'))
+    cats = models.perf_forms.objects.all().exclude(perf_cat_id=None).values_list('perf_cat_id', flat=True)
+    if cats.exists():
+        cats = set(cats)
+    else:
+        cats = []
+    missing_cats = set(models.perf_cat.objects.all().exclude(id__in={1}).values_list('name', flat=True))
     perf_forms = models.perf_forms.objects.all().order_by('perf_cat', 'uploaded_at')
     form = forms.perf_forms_submit()
     context = {'perf_forms': perf_forms,
-                'form': form,}
+                'form': form,
+                'missing_cats':missing_cats,}
     return render(request, 'performance/add_perf_forms.html', context)
 
 # Admin function to update employee performance requirements
@@ -129,7 +162,23 @@ def outstanding_perf_forms(request):
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
-    return render(request, 'performance/outstanding_perf_forms.html')
+    year = datetime.date.today().year
+    month = datetime.date.today().month
+    if month < 11:
+        year = year - 1
+    last_uploaded = models.emp_perf_forms.objects.all().filter(~Q(employee__perf_cat=None), year=year) \
+        .values_list('employee_id', flat=True)
+    if last_uploaded.exists():
+        last_uploaded = set(last_uploaded)
+    else:
+        last_uploaded = []
+    print(last_uploaded)
+    employees_missing = models.Profile.objects.all().exclude(perf_cat=None).exclude(id__in=last_uploaded)
+    context = {
+        'employees_missing': employees_missing,
+        'year': year,
+    }
+    return render(request, 'performance/outstanding_perf_forms.html', context)
 
 # Admin function to view historical performance reviews
 def view_perf_history(request):

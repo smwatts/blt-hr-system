@@ -71,10 +71,6 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
 
-class ExtendedUser(User): # inherits from django.contrib.auth.models.User
-    def __unicode__(self):
-        return '%s %s' % (self.first_name, self.last_name)
-
 # ---------------------------------------------------------------------
 # TRAINING DOCS
 # ---------------------------------------------------------------------
@@ -273,8 +269,19 @@ class perf_forms(models.Model):
         return self.upload_name
 
 class emp_perf_forms(models.Model):
+    employee = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    upload_name = models.CharField(max_length=200, null=False, blank=False)
     upload = models.FileField(upload_to=RandomFileName('media/emp_perf_form/'), null=False, blank=False)
-    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    manager_comment = models.CharField(max_length=5000, null=False, blank=False)
+    upload_name = models.CharField(max_length=200, null=False, blank=False)
+    manager_upload = models.FileField(upload_to=RandomFileName('media/emp_manager_perf_form/'), 
+        null=True, blank=True)
+    manager_upload_name = models.CharField(max_length=200, null=True, blank=True)
+    manager_uploaded_at = models.DateTimeField(null=True)
+    year_opts = ((2019,2019),
+                (2020,2020),
+                (2021,2021),
+                (2022,2022),
+                (2023,2023),
+                (2024,2024))
+    year = models.PositiveIntegerField(choices=year_opts, null=True)
+

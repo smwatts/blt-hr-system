@@ -48,6 +48,27 @@ h2.b {
   <div class="container-fluid">
 <h2 class='b'>Outstanding Performance Reviews</h2>
 
+<p>The following performance requests are missing for {{year}}</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Employee(s)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees_missing %}
+          <tr>
+            <td>{{ emp.user.first_name }} {{ emp.user.last_name }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No performance employees with outstanding performance reviews.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
 
 </div>
 </html>

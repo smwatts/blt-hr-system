@@ -1,7 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, training_docs, Profile, \
     company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
-    perf_cat, sage_jobs, hourly_timesheet
+    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -385,4 +385,17 @@ class timesheet_emp_ts(forms.ModelForm):
         labels = {
             'employee_id':'Employee',
             'ts_period':'Timesheet for the period',
+        }
+
+# ---------------------------------------------------------------------
+# PERFORMANCE REVIEW
+# ---------------------------------------------------------------------
+
+class submit_perf(forms.ModelForm):
+    class Meta:
+        model = emp_perf_forms
+        fields = ['upload', 'upload_name']
+        labels = {
+            'upload': "Select your completed performance review",
+            'upload_name': "Specify the filename for this performance review",
         }

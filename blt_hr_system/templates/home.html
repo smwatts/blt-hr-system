@@ -44,8 +44,18 @@ h2.b {
 <div class="container-fluid">
   <h2 class="b">Welcome to the BLT HR Portal</h2>
   <p>Hi {{ user.get_full_name }},</p>
-	<p>This is your HR system, 
-	a place submit absence requests, certifications and access training material.</p>
+	<p>This is your HR portal, 
+	a place submit where you can access the following modules:</p>
+  <ul>
+    <li><a href="{% url 'account' %}">Your accoubt profile</a></li>
+      <li><a href="{% url 'employee_directory'%}">The employee directory</a></li>
+      <li><a href="{% url 'onboarding_training_docs' %}">Your training requirements</a></li>
+      <li><a href="{% url 'training_center' %}">All company documents</a></li>
+      <li><a href="{% url 'absence_request' %}">Manage absence requests and allocation</a></li>
+      <li><a href="{% url 'certifications_maintained' %}">Review and submit certification requirements</a></li>
+      <li><a href="{% url 'performance_reviews' %}">Review and submit performance reviews</a></li>
+      <li><a href="{% url 'timesheet_home' %}">Input and view outstanding Timesheets</a></li>
+  </ul>
 </div>
 {% else %}
 	<body>

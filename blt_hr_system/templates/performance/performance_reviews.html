@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -46,9 +47,85 @@ h2.b {
   <head></head>
   <body>
   	<div class="container-fluid">
-    <h2 class='b'>Performance Reviews</h2>
-    <p>Work in progress.</p>
-</div>
+      <h2 class='b'>Performance Reviews</h2>
+
+      {% if perf_required %}
+
+      {% if upload_req %}
+        <p><b>You must upload a performance review for {{year}}.</b></p>
+      {% endif %}
+      
+    <div class='row'>
+      <p>Download the following performance form and 
+        then upload a completed version by clicking the upload button.</p>
+        <div class='col-lg-3'>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Performance Form</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for form in req_perf %}
+              <tr>
+                <td><a href="https://blt-construction.s3.amazonaws.com/{{ form.upload }}">{{ form.upload_name }}</a></td>
+              </tr>
+            {% endfor %}
+           </tbody>
+          </table>
+        </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+          <div class="col-lg-5">
+            {{ form.upload_name|as_crispy_field:"bootstrap" }}
+          </div>
+          <div class="col-lg-5">
+            {{ form.upload|as_crispy_field:"bootstrap" }}
+          </div>
+        <div class="col-lg-5">
+          <div class="col-md-10 text-center">
+            <button type="submit" class="btn btn-primary pull-left">Save Document</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+      {% endif %}
+
+    <div class='row'>
+      <div class='col-lg-8 col-lg-offset-2'><hr></div>
+    </div>
+  </div>
+
+  <table class="table">
+      <thead>
+        <tr>
+          <th>Completed Performance Review</th>
+          <th>Uploaded at (EST)</th>
+          <th>Manager</th>
+          <th>Manager Review</th>
+          <th>Reviewed at (EST)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for document in completed_forms %}
+          <tr>
+            <td><a href="{{ document.upload.url }}" target="_blank">{{ document.upload_name }}</a></td>
+            <td>{{ document.uploaded_at }}</td>
+            <td><a href="{{ document.manager_upload.url }}" target="_blank">
+              {{ document.manager_upload_name }}</a></td>
+            <td>{{ document.manager_uploaded_at }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No performance reviews uploaded.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
     </body>
     </html>
 {% else %}

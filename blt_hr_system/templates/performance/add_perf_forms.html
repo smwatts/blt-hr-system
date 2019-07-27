@@ -47,7 +47,11 @@ h2.b {
   <head></head>
   <div class="container-fluid">
 <h2 class='b'>Add Performance Forms</h2>
-
+<ul>
+{% for cat in missing_cats %}
+  <li><b>Missing a performance form for: {{cat}}</b></li>
+{% endfor %}
+</ul>
   <p>Add a new performance form that will be used for employee performance reviews. 
   Please note that the latest performance form will be used for each category.</p>
 
