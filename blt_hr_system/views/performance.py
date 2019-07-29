@@ -46,6 +46,7 @@ def performance_reviews(request):
             return HttpResponseRedirect(reverse('performance_reviews'))
     perf_type = models.Profile.objects.values_list('perf_cat', flat=True).get(id=user)
     perf_required = False
+    req_perf = None
     if perf_type is not None:
         req_perf = models.perf_forms.objects.all().filter(perf_cat=str(perf_type)) \
             .order_by('-uploaded_at')[:1].values('upload', 'upload_name')

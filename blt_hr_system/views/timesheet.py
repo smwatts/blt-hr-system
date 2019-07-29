@@ -372,7 +372,7 @@ def timesheet_home(request):
     df = pd.DataFrame(list(models.hourly_timesheet.objects.all() \
             .order_by('start_date').values('employee_id', 'hours', 'start_date', 'end_date')))
     if len(df.index) < 1:
-        df = pd.DataFrame(columns=['start_date'])
+        df = pd.DataFrame(columns=['employee_id', 'hours', 'start_date', 'end_date'])
     user_id = request.user.id
     df = df.query('employee_id == @user_id')
     df_sum = df.groupby(['start_date'])['hours'].sum().reset_index()
