@@ -32,4 +32,11 @@ If you need to reset migrations (locally)
 	- `\l` (list all the databases to ensure it was created)
 4.  Add `system-admin` as an account
 	- `python manage.py createsuperuser`
-	- Username: `system-admin`
+	- Username: `system_admin`
+
+### Database Changes on the deployment
+
+1. Reset all data in the database: `heroku pg:reset DATABASE -a blt-construction`
+2. Run migrations `heroku run python manage.py makemigrations -a blt-construction`
+3. `heroku run python manage.py migrate -a blt-construction`
+4. `heroku run python manage.py createsuperuser -a blt-construction`

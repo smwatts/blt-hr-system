@@ -45,12 +45,14 @@ def performance_reviews(request):
             messages.error(request, 'Please correct the error below.')
             return HttpResponseRedirect(reverse('performance_reviews'))
     perf_type = models.Profile.objects.values_list('perf_cat', flat=True).get(id=user)
-    req_perf = models.perf_forms.objects.all().filter(perf_cat=str(perf_type)) \
-        .order_by('-uploaded_at')[:1].values('upload', 'upload_name')
-    if req_perf.exists():
-        perf_required = True
-    else:
-        perf_required = False
+    perf_required = False
+    if perf_type is not None:
+        req_perf = models.perf_forms.objects.all().filter(perf_cat=str(perf_type)) \
+            .order_by('-uploaded_at')[:1].values('upload', 'upload_name')
+        if req_perf.exists():
+            perf_required = True
+        else:
+            perf_required = False
     year = datetime.date.today().year
     month = datetime.date.today().month
     if month < 11:

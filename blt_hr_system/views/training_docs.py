@@ -334,7 +334,8 @@ def combine_ack_datasets(type_selected, user_selected):
     df_onboard_cats = pd.DataFrame(list(models.training_docs.objects.all().values('onboarding_cat', 
         'onboarding_cat__name', 'upload_name', 'id', 'upload')))
     if len(df_onboard_cats.index) < 1:
-        df_onboard_cats = pd.DataFrame(columns=['onboarding_cat', 'onboarding_cat__name', 'upload_name', 'id'])
+        df_onboard_cats = pd.DataFrame(columns=['onboarding_cat', 'onboarding_cat__name', 'upload_name', 'id',
+            'upload'])
     df_req = pd.merge(df_req, df_onboard_cats, left_on='read_req', right_on='onboarding_cat')
     df_req = df_req[['user__first_name','user__last_name', 'user', 'onboarding_cat__name', 'onboarding_cat', 
                 'upload_name', 'id', 'upload']]
@@ -375,7 +376,8 @@ def combine_sub_datasets(type_selected, user_selected):
     df_onboard_cats = pd.DataFrame(list(models.training_docs.objects.all().values('onboarding_cat', 
         'onboarding_cat__name', 'upload_name', 'id', 'upload')))
     if len(df_onboard_cats.index) < 1:
-        df_onboard_cats = pd.DataFrame(columns=['onboarding_cat', 'onboarding_cat__name', 'upload_name', 'id'])
+        df_onboard_cats = pd.DataFrame(columns=['onboarding_cat', 'onboarding_cat__name', 'upload_name', 
+            'id', 'upload'])
     df_req = pd.merge(df_req, df_onboard_cats, left_on='submit_req', right_on='onboarding_cat')
     df_req = df_req[['user__first_name','user__last_name', 'user', 'onboarding_cat__name', 'onboarding_cat', 
                 'upload_name', 'id', 'upload']]

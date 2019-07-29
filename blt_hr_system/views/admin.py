@@ -85,7 +85,7 @@ def edit_company_info(request, pk):
         if info_form.is_valid():
             info_form.save()
             messages.success(request, 'The location information was successfully updated!')
-            return HttpResponseRedirect(reverse('company_locations'))
+            return HttpResponseRedirect(reverse('add_company_info'))
         else:
             messages.error(request, 'Please correct the error below.')
     else:
