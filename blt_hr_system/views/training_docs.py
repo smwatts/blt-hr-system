@@ -28,20 +28,33 @@ import csv
 def training_center(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     documents = models.training_docs.objects.all()
     documents = documents.order_by('upload_name')
-    context = {'documents': documents,}
+    context = {'documents': documents,
+                'system_access':system_access,
+    }
     return render(request, 'training_docs/training_center.html', context)
 
 # ------------------------------------------------------------------
 # EMPLOYEE FUNCTIONS
 # ------------------------------------------------------------------
 
+# TRAINING_FORM
 # Employee function to dispaly all onboarding requirements for an employee
 def onboarding_training_docs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     current_user = request.user.id
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     df_ack = combine_ack_datasets('outstanding', current_user)
     dic_ack = df_ack.T.to_dict().values()
     df_sub = combine_sub_datasets('outstanding', current_user)
@@ -64,14 +77,20 @@ def onboarding_training_docs(request):
     dic_sub = df_sub.T.to_dict().values()
     context = {'dic_ack': dic_ack,
                'dic_sub': dic_sub,
+               'system_access':system_access,
     }
     return render(request, 'training_docs/onboarding_training_docs.html', context) 
 
+# TRAINING_FORM
 # Employee function to acknowledge when a form has been read
 def ack_doc_read(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     if request.method == 'POST':
         row = models.doc_read.objects.create(employee_id=user_id, doc_id=pk)
         return HttpResponseRedirect(reverse('onboarding_training_docs'))
@@ -79,14 +98,20 @@ def ack_doc_read(request, pk):
     doc = models.training_docs.objects.get(id=pk)
     context = {'employee': employee,
                'doc': doc,
+               'system_access':system_access,
     }
     return render(request, 'training_docs/ack_doc_read.html', context) 
 
+# TRAINING_FORM
 # Employee function to view & export all 
 def completed_ack_sub_docs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    user_id = request.user.id  
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False 
     df_ack = combine_ack_datasets('obtained', user_id)
     dic_ack = df_ack.T.to_dict().values()
     df_sub = combine_sub_datasets('obtained', user_id)
@@ -109,6 +134,7 @@ def completed_ack_sub_docs(request):
         return response
     context = {'dic_ack': dic_ack,
                'dic_sub': dic_sub,
+               'system_access':system_access
     }  
     return render(request, 'training_docs/completed_ack_sub_docs.html', context)
 
@@ -121,7 +147,14 @@ def completed_ack_sub_docs(request):
 def training_material(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Documents')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.training_docs_submit(request.POST, request.FILES)
@@ -136,7 +169,8 @@ def training_material(request):
     documents = models.training_docs.objects.all().order_by('upload_name')
     form = forms.training_docs_submit()
     context = {'documents': documents,
-                'form': form,}
+                'form': form,
+                'system_access':system_access}
     return render(request, 'training_docs/training_material.html', context)
 
 # Admin function to remove documents from the system
@@ -144,17 +178,33 @@ def training_material(request):
 def delete_training_doc(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Documents')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     documents = models.training_docs.objects.all()
-    context = {'documents': documents,}
+    context = {'documents': documents,
+            'system_access':system_access
+    }
     return render(request, 'training_docs/delete_training_doc.html', context)  
 
 # Admin function to delete documents from the system
 def change_doc_status(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Documents')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         doc = models.training_docs.objects.get(id=pk)
@@ -166,14 +216,24 @@ def change_doc_status(request, pk):
             return HttpResponseRedirect(reverse('delete_training_doc'))
     doc = models.training_docs.objects.get(id=pk)
     form = forms.remove_doc(instance=doc)
-    context = {'form': form, 'doc':doc}
+    context = {'form': form, 'doc':doc,
+            'system_access':system_access,
+    }
     return render(request, 'training_docs/change_doc_status.html', context)
 
+# TRAINING_FORM
 # Admin function to create onboarding form categories
 def manage_onboarding_docs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Training')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         doc_form = forms.add_onboarding_cat(request.POST)
@@ -184,7 +244,9 @@ def manage_onboarding_docs(request):
         doc_form = forms.add_onboarding_cat()
         doc_info = models.onboarding_cat.objects.all()
         context = {'doc_form': doc_form,
-                   'doc_info' : doc_info,}
+                   'doc_info' : doc_info,
+                   'system_access':system_access,
+                   }
     return render(request, 'training_docs/manage_onboarding_docs.html', context)
 
 # Admin function to edit an onboarding category
@@ -193,7 +255,14 @@ def manage_onboarding_docs(request):
 def edit_onboarding_cat(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Documents')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         doc = models.onboarding_cat.objects.get(id=pk)
@@ -205,17 +274,29 @@ def edit_onboarding_cat(request, pk):
     else:
         doc = models.onboarding_cat.objects.get(id=pk)
         doc_form = forms.add_onboarding_cat(instance=doc)
-        context = {'doc_form': doc_form,}
+        context = {'doc_form': doc_form,
+                'system_access':system_access
+        }
         return render(request, 'training_docs/edit_onboarding_cat.html', context)
 
+# TRAINING_FORM
 # Admin function to display the onboarding "ack" & "submit" requirements for all employees
 def onboarding_requirement(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Training')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     users = User.objects.all().order_by('first_name', 'last_name')
-    context = {'users' : users}
+    context = {'users' : users,
+                'system_access':system_access
+    }
     return render(request, 'training_docs/onboarding_requirement.html', context)
 
 # Admin function to change the onboarding document "ack" requirement for
@@ -224,7 +305,14 @@ def onboarding_requirement(request):
 def edit_ack_requirement(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Documents')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
@@ -236,7 +324,9 @@ def edit_ack_requirement(request, pk):
         user_account = User.objects.get(id=pk)
         ack_form = forms.edit_ack_require(instance=user_account.profile)
         context = {'user_account': user_account,
-                    'ack_form': ack_form,}
+                    'ack_form': ack_form,
+                    'system_access':system_access,
+                    }
     return render(request, 'training_docs/edit_ack_requirement.html', context)
 
 # Admin function to change the onboarding document "submit" requirement for
@@ -245,7 +335,14 @@ def edit_ack_requirement(request, pk):
 def edit_submission_req(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Documents')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
@@ -257,15 +354,25 @@ def edit_submission_req(request, pk):
         user_account = User.objects.get(id=pk)
         sub_form = forms.edit_sub_require(instance=user_account.profile)
         context = {'user_account': user_account,
-                    'sub_form': sub_form,}
+                    'sub_form': sub_form,
+                    'system_access':system_access
+                    }
     return render(request, 'training_docs/edit_doc_submission.html', context)
 
+# TRAINING_FORM
 # Admin function to review each employee and the status of their "submitted" onboarding documents 
 # This view will the display submitted & outstanding forms for each employee
 def review_sub_docs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Training')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     df_ack = combine_ack_datasets('obtained', 'all')
     dic_ack = df_ack.T.to_dict().values()
@@ -289,14 +396,23 @@ def review_sub_docs(request):
         return response
     context = {'dic_ack': dic_ack,
                'dic_sub': dic_sub,
+               'system_access':system_access,
     }
     return render(request, 'training_docs/review_sub_docs.html', context)
 
+# TRAINING_FORM
 # Admin function to review missing submissions and acknowledged forms
 def review_ack_docs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Training')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     df_ack = combine_ack_datasets('outstanding', 'all')
     dic_ack = df_ack.T.to_dict().values()
@@ -320,6 +436,7 @@ def review_ack_docs(request):
     dic_sub = df_sub.T.to_dict().values()
     context = {'dic_ack': dic_ack,
                'dic_sub': dic_sub,
+               'system_access':system_access
     }
     return render(request, 'training_docs/review_ack_docs.html', context)
 
@@ -407,11 +524,19 @@ def combine_sub_datasets(type_selected, user_selected):
         df_outstanding = df_outstanding.sort_values(by=['employee__first_name', 'employee__last_name', 'doc__name'])
         return df_outstanding
 
+# TRAINING_FORM
 # Admin function used to identify documents that employees have submitted
 def edit_doc_submission(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Training')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_mod = User.objects.get(id=pk)
@@ -425,13 +550,22 @@ def edit_doc_submission(request, pk):
         edit_sub_require = forms.edit_sub_docs(pk=pk)
         context = {'name_print': name_print,
                    'edit_sub_require': edit_sub_require,
+                   'system_access':system_access,
         }
         return render(request, 'training_docs/edit_doc_submission.html', context)
 
+# TRAINING_FORM
 def employee_doc_submitted(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    train_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Training')
+    if request.user.username != "system_admin" and not all_user.exists() and not train_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         emp = request.POST.get('employee')
@@ -439,5 +573,7 @@ def employee_doc_submitted(request):
         row = models.doc_submit_req.objects.create(employee_id=emp, doc_id=doc)
         return HttpResponseRedirect(reverse('review_ack_docs'))
     sub_form = forms.training_doc_submitted()
-    context = {'sub_form': sub_form}
+    context = {'sub_form': sub_form,
+                'system_access':system_access,
+    }
     return render(request, 'training_docs/employee_doc_submitted.html', context)

@@ -1,0 +1,58 @@
+[
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 1,
+    "fields": {
+      "access_level": "All"
+    }
+  },
+    {
+    "model": "blt_hr_system.control_options",
+    "pk": 2,
+    "fields": {
+      "access_level": "Directory"
+    }
+  },
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 3,
+    "fields": {
+      "access_level": "Training"
+    }
+  },
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 4,
+    "fields": {
+      "access_level": "Documents"
+    }
+  },
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 5,
+    "fields": {
+      "access_level": "Absences"
+    }
+  },
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 6,
+    "fields": {
+      "access_level": "Certifications"
+    }
+  },
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 7,
+    "fields": {
+      "access_level": "Performance"
+    }
+  },
+  {
+    "model": "blt_hr_system.control_options",
+    "pk": 8,
+    "fields": {
+      "access_level": "Timesheets"
+    }
+  }
+]

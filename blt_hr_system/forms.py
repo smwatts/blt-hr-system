@@ -1,7 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, training_docs, Profile, \
     company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
-    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms, admin_control
+    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -435,14 +435,10 @@ class manager_submit_perf(forms.ModelForm):
 # ADMIN ACOCUNT ACCESS
 # ---------------------------------------------------------------------
 
-class account_access_form(forms.ModelForm):
-    employee_id = forms.ModelChoiceField(required=True,
-        queryset=Profile.objects.all().filter(office_staff=True).order_by('user__first_name'),
-        help_text='Select the employee.',
-        label='Employee')
+class edit_system_access(forms.ModelForm):
     class Meta:
-        model = admin_control
-        fields = ['access_level', 'employee_id']
+        model = Profile
+        fields = ['access']
         widgets = {
-            'access_level': forms.CheckboxSelectMultiple(),
-        }        
+            'access': forms.CheckboxSelectMultiple,
+        }

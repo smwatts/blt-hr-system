@@ -29,4 +29,10 @@ from django.db import connection
 def home(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    return render(request, 'home.html')
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    context = {'system_access': system_access}
+    return render(request, 'home.html', context)

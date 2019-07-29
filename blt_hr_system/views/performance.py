@@ -32,6 +32,11 @@ import csv
 def performance_reviews(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     user = request.user.id
     if request.method == 'POST':
         file_form = forms.submit_perf(request.POST, request.FILES)
@@ -75,6 +80,7 @@ def performance_reviews(request):
                 'upload_req':upload_req,
                 'year':year,
                 'manager':manager,
+                'system_access':system_access,
     }
     return render(request, 'performance/performance_reviews.html', context)
 
@@ -84,7 +90,14 @@ def performance_reviews(request):
 def add_edit_perf_cat(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     perf_cat = models.Profile.objects.all().order_by('user__first_name', 'user__last_name')
     context = {'perf_cat': perf_cat,}
@@ -93,7 +106,14 @@ def add_edit_perf_cat(request):
 def edit_emp_perf_cat(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         perf_form = models.Profile.objects.get(id=pk)
@@ -109,14 +129,22 @@ def edit_emp_perf_cat(request, pk):
         perf_form = models.Profile.objects.get(id=pk)
         info_form = forms.edit_emp_perf_cat(instance=perf_form)
         context = {'info_form': info_form,
-                   'perf_form': perf_form,}
+                   'perf_form': perf_form,
+                   'system_access':system_access,}
     return render(request, 'performance/edit_emp_perf_cat.html', context)
 
 # Admin function to add, view and edit performance review forms
 def add_perf_forms(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.perf_forms_submit(request.POST, request.FILES)
@@ -133,14 +161,22 @@ def add_perf_forms(request):
     form = forms.perf_forms_submit()
     context = {'perf_forms': perf_forms,
                 'form': form,
-                'missing_cats':missing_cats,}
+                'missing_cats':missing_cats,
+                'system_access':system_access,}
     return render(request, 'performance/add_perf_forms.html', context)
 
 # Admin function to update employee performance requirements
 def add_perf_cats(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.add_edit_perf_cats(request.POST)
@@ -150,7 +186,8 @@ def add_perf_cats(request):
     perf_cat = models.perf_cat.objects.all().order_by('name')
     add_edit_perf_cats = forms.add_edit_perf_cats()
     context = {'perf_cat': perf_cat,
-                'add_edit_perf_cats': add_edit_perf_cats,}
+                'add_edit_perf_cats': add_edit_perf_cats,
+                'system_access':system_access,}
     return render(request, 'performance/add_perf_cats.html', context)
 
 # Admin form to edit the name of the performance categories
@@ -158,7 +195,14 @@ def add_perf_cats(request):
 def update_perf_cat(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         perf_form = models.perf_cat.objects.get(id=pk)
@@ -174,6 +218,7 @@ def update_perf_cat(request, pk):
         perf_form = models.perf_cat.objects.get(id=pk)
         info_form = forms.add_edit_perf_cats(instance=perf_form)
         context = {'info_form': info_form,
+                    'system_access':system_access,
                    }
     return render(request, 'performance/update_perf_cat.html', context)
 
@@ -181,7 +226,14 @@ def update_perf_cat(request, pk):
 def outstanding_perf_forms(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     year = datetime.date.today().year
     month = datetime.date.today().month
@@ -205,6 +257,10 @@ def outstanding_perf_forms(request):
         .order_by('employee__manager__user__first_name', 'employee__manager__user__last_name')
     if 'manager_missing' in request.POST:
         manager_df = pd.DataFrame(list(manager_missing))
+        if len(manager_df) < 1:
+            manager_df = pd.DataFrame(columns=['employee__manager__user__first_name', 
+                'employee__manager__user__last_name', 'employee__user__first_name', 
+                'employee__user__last_name', 'upload', 'upload_name', 'uploaded_at'])
         manager_df['employee_name'] = manager_df['employee__user__first_name'] + \
                 ' ' + manager_df['employee__user__last_name']
         manager_df['employee_performance_review'] = 'https://blt-construction.s3.amazonaws.com/' + \
@@ -220,6 +276,8 @@ def outstanding_perf_forms(request):
         return response
     if 'employees_missing' in request.POST:
         employees_df = pd.DataFrame(list(employees_missing))
+        if len(employees_df.index) < 1:
+            employees_df = pd.DataFrame(columns=['user__first_name', 'user__last_name'])
         employees_df['employee_name'] = employees_df['user__first_name'] + \
                 ' ' + employees_df['user__last_name']
         employees_df = employees_df[['employee_name']]
@@ -231,6 +289,7 @@ def outstanding_perf_forms(request):
         'employees_missing': employees_missing,
         'year': year,
         'manager_missing':manager_missing,
+        'system_access':system_access,
     }
     return render(request, 'performance/outstanding_perf_forms.html', context)
 
@@ -238,7 +297,14 @@ def outstanding_perf_forms(request):
 def view_perf_history(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     completed_perfs = models.emp_perf_forms.objects.all() \
         .exclude(manager_upload_name=None) \
@@ -249,6 +315,11 @@ def view_perf_history(request):
         .order_by('year', 'employee__user__first_name', 'employee__user__last_name')
     if 'export_all' in request.POST:
         completed_df = pd.DataFrame(list(completed_perfs))
+        if len(completed_df.index) < 1:
+            completed_df = pd.DataFrame(columns=['employee__manager__user__first_name', 'employee__manager__user__last_name',
+            'employee__user__first_name', 'employee__user__last_name',
+            'upload', 'upload_name', 'uploaded_at', 'year',
+            'manager_upload', 'manager_upload_name', 'manager_uploaded_at'])
         completed_df['employee_name'] = completed_df['employee__user__first_name'] + ' ' + \
                 completed_df['employee__user__last_name']
         completed_df['employee_review'] = 'https://blt-construction.s3.amazonaws.com/' + \
@@ -261,16 +332,26 @@ def view_perf_history(request):
                 completed_df['manager_upload']
         completed_df = completed_df[['year', 'employee_name', 'employee_review', 'uploaded_at', 
                 'manager_name', 'manager_review', 'manager_uploaded_at']]
+        response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=performance_reviews.csv'
         completed_df.to_csv(path_or_buf=response, header=True, index=False, quoting=csv.QUOTE_NONNUMERIC,encoding='utf-8')
         return response
-    context = {'completed_perfs': completed_perfs}
+    context = {'completed_perfs': completed_perfs,
+                'system_access':system_access,
+    }
     return render(request, 'performance/view_perf_history.html', context)
 
 def manager_perf_review(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         manager_obj = models.emp_perf_forms.objects.get(id=pk)
@@ -286,13 +367,22 @@ def manager_perf_review(request, pk):
             return HttpResponseRedirect(reverse('manager_perf_centre'))
     manager_obj = models.emp_perf_forms.objects.get(id=pk)
     manager_form = forms.manager_submit_perf(instance=manager_obj)
-    context = {'manager_form':manager_form}
+    context = {'manager_form':manager_form,
+                'system_access':system_access,
+    }
     return render(request, 'performance/manager_perf_review.html', context)
 
 def manager_perf_centre(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     manager = request.user.id
     print(manager)
@@ -317,7 +407,7 @@ def manager_perf_centre(request):
     context = {'completed_perfs':completed_perfs,
                 'outstanding_perfs':outstanding_perfs,
                 'emp_list':emp_list,
-
+                'system_access':system_access,
     }
     return render(request, 'performance/manager_perf_centre.html', context)
 

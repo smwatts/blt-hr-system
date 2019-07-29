@@ -355,6 +355,11 @@ def timesheet_export(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    user_id = request.user.id
     if request.method == 'POST' and 'export' in request.POST: 
         ts_period = int(request.POST['ts_period'])
         return export_emp_ts(ts_period, user_id)
@@ -362,13 +367,20 @@ def timesheet_export(request):
         return export_emp(user_id)
     models.hourly_timesheet.objects.all().filter(employee_id=user_id, is_finalized=True)
     export_form = forms.timesheet_export()
-    context = {'export_form':export_form}
+    context = {'export_form':export_form,
+                'system_access':system_access,
+    }
     return render(request, 'timesheet/timesheet_export.html', context)
 
 # Employee function to view all timesheets
 def timesheet_home(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     df = pd.DataFrame(list(models.hourly_timesheet.objects.all() \
             .order_by('start_date').values('employee_id', 'hours', 'start_date', 'end_date')))
     if len(df.index) < 1:
@@ -396,12 +408,18 @@ def timesheet_home(request):
     df_sum = df_sum.T.to_dict().values()
     context = {'df_final_print_query':df_final_print_query,
                 'df_sum':df_sum,
+                'system_access':system_access,
     }
     return render(request, 'timesheet/timesheet_home.html', context)
 
 def timesheet_hourly(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     start_date, end_date = ts_dict[pk]
     if request.method == 'POST':
         myModelFormset = modelformset_factory(models.hourly_timesheet, form=forms.hourly_ts
@@ -431,6 +449,7 @@ def timesheet_hourly(request, pk):
                                 'end_date': end_date,
                                 'formsetInstance': formsetInstance,
                                 'errors':errors,
+                                'system_access':system_access,
                                 }
                     return render(request, 'timesheet/timesheet_hourly.html', context)
                 else:
@@ -453,6 +472,7 @@ def timesheet_hourly(request, pk):
                 'end_date': end_date,
                 'formsetInstance': formsetInstance,
                 'errors':errors,
+                'system_access':system_access,
                 }
     return render(request, 'timesheet/timesheet_hourly.html', context)
 
@@ -497,6 +517,11 @@ def val_job_form(user_id, ts_id, start_date, end_date, job_lst):
 def timesheet_center(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     select_jobs = forms.select_jobs()
     start_date, end_date = ts_dict[pk]
     if request.method == 'POST':
@@ -507,6 +532,7 @@ def timesheet_center(request, pk):
                         'start_date':start_date,
                         'end_date':end_date,
                         'errors':errors,
+                        'system_access':system_access,
             }
             return render(request, 'timesheet/timesheet_center.html', context)
         else:
@@ -515,6 +541,7 @@ def timesheet_center(request, pk):
                         'start_date':start_date,
                         'end_date':end_date,
                         'errors':errors,
+                        'system_access':system_access,
             }
             if return_page == 'timesheet/timesheet_center.html':
                 return render(request, return_page, context)
@@ -525,6 +552,7 @@ def timesheet_center(request, pk):
         'start_date':start_date,
         'end_date':end_date,
         'errors':errors,
+        'system_access':system_access,
     }
     return render(request, 'timesheet/timesheet_center.html', context)
 
@@ -532,13 +560,20 @@ def timesheet_center(request, pk):
 def timesheet_selection(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     if request.method == 'POST':
         user_id = request.user.id
         val = request.POST['ts_period']
         return redirect('timesheet_center', pk=val)
     else:
         timesheet_select = forms.timesheet_select()
-        context = {'timesheet_select': timesheet_select}
+        context = {'timesheet_select': timesheet_select,
+                    'system_access':system_access,
+        }
         return render(request, 'timesheet/timesheet_selection.html', context)
 
 # ------------------------------------------------------------------
@@ -549,7 +584,14 @@ def timesheet_selection(request):
 def jobs_upload(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
             form = forms.upload_jobs(request.POST, request.FILES)
@@ -585,7 +627,9 @@ def jobs_upload(request):
                             sage_jobs = models.sage_jobs.objects.all()
                             context = {'upload_jobs':upload_jobs,
                                         'errors': errors,
-                                        'sage_jobs':sage_jobs}
+                                        'sage_jobs':sage_jobs,
+                                        'system_access':system_access,
+                                        }
                             errors.append('There was an error in the uploaded csv. Please ensure:')
                             errors.append('You have a "Job" and "Description" column.')
                             errors.append('Both columns are the same length.')
@@ -595,7 +639,9 @@ def jobs_upload(request):
                         sage_jobs = models.sage_jobs.objects.all()
                         context = {'upload_jobs':upload_jobs,
                                     'errors': errors,
-                                    'sage_jobs':sage_jobs}
+                                    'sage_jobs':sage_jobs,
+                                    'system_access':system_access,
+                                    }
                         errors.append('There was an error in the uploaded csv. Please ensure:')
                         errors.append('You have a "Job" and "Description" column.')
                         errors.append('Both columns are the same length.')
@@ -604,21 +650,32 @@ def jobs_upload(request):
                 upload_jobs = forms.upload_jobs()
                 errors = []
                 context = {'upload_jobs':upload_jobs,
-                            'errors': errors}
+                            'errors': errors,
+                            'system_access':system_access,
+                            }
                 return render(request, 'timesheet/jobs_upload.html', context)
     upload_jobs = forms.upload_jobs()
     errors = []
     sage_jobs = models.sage_jobs.objects.all().order_by('job_id')
     context = {'upload_jobs':upload_jobs,
                 'errors': errors,
-                'sage_jobs':sage_jobs}
+                'sage_jobs':sage_jobs,
+                'system_access':system_access,
+                }
     return render(request, 'timesheet/jobs_upload.html', context)
 
 # Admin function to edit the descriptions of job IDs
 def job_upload_edit(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         sage_job = models.sage_jobs.objects.get(id=pk)
@@ -630,24 +687,42 @@ def job_upload_edit(request, pk):
             messages.error(request, 'Please correct the error below.')
     sage_job = models.sage_jobs.objects.get(id=pk)
     sage_form = forms.sage_job_update(instance=sage_job)
-    context = {'sage_form':sage_form}
+    context = {'sage_form':sage_form,
+                'system_access':system_access,
+    }
     return render(request, 'timesheet/job_upload_edit.html', context)
 
 # Admin function to employees that are and are not considered "office staff"
 def admin_timesheet_home(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     users = User.objects.all().order_by('-profile__office_staff', 'first_name', 'last_name')
-    context = {'users' : users}
+    context = {'users' : users,
+            'system_access':system_access,
+    }
     return render(request, 'timesheet/admin_timesheet_home.html', context)
 
 # Admin function to change the "office staff" for a particular employee
 def admin_timesheet(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
@@ -659,14 +734,23 @@ def admin_timesheet(request, pk):
         user_account = User.objects.get(id=pk)
         office_form = forms.edit_office_staff(instance=user_account.profile)
         context = {'user_account': user_account,
-                    'office_form': office_form,}
+                    'office_form': office_form,
+                    'system_access':system_access,
+                    }
         return render(request, 'timesheet/admin_timesheet.html', context)
 
 # Admin function to view the status of employee timesheets
 def timesheet_status(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     # get list of all office staff
     df_users = pd.DataFrame(list(models.Profile.objects.all() \
@@ -708,6 +792,7 @@ def timesheet_status(request):
         df_users_final.to_csv(path_or_buf=response, header=True, index=False, quoting=csv.QUOTE_NONNUMERIC,encoding='utf-8')
         return response
     context = {'df_users_final_qr':df_users_final_qr,
+                'system_access':system_access,
     }
     return render(request, 'timesheet/timesheet_status.html', context)
 
@@ -715,7 +800,14 @@ def timesheet_status(request):
 def export_timesheets(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST' and 'export_emp_ts' in request.POST: 
         ts_period = int(request.POST['ts_period'])
@@ -739,13 +831,22 @@ def export_timesheets(request):
     export_emp_ts_form = forms.timesheet_emp_ts()
     context = {'export_ts_form': export_ts_form,
             'export_emp_form':export_emp_form,
-            'export_emp_ts_form': export_emp_ts_form,}
+            'export_emp_ts_form': export_emp_ts_form,
+            'system_access':system_access,
+            }
     return render(request, 'timesheet/export_timesheets.html', context)
 
 def edit_timesheet_home(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         employee_id = request.POST['employee_id']
@@ -753,7 +854,9 @@ def edit_timesheet_home(request):
         pk = employee_id + "-" + ts_period
         return redirect('edit_timesheet_jobs', pk=pk)
     ts_form = forms.timesheet_emp_ts()
-    context = {'ts_form': ts_form}
+    context = {'ts_form': ts_form,
+                'system_access':system_access,
+    }
     return render(request, 'timesheet/edit_timesheet_home.html', context)
 
 def val_job_form_admin(user_id, ts_id, start_date, end_date, job_lst):
@@ -788,7 +891,14 @@ def val_job_form_admin(user_id, ts_id, start_date, end_date, job_lst):
 def edit_timesheet_jobs(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     emp_id_str, ts_id_str = pk.split('-')
     emp_id = int(emp_id_str)
@@ -807,6 +917,7 @@ def edit_timesheet_jobs(request, pk):
                         'errors':errors,
                         'first_name': first_name,
                         'last_name': last_name,
+                        'system_access':system_access,
             }
             return render(request, 'timesheet/edit_timesheet_jobs.html', context)
         else:
@@ -817,6 +928,7 @@ def edit_timesheet_jobs(request, pk):
                         'errors':errors,
                         'first_name': first_name,
                         'last_name': last_name,
+                        'system_access':system_access,
             }
             return redirect('edit_timesheet_complete', pk=pk)
     errors = []
@@ -826,13 +938,21 @@ def edit_timesheet_jobs(request, pk):
         'errors':errors,
         'first_name': first_name,
         'last_name': last_name,
+        'system_access':system_access,
     }
     return render(request, 'timesheet/edit_timesheet_jobs.html', context)
 
 def edit_timesheet_complete(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    ts_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Timesheets')
+    if request.user.username != "system_admin" and not all_user.exists() and not ts_user.exists():
         return HttpResponseRedirect(reverse('home'))
     emp_id_str, ts_id_str = pk.split('-')
     emp_id = int(emp_id_str)
@@ -882,6 +1002,7 @@ def edit_timesheet_complete(request, pk):
                 'errors':errors,
                 'first_name':first_name,
                 'last_name':last_name,
+                'system_access':system_access,
                 }
     return render(request, 'timesheet/edit_timesheet_complete.html', context)
 

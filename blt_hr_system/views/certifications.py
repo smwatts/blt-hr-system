@@ -25,8 +25,15 @@ from django.db import connection
 def certs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     cert_info = models.certification.objects.all().order_by('name')
-    context = {'cert_info' : cert_info}
+    context = {'cert_info' : cert_info,
+                'system_access': system_access,
+    }
     return render(request, 'certifications/certs.html', context)
 
 # ------------------------------------------------------------------
@@ -37,6 +44,11 @@ def certs(request):
 def certifications_maintained(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     now = datetime.datetime.now()
     day_30 = datetime.datetime.now() + datetime.timedelta(days=30)
     pending_certs = models.employee_certification.objects.all().filter(employee_id=request.user.id, is_approved=False)
@@ -57,6 +69,7 @@ def certifications_maintained(request):
                'exp_certs':exp_certs,
                'missing_certs':missing_certs,
                'no_expire':no_expire,
+               'system_access': system_access,
     }
     return render(request, 'certifications/certifications_maintained.html',context)
 
@@ -64,6 +77,11 @@ def certifications_maintained(request):
 def certification_request(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     if request.method == 'POST':
         form = forms.cert_request(request.POST, request.FILES)
         if form.is_valid():
@@ -81,10 +99,14 @@ def certification_request(request):
             return HttpResponseRedirect(reverse('certifications_maintained'))
         else:
             cert_request = forms.cert_request()
-            context = {'cert_request': cert_request}
+            context = {'cert_request': cert_request,
+                        'system_access': system_access,
+            }
             return render(request, 'certifications/certification_request.html', context)
     cert_request = forms.cert_request()
-    context = {'cert_request': cert_request}
+    context = {'cert_request': cert_request,
+                'system_access': system_access,
+    }
     return render(request, 'certifications/certification_request.html', context)
 
 # ------------------------------------------------------------------
@@ -95,7 +117,14 @@ def certification_request(request):
 def managed_certs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    cert_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Certifications')
+    if request.user.username != "system_admin" and not all_user.exists() and not cert_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         cert_form = forms.add_certification(request.POST)
@@ -105,19 +134,28 @@ def managed_certs(request):
         cert_form = forms.add_certification()
         cert_info = models.certification.objects.all()
         context = {'cert_form': cert_form,
-                   'cert_info' : cert_info}
+                   'cert_info' : cert_info,
+                   'system_access': system_access,}
     return render(request, 'certifications/managed_certs.html', context)
 
 # Admin function to view all certification requests ready for review
 def review_cert_requests(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    cert_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Certifications')
+    if request.user.username != "system_admin" and not all_user.exists() and not cert_user.exists():
         return HttpResponseRedirect(reverse('home'))
     pending_approval = models.employee_certification.objects.all().filter(is_approved=False)
     no_expire = datetime.datetime.strptime('3000-01-01', '%Y-%m-%d')
     context = {'pending_approval':pending_approval,
                'no_expire':no_expire,
+               'system_access': system_access,
     }
     return render(request, 'certifications/review_cert_requests.html', context)
 
@@ -125,7 +163,14 @@ def review_cert_requests(request):
 def review_cert(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    cert_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Certifications')
+    if request.user.username != "system_admin" and not all_user.exists() and not cert_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         cert = models.employee_certification.objects.get(id=pk)
@@ -180,6 +225,7 @@ def review_cert(request, pk):
     context = {'cert':cert,
                'review_cert':review_cert,
                'no_expire':no_expire,
+               'system_access': system_access,
     }
     return render(request, 'certifications/review_cert.html',context)
 
@@ -187,17 +233,33 @@ def review_cert(request, pk):
 def employee_required_certs(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    cert_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Certifications')
+    if request.user.username != "system_admin" and not all_user.exists() and not cert_user.exists():
         return HttpResponseRedirect(reverse('home'))
     users = User.objects.all().order_by('first_name', 'last_name')
-    context = {'users' : users}
+    context = {'users' : users,
+                'system_access': system_access,
+    }
     return render(request, 'certifications/employee_required_certs.html', context)
 
 # Admin function to edit individual system managed certifications
 def edit_system_certs(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    cert_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Certifications')
+    if request.user.username != "system_admin" and not all_user.exists() and not cert_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         cert = models.certification.objects.get(id=pk)
@@ -217,7 +279,9 @@ def edit_system_certs(request, pk):
     else:
         cert = models.certification.objects.get(id=pk)
         certs_form = forms.add_certification(instance=cert)
-        context = {'certs_form': certs_form,}
+        context = {'certs_form': certs_form,
+                    'system_access': system_access,
+        }
     return render(request, 'certifications/edit_system_certs.html', context)
 
 # Admin function to edit certification requirements for individual employees
@@ -225,7 +289,14 @@ def edit_system_certs(request, pk):
 def edit_required_certs(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    cert_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Certifications')
+    if request.user.username != "system_admin" and not all_user.exists() and not cert_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
@@ -237,5 +308,7 @@ def edit_required_certs(request, pk):
         user_account = User.objects.get(id=pk)
         certs_form = forms.edit_system_certs(instance=user_account.profile)
         context = {'user_account': user_account,
-                    'certs_form': certs_form,}
+                    'certs_form': certs_form,
+                    'system_access': system_access,
+        }
         return render(request, 'certifications/edit_required_certs.html', context)

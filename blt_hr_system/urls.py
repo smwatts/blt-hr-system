@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'admin/add_company_info.html', views.add_company_info, name='add_company_info'),
     url(r'admin/edit_company_info/(?P<pk>[\w-]+)$', views.edit_company_info, name='edit_company_info'),
     url(r'admin/account_access.html', views.account_access, name='account_access'),
+    url(r'admin/account_access_update/(?P<pk>[\w-]+)$', views.account_access_update, name='account_access_update'),
 
     # Pages relevant to employees (account setup, employee directoy, editing employee accounts)
     url(r'employees/signup/$', views.signup, name='signup'),

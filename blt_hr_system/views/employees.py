@@ -26,8 +26,15 @@ from django.contrib.auth.models import User
 def employee_directory(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     users = User.objects.all().filter(is_active=True).exclude(username='system_admin').order_by('first_name', 'last_name')
-    context = {'users' : users}
+    context = {'users' : users,
+                'system_access':system_access,
+    }
     return render(request, 'employees/employee_directory.html', context)
 
 # ------------------------------------------------------------------
@@ -38,7 +45,12 @@ def employee_directory(request):
 def account(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    context = {
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    context = {'system_access':system_access,
     }
     return render(request, 'employees/account.html', context)
 
@@ -46,6 +58,11 @@ def account(request):
 def add_birth_date(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     if request.method == 'POST':
         birth_date = forms.add_birth_date(request.POST, instance=request.user.profile)
         if birth_date.is_valid():
@@ -54,11 +71,15 @@ def add_birth_date(request):
             return HttpResponseRedirect(reverse('account'))
         else:
             birth_date = forms.add_birth_date(instance=request.user.profile)
-            context = {'birth_date':birth_date}
+            context = {'birth_date':birth_date,
+                    'system_access':system_access,
+            }
             return render(request, 'employees/add_birth_date.html', context)
     else:
         birth_date = forms.add_birth_date(instance=request.user.profile)
-        context = {'birth_date':birth_date}
+        context = {'birth_date':birth_date,
+                'system_access':system_access,
+        }
         return render(request, 'employees/add_birth_date.html', context)
 
 # ------------------------------------------------------------------
@@ -69,7 +90,14 @@ def add_birth_date(request):
 def signup(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    dir_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Directory')
+    if request.user.username != "system_admin" and not all_user.exists() and not dir_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.SignUpForm(request.POST)
@@ -122,17 +150,26 @@ def signup(request):
             return HttpResponseRedirect(reverse('employee_directory_edit'))
     else:
         form = forms.SignUpForm()
-    return render(request, 'employees/signup.html', {'form': form})
+    return render(request, 'employees/signup.html', {'form': form, 'system_access':system_access,})
 
 # Admin function used to display all employee information
 # Links to the employee edit page
 def employee_directory_edit(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    if request.user.username != "system_admin":
-        return redirect('home')
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    dir_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Directory')
+    if request.user.username != "system_admin" and not all_user.exists() and not dir_user.exists():
+        return HttpResponseRedirect(reverse('home'))
     users = User.objects.all().order_by('first_name', 'last_name')
-    context = {'users' : users}
+    context = {'users' : users,
+            'system_access':system_access,
+    }
     return render(request, 'employees/employee_directory_edit.html', context)
 
 # Admin function used to edit an individual employee's information
@@ -141,7 +178,14 @@ def employee_directory_edit(request):
 def update_profile(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    dir_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Directory')
+    if request.user.username != "system_admin" and not all_user.exists() and not dir_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         user_account = User.objects.get(id=pk)
@@ -160,5 +204,7 @@ def update_profile(request, pk):
         profile_form = forms.ProfileForm(instance=user_account.profile)
     return render(request, 'employees/edit_employee_info.html', {
         'user_form': user_form,
-        'profile_form': profile_form
+        'profile_form': profile_form,
+        'system_access':system_access,
     })
+

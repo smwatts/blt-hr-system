@@ -18,6 +18,7 @@ From the root of this project run the following commmands
 
 1. `python manage.py makemigrations blt_hr_system` (generates the migrations)
 2. `python manage.py migrate` (applies migrations to the database)
+3. Load inital data: `python manage.py loaddata access_levels.json`
 
 If you need to reset migrations (locally)
 

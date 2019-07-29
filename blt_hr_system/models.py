@@ -55,6 +55,14 @@ class onboarding_cat(models.Model):
     def __str__(self):
         return self.name
 
+# ---------------------------------------------------------------------
+# ADMIN CONTROLS
+# ---------------------------------------------------------------------
+class control_options(models.Model):
+    access_level = models.CharField(max_length=200, null=True)
+    def __str__(self):
+        return self.access_level
+
 class Profile(models.Model):
     # contains information pretaining to each employee
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
@@ -68,6 +76,7 @@ class Profile(models.Model):
     read_req = models.ManyToManyField(onboarding_cat, related_name="read+")
     submit_req = models.ManyToManyField(onboarding_cat, related_name="submit+")
     office_staff = models.BooleanField(default=False, blank=True)
+    access = models.ManyToManyField(control_options)
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
 
@@ -285,22 +294,4 @@ class emp_perf_forms(models.Model):
                 (2023,2023),
                 (2024,2024))
     year = models.PositiveIntegerField(choices=year_opts, null=True)
-
-
-# ---------------------------------------------------------------------
-# ADMIN CONTROLS
-# ---------------------------------------------------------------------
-
-class admin_control(models.Model):
-    employee = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
-    access_level_str = (('All','All'),
-                        ('Directory','Directory'),
-                        ('Training','Training'),
-                        ('Documents','Documents'),
-                        ('Absences','Absences'),
-                        ('Certifications','Certifications'),
-                        ('Performance', 'Performance'),
-                        ('Timesheets', 'Timesheets'))
-    access_level = models.CharField(max_length=200, choices=access_level_str, null=True)
-
 

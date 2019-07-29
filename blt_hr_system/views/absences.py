@@ -35,32 +35,54 @@ from django.db.models.aggregates import Max
 def absence_request(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
     if request.method == 'POST':
         return HttpResponseRedirect(reverse('home'))
     else:
         absence_form = forms.absence_request()
-    context = {'absence_form': absence_form}
+    context = {'absence_form': absence_form,
+                'system_access': system_access,
+    }
     return render(request, 'absences/absence_request.html', context)
 
 # Employee function to review absence requests
 def review_absence_request(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    context = {}
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    context = {'system_access':system_access}
     return render(request, 'absences/review_absence_request.html', context)
 
 # Employee function to view company holidays
 def company_holidays(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    context = {}
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    context = {'system_access':system_access}
     return render(request, 'absences/company_holidays.html', context)
 
 # Employee function to view employees taking holiday time
 def employee_absences(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    context = {}
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    context = {'system_access':system_access}
     return render(request, 'absences/employee_absences.html', context)
 
 # ------------------------------------------------------------------
@@ -72,7 +94,14 @@ def employee_absences(request):
 def add_company_holidays(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    abs_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Absences')
+    if request.user.username != "system_admin" and not all_user.exists() and not abs_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if 'export_holidays' in request.POST:
         return export_holidays()
@@ -84,7 +113,8 @@ def add_company_holidays(request):
         .annotate(max_holiday_date=Max('holiday_date'))
 
     context = {'control_date': control_date,
-               'upcoming_holidays': upcoming_holidays,}
+               'upcoming_holidays': upcoming_holidays,
+                'system_access': system_access,}
     return render(request, 'absences/add_company_holidays.html', context)
 
 # Admin function used to export all historical and upcoming company holidays
@@ -104,7 +134,14 @@ def export_holidays():
 def upload_holidays(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    abs_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Absences')
+    if request.user.username != "system_admin" and not all_user.exists() and not abs_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         form = forms.upload_holidays(request.POST, request.FILES)
@@ -115,7 +152,8 @@ def upload_holidays(request):
             if file.name.split('.')[-1] != 'csv':
                 upload_holidays = forms.upload_holidays()
                 context = {'upload_holidays':upload_holidays,
-                        'errors': errors}
+                        'errors': errors,
+                         'system_access': system_access,}
                 errors.append('The file extension must end in .csv.')
                 return render(request, 'absences/upload_holidays.html', context)
             else:
@@ -145,7 +183,8 @@ def upload_holidays(request):
                     else:
                         upload_holidays = forms.upload_holidays()
                         context = {'upload_holidays':upload_holidays,
-                                'errors': errors}
+                                'errors': errors,
+                                 'system_access': system_access,}
                         errors.append('There was an error in the uploaded csv. Please ensure:')
                         errors.append('You have a "Holiday" and "Date" column.')
                         errors.append('Both columns are the same length.')
@@ -156,7 +195,8 @@ def upload_holidays(request):
                 except:
                     upload_holidays = forms.upload_holidays()
                     context = {'upload_holidays':upload_holidays,
-                            'errors': errors}
+                            'errors': errors,
+                             'system_access': system_access,}
                     errors.append('There was an error in the uploaded csv. Please ensure:')
                     errors.append('You have a "Holiday" and "Date" column.')
                     errors.append('Both columns are the same length.')
@@ -168,20 +208,29 @@ def upload_holidays(request):
             upload_holidays = forms.upload_holidays()
             errors = []
             context = {'upload_holidays':upload_holidays,
-                        'errors': errors}
+                        'errors': errors,
+                         'system_access': system_access,}
             return render(request, 'absences/upload_holidays.html', context)
     else:
         upload_holidays = forms.upload_holidays()
         errors = []
         context = {'upload_holidays':upload_holidays,
-                'errors': errors}
+                'errors': errors,
+                 'system_access': system_access,}
         return render(request, 'absences/upload_holidays.html', context)
 
 # Admin function to set last holiday date
 def validate_holidays(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    abs_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Absences')
+    if request.user.username != "system_admin" and not all_user.exists() and not abs_user.exists():
         return HttpResponseRedirect(reverse('home'))
     if request.method == 'POST':
         if 'cancel' in request.POST:
@@ -192,32 +241,54 @@ def validate_holidays(request, pk):
             return HttpResponseRedirect(reverse('add_company_holidays'))
     else:
         holiday_val = models.company_holidays.objects.filter(upload_id=pk)
-        context = {'holiday_val':holiday_val}
+        context = {'holiday_val':holiday_val,
+         'system_access': system_access,}
         return render(request, 'absences/validate_holidays.html', context)
 
 # Admin function to edit company holidays
 def edit_company_holiday(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    abs_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Absences')
+    if request.user.username != "system_admin" and not all_user.exists() and not abs_user.exists():
         return HttpResponseRedirect(reverse('home'))
-    context = {}
+    context = { 'system_access': system_access,}
     return render(request, 'absences/edit_company_holiday.html', context)
 
 # Admin function to view absence requests
 def view_absence_requests(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    abs_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Absences')
+    if request.user.username != "system_admin" and not all_user.exists() and not abs_user.exists():
         return HttpResponseRedirect(reverse('home'))
-    context = {}
+    context = { 'system_access': system_access,}
     return render(request, 'absences/view_absence_requests.html', context)
 
 # Admin function to approve individual absence requests
 def approve_absence_request(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    if request.user.username != "system_admin":
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    abs_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Absences')
+    if request.user.username != "system_admin" and not all_user.exists() and not abs_user.exists():
         return HttpResponseRedirect(reverse('home'))
-    context = {}
+    context = { 'system_access': system_access,}
     return render(request, 'absences/approve_absence_request.html', context)

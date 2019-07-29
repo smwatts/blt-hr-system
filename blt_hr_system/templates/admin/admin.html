@@ -25,7 +25,7 @@ h2.b {
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
       <li><a href="{% url 'home' %}">Home</a></li>
-      {% if user.username == "system_admin" %}
+      {% if user.username == "system_admin" or system_access %}
       <li class="active"><a href="{% url 'admin' %}">System Admin</a></li>
       {% endif %}
       <li><a href="{% url 'account' %}">Profile</a></li>
@@ -58,6 +58,9 @@ h2.b {
         </tr>
       </thead>
       <tbody>
+
+{% if user.username == "system_admin" or all_user_tf %}
+
           <tr>
             <td>System Admin</td>
             <td>
@@ -68,6 +71,10 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or all_user_tf %}
+
         <tr>
             <td>Directory</td>
             <td>
@@ -78,6 +85,9 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or train_user_tf %}
           <tr>
             <td>Training</td>
             <td>
@@ -94,6 +104,9 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or doc_user_tf %}
           <tr>
             <td>Documents</td>
             <td>
@@ -104,6 +117,9 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or abs_user_tf %}
           <tr>
             <td>Absences</td>
             <td>
@@ -114,6 +130,10 @@ h2.b {
               </div>
             </td>
             <td></td>
+          </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or cert_user_tf %}
           <tr>
             <td>Certifications</td>
             <td>
@@ -127,6 +147,9 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or perf_user_tf %}
           <tr>
             <td>Performance</td>
             <td>
@@ -143,6 +166,9 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
+{% if user.username == "system_admin" or ts_user_tf %}
           <tr>
             <td>Timesheets</td>
             <td>
@@ -157,6 +183,8 @@ h2.b {
             </td>
             <td></td>
           </tr>
+{% endif %}
+
       </tbody>
     </table>
   </div>
