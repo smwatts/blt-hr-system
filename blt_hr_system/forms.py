@@ -1,7 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, training_docs, Profile, \
     company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
-    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms
+    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms, control_options
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -192,6 +192,11 @@ class SignUpForm(UserCreationForm):
         required=False,
         widget=forms.CheckboxSelectMultiple(),
         help_text='Select all required certifications for this employee.')
+    access = forms.ModelMultipleChoiceField(queryset=control_options.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='Select the required administrator access for this employee.',
+        label='Administrator Access Rights')
     onbaording_read = forms.ModelMultipleChoiceField(queryset=onboarding_cat.objects.order_by('name'),
         required=False,
         widget=forms.CheckboxSelectMultiple(),
@@ -427,6 +432,30 @@ class manager_submit_perf(forms.ModelForm):
         self.fields['employee'].disabled = True
         self.fields['upload'].disabled = True
         self.fields['upload_name'].disabled = True
+        self.fields['manager_upload_name'].required = True
+        self.fields['manager_upload'].required = True
+        self.fields['manager_uploaded_at'].required = False
+
+class edit_perf(forms.ModelForm):
+    class Meta:
+        model = emp_perf_forms
+        fields = ['manager_upload', 'manager_upload_name', 'manager_uploaded_at',
+                    'employee', 'upload_name', 'upload', 'year'
+        ]
+        labels = {
+            'manager_upload': "Upload the manager's performance review",
+            'manager_upload_name': "Name for the manager's performance review",
+            'upload_name': "Name for the employee's erformance review name",
+            'upload':"Upload the employee's erformance review",
+        }
+        widgets = {'manager_uploaded_at': forms.HiddenInput(),
+        }
+    def __init__(self, *args, **kwargs):
+        super(edit_perf, self).__init__(*args, **kwargs)
+        self.fields['year'].required = True
+        self.fields['employee'].required = True
+        self.fields['upload'].required = True
+        self.fields['upload_name'].required = True
         self.fields['manager_upload_name'].required = True
         self.fields['manager_upload'].required = True
         self.fields['manager_uploaded_at'].required = False

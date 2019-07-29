@@ -311,7 +311,7 @@ def view_perf_history(request):
         .values('employee__manager__user__first_name', 'employee__manager__user__last_name',
             'employee__user__first_name', 'employee__user__last_name',
             'upload', 'upload_name', 'uploaded_at', 'year',
-            'manager_upload', 'manager_upload_name', 'manager_uploaded_at') \
+            'manager_upload', 'manager_upload_name', 'manager_uploaded_at', 'id') \
         .order_by('year', 'employee__user__first_name', 'employee__user__last_name')
     if 'export_all' in request.POST:
         completed_df = pd.DataFrame(list(completed_perfs))
@@ -356,12 +356,9 @@ def manager_perf_review(request, pk):
     if request.method == 'POST':
         manager_obj = models.emp_perf_forms.objects.get(id=pk)
         manager_form = forms.manager_submit_perf(request.POST, request.FILES, instance=manager_obj)
-        print(manager_form.errors)
         if manager_form.is_valid():
             obj = manager_form.save(commit=False)
-            print("valid")
-            obj.manager_uploaded_at = datetime.date.today()
-            print(obj.manager_uploaded_at)
+            obj.manager_uploaded_at = datetime.datetime.now()
             obj.save()
             messages.success(request, 'The form was successfully uploaded!')
             return HttpResponseRedirect(reverse('manager_perf_centre'))
@@ -385,7 +382,6 @@ def manager_perf_centre(request):
     if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
         return HttpResponseRedirect(reverse('home'))
     manager = request.user.id
-    print(manager)
     completed_perfs = models.emp_perf_forms.objects.all() \
         .filter(employee__manager_id=manager) \
         .exclude(manager_upload_name=None) \
@@ -399,7 +395,7 @@ def manager_perf_centre(request):
         .values('employee__manager__user__first_name', 'employee__manager__user__last_name',
             'employee__user__first_name', 'employee__user__last_name',
             'upload', 'upload_name', 'uploaded_at', 'year',
-            'manager_upload', 'manager_upload_name', 'manager_uploaded_at') \
+            'manager_upload', 'manager_upload_name', 'manager_uploaded_at', 'id') \
         .order_by('year', 'employee__user__first_name', 'employee__user__last_name')
     emp_list = models.Profile.objects.all() \
         .filter(manager_id=manager) \
@@ -411,4 +407,36 @@ def manager_perf_centre(request):
     }
     return render(request, 'performance/manager_perf_centre.html', context)
 
-
+def edit_perf_review(request,pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    system_access = True
+    system_user = models.Profile.objects.all().filter(user_id=user_id)
+    if request.user.username != "system_admin" and not system_user.exists():
+        system_access = False
+    all_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='All')
+    perf_user = models.Profile.objects.all().filter(user_id=user_id, access__access_level='Performance')
+    if request.user.username != "system_admin" and not all_user.exists() and not perf_user.exists():
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        perf_form = models.emp_perf_forms.objects.get(id=pk)
+        info_form = forms.edit_perf(request.POST, request.FILES, instance=perf_form)
+        print(info_form.errors)
+        if info_form.is_valid():
+            obj = info_form.save(commit=False)
+            obj.manager_uploaded_at = datetime.datetime.now()
+            obj.save()
+            messages.success(request, 'The form was successfully updated!')
+            return HttpResponseRedirect(reverse('view_perf_history'))
+        else:
+            messages.error(request, 'Please correct the error below.')
+            return HttpResponseRedirect(reverse('view_perf_history'))
+    else:
+        perf_form = models.emp_perf_forms.objects.get(id=pk)
+        info_form = forms.edit_perf(instance=perf_form)
+        context = {'info_form': info_form,
+                   'perf_form': perf_form,
+                   'system_access':system_access,
+        }
+    return render(request, 'performance/edit_perf_review.html', context) 

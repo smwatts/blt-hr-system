@@ -125,6 +125,9 @@ def signup(request):
             certs_submitted = request.POST.get('certifications', "no certs")
             if certs_submitted != "no certs":
                 obj.profile.certs.set(request.POST.getlist('certifications'))
+            access = request.POST.get('access', "no access req")
+            if access != "no access req":
+                obj.profile.access.set(request.POST.getlist('access'))
             onboard_read = request.POST.get('onbaording_read', "no onboarding read req")
             if onboard_read != "no onboarding read req":
                 obj.profile.read_req.set(request.POST.getlist('onbaording_read'))

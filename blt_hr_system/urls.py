@@ -59,6 +59,7 @@ urlpatterns = [
     url(r'performance/add_edit_perf_cat.html', views.add_edit_perf_cat, name = 'add_edit_perf_cat'),
     url(r'performance/manager_perf_centre.html', views.manager_perf_centre, name = 'manager_perf_centre'),
     url(r'performance/manager_perf_review/(?P<pk>[\w-]+)$', views.manager_perf_review, name = 'manager_perf_review'),
+    url(r'performance/edit_perf_review/(?P<pk>[\w-]+)$', views.edit_perf_review, name = 'edit_perf_review'),
 
     # Pages relevant to employee training (onboarding requirements, system managed documents)
     url(r'training_docs/completed_ack_sub_docs.html', views.completed_ack_sub_docs, name = 'completed_ack_sub_docs'),
