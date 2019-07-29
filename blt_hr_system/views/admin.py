@@ -50,6 +50,7 @@ def account_access(request):
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
+    # to do: add a list of employees and their access levels
     account_access_form = forms.account_access_form()
     context = {'account_access_form':account_access_form}
     return render(request, 'admin/account_access.html', context)  
