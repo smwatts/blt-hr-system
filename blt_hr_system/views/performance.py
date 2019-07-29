@@ -17,6 +17,8 @@ from django.db.models import Q
 from collections import defaultdict
 from django.db import connection
 import datetime
+import pandas as pd
+import csv
 
 # -----------------------------------------------------------------
 # GENERAL/HELPER FUNCTIONS
@@ -31,6 +33,17 @@ def performance_reviews(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user = request.user.id
+    if request.method == 'POST':
+        file_form = forms.submit_perf(request.POST, request.FILES)
+        if file_form.is_valid():
+            obj = file_form.save(commit=False)
+            obj.employee_id = user
+            obj.save()
+            messages.success(request, 'The form was successfully uploaded!')
+            return HttpResponseRedirect(reverse('performance_reviews'))
+        else:
+            messages.error(request, 'Please correct the error below.')
+            return HttpResponseRedirect(reverse('performance_reviews'))
     perf_type = models.Profile.objects.values_list('perf_cat', flat=True).get(id=user)
     req_perf = models.perf_forms.objects.all().filter(perf_cat=str(perf_type)) \
         .order_by('-uploaded_at')[:1].values('upload', 'upload_name')
@@ -47,6 +60,10 @@ def performance_reviews(request):
     if last_uploaded.exists():
         upload_req = False
     completed_forms = models.emp_perf_forms.objects.all().filter(employee=user).order_by('uploaded_at')
+    manager = False
+    manager_qs = models.Profile.objects.all().filter(manager_id=user).exclude(perf_cat=None)
+    if manager_qs.exists():
+        manager = True
     form = forms.submit_perf()
     context = {'req_perf':req_perf,
                 'perf_required':perf_required,
@@ -54,6 +71,7 @@ def performance_reviews(request):
                 'form':form,
                 'upload_req':upload_req,
                 'year':year,
+                'manager':manager,
     }
     return render(request, 'performance/performance_reviews.html', context)
 
@@ -172,11 +190,44 @@ def outstanding_perf_forms(request):
         last_uploaded = set(last_uploaded)
     else:
         last_uploaded = []
-    print(last_uploaded)
-    employees_missing = models.Profile.objects.all().exclude(perf_cat=None).exclude(id__in=last_uploaded)
+    employees_missing = models.Profile.objects.all().exclude(perf_cat=None) \
+        .exclude(id__in=last_uploaded) \
+        .values('user__first_name', 'user__last_name') \
+        .order_by('user__first_name', 'user__last_name')
+    manager_missing = models.emp_perf_forms.objects.all() \
+        .filter(manager_upload_name=None) \
+        .values('employee__manager__user__first_name', 'employee__manager__user__last_name',
+            'employee__user__first_name', 'employee__user__last_name',
+            'upload', 'upload_name', 'uploaded_at') \
+        .order_by('employee__manager__user__first_name', 'employee__manager__user__last_name')
+    if 'manager_missing' in request.POST:
+        manager_df = pd.DataFrame(list(manager_missing))
+        manager_df['employee_name'] = manager_df['employee__user__first_name'] + \
+                ' ' + manager_df['employee__user__last_name']
+        manager_df['employee_performance_review'] = 'https://blt-construction.s3.amazonaws.com/' + \
+                manager_df['upload']
+        manager_df['manager_name'] = manager_df['employee__manager__user__first_name'] + \
+                ' ' + manager_df['employee__manager__user__last_name']
+        manager_df['uploaded_at'] = manager_df['uploaded_at'].dt.date
+        manager_df = manager_df[['employee_name', 'employee_performance_review', 'uploaded_at', 
+                'manager_name']]
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=performance_reviews_missing_manager_review.csv'
+        manager_df.to_csv(path_or_buf=response, header=True, index=False, quoting=csv.QUOTE_NONNUMERIC,encoding='utf-8')
+        return response
+    if 'employees_missing' in request.POST:
+        employees_df = pd.DataFrame(list(employees_missing))
+        employees_df['employee_name'] = employees_df['user__first_name'] + \
+                ' ' + employees_df['user__last_name']
+        employees_df = employees_df[['employee_name']]
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=employees_missing_performance_reviews.csv'
+        employees_df.to_csv(path_or_buf=response, header=True, index=False, quoting=csv.QUOTE_NONNUMERIC,encoding='utf-8')
+        return response
     context = {
         'employees_missing': employees_missing,
         'year': year,
+        'manager_missing':manager_missing,
     }
     return render(request, 'performance/outstanding_perf_forms.html', context)
 
@@ -186,4 +237,85 @@ def view_perf_history(request):
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
-    return render(request, 'performance/view_perf_history.html')
+    completed_perfs = models.emp_perf_forms.objects.all() \
+        .exclude(manager_upload_name=None) \
+        .values('employee__manager__user__first_name', 'employee__manager__user__last_name',
+            'employee__user__first_name', 'employee__user__last_name',
+            'upload', 'upload_name', 'uploaded_at', 'year',
+            'manager_upload', 'manager_upload_name', 'manager_uploaded_at') \
+        .order_by('year', 'employee__user__first_name', 'employee__user__last_name')
+    if 'export_all' in request.POST:
+        completed_df = pd.DataFrame(list(completed_perfs))
+        completed_df['employee_name'] = completed_df['employee__user__first_name'] + ' ' + \
+                completed_df['employee__user__last_name']
+        completed_df['employee_review'] = 'https://blt-construction.s3.amazonaws.com/' + \
+                completed_df['upload']
+        completed_df['uploaded_at'] = completed_df['uploaded_at'].dt.date
+        completed_df['manager_uploaded_at'] = completed_df['manager_uploaded_at'].dt.date
+        completed_df['manager_name'] = completed_df['employee__manager__user__first_name'] + ' ' + \
+                completed_df['employee__manager__user__last_name']
+        completed_df['manager_review'] = 'https://blt-construction.s3.amazonaws.com/' + \
+                completed_df['manager_upload']
+        completed_df = completed_df[['year', 'employee_name', 'employee_review', 'uploaded_at', 
+                'manager_name', 'manager_review', 'manager_uploaded_at']]
+        response['Content-Disposition'] = 'attachment; filename=performance_reviews.csv'
+        completed_df.to_csv(path_or_buf=response, header=True, index=False, quoting=csv.QUOTE_NONNUMERIC,encoding='utf-8')
+        return response
+    context = {'completed_perfs': completed_perfs}
+    return render(request, 'performance/view_perf_history.html', context)
+
+def manager_perf_review(request, pk):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == 'POST':
+        manager_obj = models.emp_perf_forms.objects.get(id=pk)
+        manager_form = forms.manager_submit_perf(request.POST, request.FILES, instance=manager_obj)
+        print(manager_form.errors)
+        if manager_form.is_valid():
+            obj = manager_form.save(commit=False)
+            print("valid")
+            obj.manager_uploaded_at = datetime.date.today()
+            print(obj.manager_uploaded_at)
+            obj.save()
+            messages.success(request, 'The form was successfully uploaded!')
+            return HttpResponseRedirect(reverse('manager_perf_centre'))
+    manager_obj = models.emp_perf_forms.objects.get(id=pk)
+    manager_form = forms.manager_submit_perf(instance=manager_obj)
+    context = {'manager_form':manager_form}
+    return render(request, 'performance/manager_perf_review.html', context)
+
+def manager_perf_centre(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    manager = request.user.id
+    print(manager)
+    completed_perfs = models.emp_perf_forms.objects.all() \
+        .filter(employee__manager_id=manager) \
+        .exclude(manager_upload_name=None) \
+        .values('employee__manager__user__first_name', 'employee__manager__user__last_name',
+            'employee__user__first_name', 'employee__user__last_name',
+            'upload', 'upload_name', 'uploaded_at', 'year',
+            'manager_upload', 'manager_upload_name', 'manager_uploaded_at') \
+        .order_by('year', 'employee__user__first_name', 'employee__user__last_name')
+    outstanding_perfs = models.emp_perf_forms.objects.all() \
+        .filter(employee__manager_id=manager, manager_upload_name=None) \
+        .values('employee__manager__user__first_name', 'employee__manager__user__last_name',
+            'employee__user__first_name', 'employee__user__last_name',
+            'upload', 'upload_name', 'uploaded_at', 'year',
+            'manager_upload', 'manager_upload_name', 'manager_uploaded_at') \
+        .order_by('year', 'employee__user__first_name', 'employee__user__last_name')
+    emp_list = models.Profile.objects.all() \
+        .filter(manager_id=manager) \
+        .values('user__first_name', 'user__last_name')
+    context = {'completed_perfs':completed_perfs,
+                'outstanding_perfs':outstanding_perfs,
+                'emp_list':emp_list,
+
+    }
+    return render(request, 'performance/manager_perf_centre.html', context)
+
+

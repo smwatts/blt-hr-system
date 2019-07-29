@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html>
 
-<style>
+  <style>
 h2.b {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -45,50 +45,36 @@ h2.b {
 </nav>
 
   <head></head>
-  <div class="container-fluid">
-<h2 class='b'>View Employee Performance History</h2>
+  <body>
+  	<div class="container-fluid">
+      <h2 class='b'>Manager Form</h2>
 
-<form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-primary pull-left" name="export_all" value="Export all reviews"/>
+          <div class='row'>
+            <div class="col-lg-5">
+              <p><b>Step 1: Download the performance review form.</b></p>
+              <form method="post" enctype="multipart/form-data">
+               {% csrf_token %}
+              {{ manager_form.year |as_crispy_field:"bootstrap"}}
+              {{ manager_form.employee |as_crispy_field:"bootstrap"}}
+              {{ manager_form.upload_name |as_crispy_field:"bootstrap"}}
+              {{ manager_form.upload |as_crispy_field:"bootstrap"}}
+            </div>
+            <div class="col-lg-1">
+            </div>
+            <div class="col-lg-5">
+              <p><b>Step 2: Upload the performance review form here.</b></p>
+              {{ manager_form.manager_upload_name |as_crispy_field:"bootstrap"}}
+              {{ manager_form.manager_upload |as_crispy_field:"bootstrap"}}
+              <br>
+          <button type="submit" class="btn btn-primary pull-left">Save Document</button>
+        </form>
+        </div>
+      </div>
+
       </form>
 
-        <table class="table">
-      <thead>
-        <tr>
-          <th>Year</th>
-          <th>Employee</th>
-          <th>Employee Upload</th>
-          <th>Employee Uploaded at (EST)</th>
-          <th>Manager</th>
-          <th>Manager Upload</th>
-          <th>Manager Uploaded at (EST)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for perf in completed_df %}
-          <tr>
-            <td>{{perf.year}}</td>
-            <td>{{ perf.employee__user__first_name }} {{ perf.employee__user__last_name }}</td>
-            <td><a href="https://blt-construction.s3.amazonaws.com/{{perf.upload}}" target="_blank">
-              {{ perf.upload_name }}</a></td>
-            <td>{{ perf.uploaded_at }}</td>
-            <td>{{ perf.employee__manager__user__first_name }} {{ perf.employee__manager__user__last_name }}</td>
-            <td><a href="https://blt-construction.s3.amazonaws.com/{{perf.manager_upload}}" target="_blank">
-              {{ perf.manager_upload_name }}</a></td>
-            <td>{{ perf.manager_uploaded_at }}</td>            
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3">No performance reviews have been completed.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-
-</div>
-</html>
+    </body>
+    </html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'admin/company_locations.html', views.company_locations, name='company_locations'),
     url(r'admin/add_company_info.html', views.add_company_info, name='add_company_info'),
     url(r'admin/edit_company_info/(?P<pk>[\w-]+)$', views.edit_company_info, name='edit_company_info'),
+    url(r'admin/account_access.html', views.account_access, name='account_access'),
 
     # Pages relevant to employees (account setup, employee directoy, editing employee accounts)
     url(r'employees/signup/$', views.signup, name='signup'),
@@ -55,6 +56,8 @@ urlpatterns = [
     url(r'performance/update_perf_cat/(?P<pk>[\w-]+)$', views.update_perf_cat, name = 'update_perf_cat'),
     url(r'performance/edit_emp_perf_cat/(?P<pk>[\w-]+)$', views.edit_emp_perf_cat, name = 'edit_emp_perf_cat'),
     url(r'performance/add_edit_perf_cat.html', views.add_edit_perf_cat, name = 'add_edit_perf_cat'),
+    url(r'performance/manager_perf_centre.html', views.manager_perf_centre, name = 'manager_perf_centre'),
+    url(r'performance/manager_perf_review/(?P<pk>[\w-]+)$', views.manager_perf_review, name = 'manager_perf_review'),
 
     # Pages relevant to employee training (onboarding requirements, system managed documents)
     url(r'training_docs/completed_ack_sub_docs.html', views.completed_ack_sub_docs, name = 'completed_ack_sub_docs'),

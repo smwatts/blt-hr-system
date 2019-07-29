@@ -43,7 +43,16 @@ def admin(request):
         return HttpResponseRedirect(reverse('login'))
     if request.user.username != "system_admin":
         return HttpResponseRedirect(reverse('home'))
-    return render(request, 'admin/admin.html')  
+    return render(request, 'admin/admin.html')
+
+def account_access(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('login'))
+    if request.user.username != "system_admin":
+        return HttpResponseRedirect(reverse('home'))
+    account_access_form = forms.account_access_form()
+    context = {'account_access_form':account_access_form}
+    return render(request, 'admin/account_access.html', context)  
 
 # Admin function to create company locations
 def add_company_info(request):

@@ -165,6 +165,7 @@ class company_holidays(models.Model):
     location = models.ForeignKey('company_info', on_delete=models.CASCADE, null=False, blank=False)
     is_finalized = models.BooleanField(default=False, blank=False)
     upload_id = models.PositiveIntegerField(blank=False, null=False, default=0)
+
 # ---------------------------------------------------------------------
 # TIMESHEETS
 # ---------------------------------------------------------------------
@@ -284,4 +285,22 @@ class emp_perf_forms(models.Model):
                 (2023,2023),
                 (2024,2024))
     year = models.PositiveIntegerField(choices=year_opts, null=True)
+
+
+# ---------------------------------------------------------------------
+# ADMIN CONTROLS
+# ---------------------------------------------------------------------
+
+class admin_control(models.Model):
+    employee = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True)
+    access_level_str = (('All','All'),
+                        ('Directory','Directory'),
+                        ('Training','Training'),
+                        ('Documents','Documents'),
+                        ('Absences','Absences'),
+                        ('Certifications','Certifications'),
+                        ('Performance', 'Performance'),
+                        ('Timesheets', 'Timesheets'))
+    access_level = models.CharField(max_length=200, choices=access_level_str, null=True)
+
 

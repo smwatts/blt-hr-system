@@ -48,7 +48,13 @@ h2.b {
   <div class="container-fluid">
 <h2 class='b'>Outstanding Performance Reviews</h2>
 
-<p>The following performance requests are missing for {{year}}</p>
+  <div class='row'>
+    <div class="col-lg-5">
+    <p><b>Employees that are missing reviews for {{year}}</b></p>
+    <form method="POST">
+          {% csrf_token %}
+          <input type="submit" class="btn btn-primary pull-left" name="employees_missing" value="Export missing reviews"/>
+      </form>
 
     <table class="table">
       <thead>
@@ -59,15 +65,53 @@ h2.b {
       <tbody>
         {% for emp in employees_missing %}
           <tr>
-            <td>{{ emp.user.first_name }} {{ emp.user.last_name }}</td>
+            <td> {{ emp.user__first_name }} {{ emp.user__last_name }}</td>
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No performance employees with outstanding performance reviews.</td>
+            <td colspan="3">No employees with outstanding performance reviews.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
+  </div>
+  <div class="col-lg-1">
+  </div>
+  <div class="col-lg-6">
+
+    <p><b>Managers that are missing reviews for {{year}}</b></p>
+
+    <form method="POST">
+          {% csrf_token %}
+          <input type="submit" class="btn btn-primary pull-left" name="manager_missing" value="Export missing reviews"/>
+      </form>
+
+        <table class="table">
+      <thead>
+        <tr>
+          <th>Managers</th>
+          <th>Employee</th>
+          <th>Employee Upload</th>
+          <th>Uploaded at (EST)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for man in manager_missing %}
+          <tr>
+            <td>{{ man.employee__manager__user__first_name }} {{ man.employee__manager__user__last_name }}</td>
+            <td>{{ man.employee__user__first_name }} {{ man.employee__user__last_name }}</td>
+            <td><a href="https://blt-construction.s3.amazonaws.com/{{man.upload}}" target="_blank">{{ man.upload_name }}</a></td>
+            <td>{{ man.uploaded_at }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No managers with outstanding performance reviews.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 
 </div>

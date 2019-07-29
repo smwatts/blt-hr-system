@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html>
 
-<style>
+  <style>
 h2.b {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -45,15 +45,52 @@ h2.b {
 </nav>
 
   <head></head>
-  <div class="container-fluid">
-<h2 class='b'>View Employee Performance History</h2>
+  <body>
 
-<form method="POST">
-          {% csrf_token %}
-          <input type="submit" class="btn btn-primary pull-left" name="export_all" value="Export all reviews"/>
-      </form>
+    <div class="container-fluid">
+      <h2 class='b'>Manager Performance Review Centre</h2>
+      <div class="col-lg-3">
+        <p class="text-info">Employee List.</p>
+        {% for emp in emp_list %}
+          <ul>
+            <li>{{emp.user__first_name}} {{emp.user__last_name}}</li>
+          </ul>
+        {% endfor %}
+      </div>
+       <div class="col-lg-9">
+      <p class="text-info">Add reviews for submitted performance reviews.</p>
+      <table class="table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Employee</th>
+          <th>Employee Upload</th>
+          <th>Employee Uploaded at (EST)</th>
+          <th>Add Review</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for perf in outstanding_perfs %}
+          <tr>
+            <td>{{perf.year}}</td>
+            <td>{{ perf.employee__user__first_name }} {{ perf.employee__user__last_name }}</td>
+            <td><a href="https://blt-construction.s3.amazonaws.com/{{perf.upload}}" target="_blank">
+              {{ perf.upload_name }}</a></td>
+            <td>{{ perf.uploaded_at }}</td>
+            <td>{{ perf.manager_uploaded_at }}</td>  
+            <td class="tg-yw4l"><a href="performance/manager_perf_review/{{perf.id}}">Add</a></td>          
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No performance reviews need to be reviewed.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <hr>
 
-        <table class="table">
+      <p class="text-info">Add reviews for submitted performance reviews.</p>
+      <table class="table">
       <thead>
         <tr>
           <th>Year</th>
@@ -66,7 +103,7 @@ h2.b {
         </tr>
       </thead>
       <tbody>
-        {% for perf in completed_df %}
+        {% for perf in completed_perfs %}
           <tr>
             <td>{{perf.year}}</td>
             <td>{{ perf.employee__user__first_name }} {{ perf.employee__user__last_name }}</td>
@@ -80,15 +117,14 @@ h2.b {
           </tr>
         {% empty %}
           <tr>
-            <td colspan="3">No performance reviews have been completed.</td>
+            <td colspan="3">No performance reviews submitted.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-
-
-</div>
-</html>
+  </div>
+      </body>
+    </html>
 {% else %}
   <h2>You are not logged in</h2>
   <a href="{% url 'login' %}">Login</a>

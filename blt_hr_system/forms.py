@@ -1,7 +1,7 @@
 from django import forms
 from .models import employee_absence, employee_certification, training_docs, Profile, \
     company_info, certification, onboarding_cat, doc_submit_req, doc_read, perf_forms, \
-    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms
+    perf_cat, sage_jobs, hourly_timesheet, emp_perf_forms, admin_control
 from django.contrib.admin import widgets
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.forms import UserCreationForm
@@ -271,6 +271,11 @@ class perf_forms_submit(forms.ModelForm):
             "upload": "Select the performance form",
             "perf_cat": "Select the performance review category"
         }
+    def __init__(self, *args, **kwargs):
+        super(perf_forms_submit, self).__init__(*args, **kwargs)
+        self.fields['upload'].required = True
+        self.fields['upload_name'].required = True
+        self.fields['perf_cat'].required = True
 
 # update an employee's performace category
 class edit_emp_perf_cat(forms.ModelForm):
@@ -394,8 +399,50 @@ class timesheet_emp_ts(forms.ModelForm):
 class submit_perf(forms.ModelForm):
     class Meta:
         model = emp_perf_forms
-        fields = ['upload', 'upload_name']
+        fields = ['upload', 'upload_name', 'year']
         labels = {
             'upload': "Select your completed performance review",
             'upload_name': "Specify the filename for this performance review",
+            'year': 'Select the year for this performance form'
         }
+
+class manager_submit_perf(forms.ModelForm):
+    class Meta:
+        model = emp_perf_forms
+        fields = ['manager_upload', 'manager_upload_name', 'manager_uploaded_at',
+                    'employee', 'upload_name', 'upload', 'year'
+        ]
+        labels = {
+            'manager_upload': "Select your completed performance review",
+            'manager_upload_name': "Select the name of the performance review",
+            'upload_name':"Performance review name",
+            'upload':"Performance review",
+        }
+        widgets = {'manager_uploaded_at': forms.HiddenInput(),
+        }
+        fields_required = ['manager_upload_name', 'manager_upload']
+    def __init__(self, *args, **kwargs):
+        super(manager_submit_perf, self).__init__(*args, **kwargs)
+        self.fields['year'].disabled = True
+        self.fields['employee'].disabled = True
+        self.fields['upload'].disabled = True
+        self.fields['upload_name'].disabled = True
+        self.fields['manager_upload_name'].required = True
+        self.fields['manager_upload'].required = True
+        self.fields['manager_uploaded_at'].required = False
+
+# ---------------------------------------------------------------------
+# ADMIN ACOCUNT ACCESS
+# ---------------------------------------------------------------------
+
+class account_access_form(forms.ModelForm):
+    employee_id = forms.ModelChoiceField(required=True,
+        queryset=Profile.objects.all().filter(office_staff=True).order_by('user__first_name'),
+        help_text='Select the employee.',
+        label='Employee')
+    class Meta:
+        model = admin_control
+        fields = ['access_level', 'employee_id']
+        widgets = {
+            'access_level': forms.CheckboxSelectMultiple(),
+        }        
