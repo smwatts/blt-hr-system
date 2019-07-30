@@ -374,17 +374,21 @@ def timesheet_export(request):
 
 # Employee function to view all timesheets
 def timesheet_home(request):
+    user_id = request.user.id
+    office_staff = list(models.Profile.objects.all().filter(id=user_id) \
+        .values_list('office_staff', flat=True))[0]
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
-    user_id = request.user.id
+    if not office_staff:
+        return HttpResponseRedirect(reverse('home'))
     system_access = True
     system_user = models.Profile.objects.all().filter(user_id=user_id)
     if request.user.username != "system_admin" and not system_user.exists():
         system_access = False
     df = pd.DataFrame(list(models.hourly_timesheet.objects.all() \
-            .order_by('start_date').values('employee_id', 'hours', 'start_date', 'end_date')))
+            .order_by('start_date').values('employee_id', 'hours', 'start_date')))
     if len(df.index) < 1:
-        df = pd.DataFrame(columns=['employee_id', 'hours', 'start_date', 'end_date'])
+        df = pd.DataFrame(columns=['employee_id', 'hours', 'start_date'])
     user_id = request.user.id
     df = df.query('employee_id == @user_id')
     df_sum = df.groupby(['start_date'])['hours'].sum().reset_index()
@@ -401,10 +405,9 @@ def timesheet_home(request):
     df_final_print = pd.merge(df_to_print, df_sum, how='left')
     df_final_print = df_final_print.fillna(0)
     df_final_print.hours = df_final_print.hours.astype(int)
-    df_final_print = df_final_print.query('hours < 40')
+    df_final_print = df_final_print.query('hours < 80')
     df_final_print_query = df_final_print.T.to_dict().values()
-    df_sum = df_sum.query('hours >= 40')
-    df_sum['end_date'] = df_sum['start_date'] + timedelta(days=13)
+    df_sum = df_sum.query('hours >= 80')
     df_sum = df_sum.T.to_dict().values()
     context = {'df_final_print_query':df_final_print_query,
                 'df_sum':df_sum,
@@ -487,7 +490,7 @@ def val_job_form(user_id, ts_id, start_date, end_date, job_lst):
     if len(df.index) > 0:
         if True in df['is_finalized'].tolist():
             errors = ['Sorry, you have already uploaded your timesheet for this period.',
-                      'After 40 hours have been inputted, only the Accounting Department can edit the timesheets.']
+                      'After 80 hours have been inputted (40 hours per pay period), only the Accounting Department can edit the timesheets.']
             page_type = 'timesheet/timesheet_center.html'
             return errors, page_type
         else:
@@ -781,7 +784,7 @@ def timesheet_status(request):
     df_users_final = pd.merge(df_users_final, df_sum, on=['start_date', 'employee_id'], how='left')
     df_users_final = df_users_final.fillna(0)
     df_users_final.hours = df_users_final.hours.astype(int)
-    df_users_final = df_users_final.query('hours < 40')
+    df_users_final = df_users_final.query('hours < 80')
     df_users_final_qr = df_users_final.T.to_dict().values()
     if request.method == 'POST':
         response = HttpResponse(content_type='text/csv')
@@ -966,9 +969,7 @@ def edit_timesheet_complete(request, pk):
         items = models.hourly_timesheet.objects.filter(ts_period=ts_id, 
             employee_id=emp_id).order_by('sage_job')
         formsetInstance = myModelFormset(queryset = items, data=request.POST)
-        print(formsetInstance)
         if formsetInstance.is_valid():
-            print('valid')
             # If there is already finalized data, don't let the form be re-submitted
             df = pd.DataFrame(list(models.hourly_timesheet.objects.all().values('id', 'employee_id', 
                 'sage_job', 'is_finalized', 'hours', 'description', 'start_date', 'end_date', 'ts_period')))
