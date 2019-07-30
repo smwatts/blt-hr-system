@@ -355,6 +355,13 @@ def timesheet_export(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user_id = request.user.id
+    try:
+        office_staff = list(models.Profile.objects.all().filter(id=user_id) \
+            .values_list('office_staff', flat=True))[0]
+    except:
+        office_staff = False
+    if not office_staff:
+        return HttpResponseRedirect(reverse('home'))
     system_access = True
     system_user = models.Profile.objects.all().filter(user_id=user_id)
     if request.user.username != "system_admin" and not system_user.exists():
@@ -374,11 +381,14 @@ def timesheet_export(request):
 
 # Employee function to view all timesheets
 def timesheet_home(request):
-    user_id = request.user.id
-    office_staff = list(models.Profile.objects.all().filter(id=user_id) \
-        .values_list('office_staff', flat=True))[0]
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
+    user_id = request.user.id
+    try:
+        office_staff = list(models.Profile.objects.all().filter(id=user_id) \
+            .values_list('office_staff', flat=True))[0]
+    except:
+        office_staff = False
     if not office_staff:
         return HttpResponseRedirect(reverse('home'))
     system_access = True
@@ -419,6 +429,13 @@ def timesheet_hourly(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user_id = request.user.id
+    try:
+        office_staff = list(models.Profile.objects.all().filter(id=user_id) \
+            .values_list('office_staff', flat=True))[0]
+    except:
+        office_staff = False
+    if not office_staff:
+        return HttpResponseRedirect(reverse('home'))
     system_access = True
     system_user = models.Profile.objects.all().filter(user_id=user_id)
     if request.user.username != "system_admin" and not system_user.exists():
@@ -521,6 +538,13 @@ def timesheet_center(request, pk):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user_id = request.user.id
+    try:
+        office_staff = list(models.Profile.objects.all().filter(id=user_id) \
+            .values_list('office_staff', flat=True))[0]
+    except:
+        office_staff = False
+    if not office_staff:
+        return HttpResponseRedirect(reverse('home'))
     system_access = True
     system_user = models.Profile.objects.all().filter(user_id=user_id)
     if request.user.username != "system_admin" and not system_user.exists():
@@ -564,6 +588,13 @@ def timesheet_selection(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('login'))
     user_id = request.user.id
+    try:
+        office_staff = list(models.Profile.objects.all().filter(id=user_id) \
+            .values_list('office_staff', flat=True))[0]
+    except:
+        office_staff = False
+    if not office_staff:
+        return HttpResponseRedirect(reverse('home'))
     system_access = True
     system_user = models.Profile.objects.all().filter(user_id=user_id)
     if request.user.username != "system_admin" and not system_user.exists():
